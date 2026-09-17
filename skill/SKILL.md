@@ -43,10 +43,15 @@ commence 13 May 2027) and an `explainer_url` linking to a versioned rationale pa
 
 2. Read `/tmp/dpdp-scan/findings.json`. The shape is `ScanResult` (see
    `schema/scanresult.schema.json`). The fields you need:
-   - `findings[]`: `rule_id`, `title`, `certainty`, `provisions[]`, `tracker`,
-     `attributed_to`, `rationale_plain`, `explainer_url`, `enforceable_from`.
+   - `findings[]`: `rule_id`, `title`, `certainty`, `detection_confidence`,
+     `provisions[]`, `tracker`, `attributed_to`, `rationale_plain`,
+     `explainer_url`, `enforceable_from`. Banner-derived findings inherit
+     banner confidence; DPDP-C-009 is a heuristic and is always `low`.
    - `questions[]`: rules that need a fact the crawler cannot observe
      (`observable: false` or `needs_input`). Present these as questions, not findings.
+     DPDP-C-040 is the specified conditional: "If this site is used by people under 18, then…".
+   - `banner.notice_url` and `banner.text_excerpt` are the notice-lint hand-off
+     (spec §5.4). If a notice URL was captured, suggest `dpdp-notice-lint`.
    - `summary`: `third_parties`, `third_parties_outside_india`, `fired_before_banner`.
    - `interaction` (when `--interact`): `survived_reject`, `cleared_on_reject`,
      `appeared_on_accept`. Treat these as meaningful only when

@@ -4,6 +4,7 @@ import {
   CMP_SIGNATURES,
   interpretBanner,
   pickBannerButton,
+  pickNoticeUrl,
   textLooksLikeBanner,
   type BannerRaw,
 } from "../../src/engine/banner.js";
@@ -67,6 +68,31 @@ describe("interpretBanner", () => {
   it("raises detection_confidence to high when a known CMP signature matched", () => {
     const b = interpretBanner(raw({ cmpId: "cookieyes" }));
     expect(b.detection_confidence).toBe("high");
+  });
+
+  it("captures a privacy-notice URL from banner links", () => {
+    const b = interpretBanner(
+      raw({
+        links: [
+          { href: "https://staging.acme.in/about", text: "About" },
+          { href: "https://staging.acme.in/privacy", text: "Privacy policy" },
+        ],
+      }),
+    );
+    expect(b.notice_url).toBe("https://staging.acme.in/privacy");
+  });
+});
+
+describe("pickNoticeUrl", () => {
+  it("prefers privacy / cookie notice links and skips unrelated hrefs", () => {
+    expect(
+      pickNoticeUrl([
+        { href: "https://acme.in/pricing", text: "Pricing" },
+        { href: "https://acme.in/cookie-policy", text: "Cookie policy" },
+      ]),
+    ).toBe("https://acme.in/cookie-policy");
+    expect(pickNoticeUrl([{ href: "javascript:void(0)", text: "Privacy policy" }])).toBe("");
+    expect(pickNoticeUrl([])).toBe("");
   });
 });
 

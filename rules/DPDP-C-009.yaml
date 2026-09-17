@@ -1,5 +1,5 @@
 id: DPDP-C-009
-title: No language option beyond English in the notice or banner
+title: We could not find a language option beyond English in the notice or banner
 certainty: settled
 enforceable_from: "2027-05-13"
 observable: true
@@ -16,10 +16,13 @@ detection:
     has_language_switcher: false
     page_language: en
 needs_input: []
+detection_confidence: low
 rationale_plain: >
+  We could not find a language option beyond English in the notice or banner.
   The Act requires that a person be given the option to access the notice in
   English or any of the 22 languages in the Eighth Schedule. A notice or
-  banner offered only in English does not meet that requirement.
+  banner offered only in English does not meet that requirement. Language
+  choice may live elsewhere on the site, so this is a heuristic.
 rationale_dev: >
   No language switcher was detected on the banner and the page language is
   English. s.5(3) and s.6(3) require the option of English or any Eighth
@@ -35,3 +38,6 @@ changelog:
   - version: "0.1.0"
     date: "2026-09-15"
     note: Initial rule.
+  - version: "0.4.0"
+    date: "2026-09-17"
+    note: Phrased as "we could not find" and forced detection_confidence to low, because language choice may live elsewhere.

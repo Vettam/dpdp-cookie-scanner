@@ -9,6 +9,7 @@
 <details><summary><b>DPDP-C-001</b> — Meta Platforms (meta-pixel)</summary>
 
 - **Certainty:** settled (enforceable 2027-05-13)
+- **Detection confidence:** high
 - **Provisions:** s.4(1), s.5(1), s.6(1)
 - **Owner:** engineering
 - **Attributed to:** a tag loaded via www.googletagmanager.com
@@ -27,6 +28,7 @@
 <details><summary><b>DPDP-C-004</b> — Banner has an accept control but no equivalent reject control</summary>
 
 - **Certainty:** settled (enforceable 2027-05-13)
+- **Detection confidence:** high
 - **Provisions:** s.6(1), s.6(4)
 - **Owner:** engineering
 - **Attributed to:** the consent banner
@@ -41,6 +43,7 @@
 <details><summary><b>DPDP-C-007</b> — Hotjar (hotjar)</summary>
 
 - **Certainty:** settled (enforceable 2027-05-13)
+- **Detection confidence:** high
 - **Provisions:** s.6(1), s.9(3)
 - **Owner:** engineering
 - **Attributed to:** a tag loaded via www.googletagmanager.com
@@ -56,9 +59,10 @@
 
 </details>
 
-<details><summary><b>DPDP-C-009</b> — No language option beyond English in the notice or banner</summary>
+<details><summary><b>DPDP-C-009</b> — We could not find a language option beyond English in the notice or banner</summary>
 
 - **Certainty:** settled (enforceable 2027-05-13)
+- **Detection confidence:** low
 - **Provisions:** s.5(3), s.6(3)
 - **Owner:** counsel
 - **Attributed to:** the consent banner
@@ -73,6 +77,7 @@
 <details><summary><b>DPDP-C-013</b> — Hotjar (hotjar)</summary>
 
 - **Certainty:** settled (enforceable 2027-05-13)
+- **Detection confidence:** high
 - **Provisions:** s.6(1)
 - **Owner:** engineering
 - **Attributed to:** a tag loaded via www.googletagmanager.com
@@ -93,6 +98,7 @@
 <details><summary><b>DPDP-C-020</b> — Meta Platforms (meta-pixel)</summary>
 
 - **Certainty:** open (enforceable 2027-05-13)
+- **Detection confidence:** high
 - **Provisions:** s.16, Rule 13(4)
 - **Owner:** counsel
 - **Attributed to:** a tag loaded via www.googletagmanager.com
@@ -111,6 +117,7 @@
 <details><summary><b>DPDP-C-020</b> — Hotjar (hotjar)</summary>
 
 - **Certainty:** open (enforceable 2027-05-13)
+- **Detection confidence:** high
 - **Provisions:** s.16, Rule 13(4)
 - **Owner:** counsel
 - **Attributed to:** a tag loaded via www.googletagmanager.com
@@ -128,8 +135,7 @@
 
 ## QUESTIONS (2)
 
-### DPDP-C-040 — If this site reaches under-18s, switch off C5 (behavioural monitoring) and C6 (targeted advertising) for those users; consent does not cure it.
-
+### DPDP-C-040 — If this site is used by people under 18, then…
 
 - **Provisions:** s.9(3)
 - **If true:** If this site reaches under-18s, switch off C5 (behavioural monitoring) and C6 (targeted advertising) for those users; consent does not cure it.
@@ -138,7 +144,7 @@
 
 - **Explainer:** https://sentinel.vettam.ai/rules/DPDP-C-040
 
-### DPDP-C-041 — Confirm whether access logs are "traffic data"; if so, retain for at least one year per Rule 8(3) and document the basis.
+### DPDP-C-041 — Do your server access logs (which contain visitor IPs) fall under "traffic data" as the term is used in the DPDP Rules, and if so, is the one-year retention floor in Rule 8(3) being met? The term "traffic data" is not defined in the Act or Rules; the likely anchor is the IT Act s.69B regime.
 
 
 - **Provisions:** Rule 8(3), Rule 13(4)
@@ -153,3 +159,5 @@
 - Server-side tagging, backend relays, logs and retention are not observable by a crawler.
 - Consent-banner interaction was not performed; findings reflect the page state before any user action.
 - This is a reading of the DPDP Act and Rules, not legal advice and not a compliance verdict.
+
+Notice content checks: run dpdp-notice-lint against your published notice.

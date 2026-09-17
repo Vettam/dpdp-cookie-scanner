@@ -161,7 +161,7 @@ Every observation has: `type`, `timestamp_ms` (relative to navigation start), `b
 | `request` | method, host, path, initiator_host, resource_type, is_third_party, destination_country | Query string stripped by default; see §4.4 |
 | `api_call` | api (`canvas.toDataURL`, `AudioContext`, `navigator.plugins`, `fonts` enumeration, `WebGL` renderer string, `navigator.hardwareConcurrency`, `screen` dimensions in combination) | Fingerprinting signals; instrumented via init script |
 | `embed` | host, kind (iframe/script/img/font) | Third-party embeds by tag type |
-| `banner` | detected, has_accept, has_reject, has_settings, has_pre_ticked, has_language_switcher, mentions_legitimate_interest, text_excerpt (first 500 chars, redacted) | See §4.3 |
+| `banner` | detected, has_accept, has_reject, has_settings, has_pre_ticked, has_language_switcher, mentions_legitimate_interest, text_excerpt (first 500 chars, redacted), notice_url | See §4.3 and §5.4 |
 | `meta` | url, final_url, redirects, page_language, title, scan_started_at, engine_version, rules_version, trackers_version | One per scan |
 
 `destination_country` is resolved from the request host via a bundled, periodically updated IP-geolocation-to-country lookup (offline, no network call). Record the source and date of the lookup data in `meta`.
@@ -422,7 +422,7 @@ SETTLED (2)                                         enforceable 2027-05-13
   DPDP-C-004  Banner has accept but no reject control        s.6(1) s.6(4)
 
 QUESTIONS (1)
-  DPDP-C-040  Does this site reach people under 18?          s.9(3)
+  DPDP-C-040  If this site is used by people under 18, then…          s.9(3)
 
 11 third parties · 6 outside India · 8 fired before the banner
 Rationale for each rule: https://sentinel.vettam.ai/rules/<id>

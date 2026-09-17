@@ -42,7 +42,7 @@ export function renderMarkdown(sr: ScanResult): string {
     out.push(`## QUESTIONS (${sr.questions.length})`);
     out.push("");
     for (const q of sr.questions) {
-      out.push(`### ${q.rule_id} — ${q.consequence_if_true}`);
+      out.push(`### ${q.rule_id} — ${q.prompt}`);
       out.push("");
       out.push(`- **Provisions:** ${q.provisions.join(", ")}`);
       out.push(`- **If true:** ${q.consequence_if_true}`);
@@ -55,6 +55,12 @@ export function renderMarkdown(sr: ScanResult): string {
   out.push(`## Limits`);
   out.push("");
   for (const l of sr.limits) out.push(`- ${l}`);
+  out.push("");
+  if (sr.banner.notice_url) {
+    out.push(`Notice URL captured: ${sr.banner.notice_url}`);
+    out.push("");
+  }
+  out.push(`Notice content checks: run dpdp-notice-lint against your published notice.`);
   out.push("");
   return out.join("\n");
 }
@@ -70,6 +76,7 @@ function renderFindingBlock(f: Finding): string {
   out.push(`<details><summary><b>${f.rule_id}</b> — ${f.tracker ? `${f.tracker.vendor} (${f.tracker.id})` : f.title}</summary>`);
   out.push("");
   out.push(`- **Certainty:** ${f.certainty} (enforceable ${f.enforceable_from})`);
+  out.push(`- **Detection confidence:** ${f.detection_confidence}`);
   out.push(`- **Provisions:** ${f.provisions.join(", ")}`);
   out.push(`- **Owner:** ${f.owner}`);
   out.push(`- **Attributed to:** ${f.attributed_to}`);

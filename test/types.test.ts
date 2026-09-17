@@ -24,6 +24,7 @@ const bannerObs = {
   has_accept: true,
   has_reject: false,
   detection_confidence: "high" as const,
+  notice_url: "https://staging.acme.in/privacy",
 };
 
 const metaObs = {
@@ -48,7 +49,9 @@ describe("Observation", () => {
     expect(Observation.safeParse(requestObs).success).toBe(true);
   });
   it("parses a banner observation", () => {
-    expect(Observation.safeParse(bannerObs).success).toBe(true);
+    const parsed = Observation.parse(bannerObs);
+    expect(parsed.type).toBe("banner");
+    if (parsed.type === "banner") expect(parsed.notice_url).toBe("https://staging.acme.in/privacy");
   });
   it("rejects an observation with an unknown type", () => {
     expect(Observation.safeParse({ ...requestObs, type: "websocket" }).success).toBe(false);
@@ -112,7 +115,7 @@ describe("ScanResult", () => {
       interpretation_as_of: "2026-09-15",
       scanned_at: "2026-09-17T09:12:00.000Z",
       target: { url: "https://staging.acme.in", final_url: "https://staging.acme.in/", page_language: "en" },
-      banner: { detected: true, confidence: "high", has_accept: true, has_reject: false },
+      banner: { detected: true, confidence: "high", has_accept: true, has_reject: false, notice_url: "https://staging.acme.in/privacy" },
       inventory: {
         cookies: [],
         storage: [],
@@ -129,6 +132,7 @@ describe("ScanResult", () => {
     };
     expect(ScanResult.safeParse(sr).success).toBe(true);
     expect(ScanResult.parse(sr).interaction.performed).toBe(false);
+    expect(ScanResult.parse(sr).banner.notice_url).toBe("https://staging.acme.in/privacy");
   });
 
   it("parses a ScanResultDiff", () => {

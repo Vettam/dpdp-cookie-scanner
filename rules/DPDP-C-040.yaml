@@ -15,7 +15,7 @@ detection:
     tracker_categories: [C5, C6]
 needs_input:
   - reaches_minors
-prompt: "Does this site reach people under 18?"
+prompt: "If this site is used by people under 18, then…"
 rationale_plain: >
   Tracking, behavioural monitoring and targeted advertising directed at
   children are prohibited under DPDP, and consent cannot lift that
@@ -39,3 +39,6 @@ changelog:
   - version: "0.3.0"
     date: "2026-09-17"
     note: Corrected observable from false to true — the C5/C6 trigger is observable; only the reaches_minors fact is unobservable, so this is a contingent question, not a standing one.
+  - version: "0.4.0"
+    date: "2026-09-17"
+    note: CLI prompt is the specified conditional ("If this site is used by people under 18, then…") rather than a yes/no question.

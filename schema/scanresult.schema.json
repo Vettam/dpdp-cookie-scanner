@@ -82,6 +82,14 @@
         "implies_consent_by_browsing": {
           "type": "boolean",
           "default": false
+        },
+        "text_excerpt": {
+          "type": "string",
+          "default": ""
+        },
+        "notice_url": {
+          "type": "string",
+          "default": ""
         }
       },
       "additionalProperties": false,
@@ -593,6 +601,10 @@
                         "low"
                       ],
                       "default": "medium"
+                    },
+                    "notice_url": {
+                      "type": "string",
+                      "default": ""
                     }
                   },
                   "required": [

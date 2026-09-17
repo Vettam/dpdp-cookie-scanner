@@ -77,7 +77,7 @@ export function renderTerminal(sr: ScanResult, opts: TerminalOptions = {}): stri
 
 function renderFindingLine(f: Finding, c: PicocolorsLike): string {
   const title = f.tracker ? `${f.tracker.vendor} (${f.tracker.id})` : f.title;
-  const left = `  ${f.rule_id}  ${title}`;
+  const left = `  ${f.rule_id}  ${title}  [${f.detection_confidence}]`;
   const provisions = f.provisions.join(" ");
   const gap = Math.max(2, 60 - left.length);
   return `${left}${" ".repeat(gap)}${provisions}`;

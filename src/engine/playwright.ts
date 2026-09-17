@@ -316,7 +316,11 @@ async function detectBanner(
         const hasLangSwitcher =
           !!el.querySelector("select, [data-lang], [aria-label*='language' i], [aria-label*='भाषा']") ||
           /हिंदी|english|भाषा/i.test(btnText);
-        return { text, btnText, hasPreTicked, hasLangSwitcher, cmpId };
+        const links = Array.from(el.querySelectorAll("a[href]")).map((a) => ({
+          href: (a as HTMLAnchorElement).href,
+          text: (a.textContent ?? "").trim(),
+        }));
+        return { text, btnText, hasPreTicked, hasLangSwitcher, cmpId, links };
       };
 
       for (const sig of signatures) {

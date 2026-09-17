@@ -76,6 +76,38 @@ describe("renderers", () => {
     expect(out).toContain("<details>");
     await expect(out).toMatchFileSnapshot(snapshotPath("findings.md"));
   });
+
+  it("terminal and markdown display finding detection_confidence", () => {
+    const sr = fixtureScan();
+    const c004 = sr.findings.find((f) => f.rule_id === "DPDP-C-004")!;
+    const term = renderTerminal(sr, { color: false });
+    expect(term).toMatch(new RegExp(`${c004.rule_id}.*\\[${c004.detection_confidence}\\]`));
+    const md = renderMarkdown(sr);
+    expect(md).toMatch(/Detection confidence:\*\* high/);
+  });
+
+  it("renders C-040 as the specified under-18 conditional", () => {
+    const sr = fixtureScan();
+    const term = renderTerminal(sr, { color: false });
+    expect(term).toContain("If this site is used by people under 18, then");
+    expect(term).not.toContain("Does this site reach people under 18?");
+    const md = renderMarkdown(sr);
+    expect(md).toMatch(/### DPDP-C-040 — If this site is used by people under 18, then/);
+  });
+
+  it("schema-validates JSON at write time", () => {
+    const sr = fixtureScan();
+    expect(ScanResult.parse(JSON.parse(renderJson(sr))).schema_version).toBe("1.0.0");
+    expect(() => renderJson({} as never)).toThrow();
+  });
+
+  it("markdown points at dpdp-notice-lint and prints a captured notice URL", () => {
+    const sr = fixtureScan();
+    sr.banner.notice_url = "https://staging.acme.in/privacy";
+    const md = renderMarkdown(sr);
+    expect(md).toContain("dpdp-notice-lint");
+    expect(md).toContain("https://staging.acme.in/privacy");
+  });
 });
 
 function snapshotPath(name: string): string {

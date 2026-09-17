@@ -243,6 +243,14 @@
     "prompt": {
       "type": "string"
     },
+    "detection_confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
     "rationale_plain": {
       "type": "string",
       "minLength": 1

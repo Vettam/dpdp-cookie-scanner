@@ -63,6 +63,7 @@ function banner(over: Record<string, unknown> = {}): Observation {
     implies_consent_by_browsing: false,
     text_excerpt: "",
     detection_confidence: "high",
+    notice_url: "",
     ...over,
   } as Observation;
 }
@@ -156,6 +157,22 @@ describe("mapScan", () => {
     expect(sr.findings.map((f) => f.rule_id)).toContain("DPDP-C-004");
   });
 
+  it("inherits banner detection_confidence on C-004, C-005 and C-006", () => {
+    const sr = map([
+      meta(),
+      banner({
+        detection_confidence: "medium",
+        has_accept: true,
+        has_reject: false,
+        has_pre_ticked: true,
+        implies_consent_by_browsing: true,
+      }),
+    ]);
+    for (const id of ["DPDP-C-004", "DPDP-C-005", "DPDP-C-006"]) {
+      expect(sr.findings.find((f) => f.rule_id === id)?.detection_confidence).toBe("medium");
+    }
+  });
+
   it("emits C-005 when the banner has pre-ticked toggles", () => {
     const sr = map([meta(), banner({ has_pre_ticked: true })]);
     expect(sr.findings.map((f) => f.rule_id)).toContain("DPDP-C-005");
@@ -174,6 +191,19 @@ describe("mapScan", () => {
   it("emits C-009 when English-only banner has no language switcher", () => {
     const sr = map([meta(), banner({ has_language_switcher: false })]);
     expect(sr.findings.map((f) => f.rule_id)).toContain("DPDP-C-009");
+  });
+
+  it("marks C-009 as a low-confidence heuristic even when banner detection is high", () => {
+    const sr = map([meta(), banner({ detection_confidence: "high", has_language_switcher: false })]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-009");
+    expect(f?.detection_confidence).toBe("low");
+  });
+
+  it("phrases C-009 as we could not find in title and rationale_plain", () => {
+    const sr = map([meta(), banner({ has_language_switcher: false })]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-009");
+    expect(f?.title).toMatch(/we could not find/i);
+    expect(f?.rationale_plain).toMatch(/we could not find/i);
   });
 
   it("emits C-007 and C-013 when a C5 tracker fires before the banner", () => {
@@ -199,6 +229,7 @@ describe("mapScan", () => {
     const q = sr.questions.find((x) => x.rule_id === "DPDP-C-040");
     expect(q).toBeDefined();
     expect(q!.needs_input).toContain("reaches_minors");
+    expect(q!.prompt).toBe("If this site is used by people under 18, then…");
   });
 
   it("does not emit C-040 when no C5/C6 trackers are present", () => {
@@ -211,6 +242,18 @@ describe("mapScan", () => {
     expect(sr.inventory.unclassified_hosts).toContain("evil-tracker.example");
     const f = sr.findings.find((x) => x.rule_id === "UNMAPPED");
     expect(f).toBeDefined();
+  });
+
+  it("copies banner notice_url and text_excerpt onto ScanResult.banner", () => {
+    const sr = map([
+      meta(),
+      banner({
+        text_excerpt: "We use cookies. See our privacy policy.",
+        notice_url: "https://staging.acme.in/privacy",
+      }),
+    ]);
+    expect(sr.banner.notice_url).toBe("https://staging.acme.in/privacy");
+    expect(sr.banner.text_excerpt).toBe("We use cookies. See our privacy policy.");
   });
 
   it("stamps versions from the input", () => {

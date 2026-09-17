@@ -45,6 +45,7 @@ export interface BannerRaw {
   hasPreTicked: boolean;
   hasLangSwitcher: boolean;
   cmpId: string | null;
+  links?: Array<{ href: string; text: string }>;
 }
 
 export interface BannerFields {
@@ -58,6 +59,7 @@ export interface BannerFields {
   implies_consent_by_browsing: boolean;
   text_excerpt: string;
   detection_confidence: "high" | "medium" | "low";
+  notice_url: string;
 }
 
 export function interpretBanner(raw: BannerRaw): BannerFields {
@@ -76,12 +78,25 @@ export function interpretBanner(raw: BannerRaw): BannerFields {
       /ब्राउज़ करके|जारी रखकर/.test(raw.text),
     text_excerpt: raw.text.slice(0, 500),
     detection_confidence: raw.cmpId ? "high" : "medium",
+    notice_url: pickNoticeUrl(raw.links ?? []),
   };
 }
 
 export function textLooksLikeBanner(text: string): boolean {
   const lower = text.toLowerCase();
   return BANNER_VOCAB.some((w) => lower.includes(w.toLowerCase()) || text.includes(w));
+}
+
+const NOTICE_LINK = /privacy(\s|-)?(policy|notice)?|cookie(\s|-)?(policy|notice)|गोपनीयता|कुकी\s*नीति|सूचना/i;
+
+/** First banner link that looks like a privacy/cookie notice. Empty if none. */
+export function pickNoticeUrl(links: Array<{ href: string; text: string }>): string {
+  for (const link of links) {
+    const href = link.href.trim();
+    if (!href || /^(javascript:|mailto:|#)/i.test(href)) continue;
+    if (NOTICE_LINK.test(link.text) || NOTICE_LINK.test(href)) return href;
+  }
+  return "";
 }
 
 /** CMP-specific accept controls, tried before free-text matching. */

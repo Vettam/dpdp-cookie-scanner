@@ -71,6 +71,7 @@ export const BannerObservation = ObservationBase.extend({
   implies_consent_by_browsing: z.boolean().default(false),
   text_excerpt: z.string().default(""),
   detection_confidence: z.enum(["high", "medium", "low"]).default("medium"),
+  notice_url: z.string().default(""),
 });
 
 export const MetaObservation = ObservationBase.extend({
@@ -179,6 +180,8 @@ export const BannerSummary = z.object({
   has_language_switcher: z.boolean().default(false),
   mentions_legitimate_interest: z.boolean().default(false),
   implies_consent_by_browsing: z.boolean().default(false),
+  text_excerpt: z.string().default(""),
+  notice_url: z.string().default(""),
 });
 export type BannerSummary = z.infer<typeof BannerSummary>;
 

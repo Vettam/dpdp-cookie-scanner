@@ -84,6 +84,8 @@ export const RuleSchema = z.object({
   detection: Detection,
   needs_input: z.array(z.string()).default([]),
   prompt: z.string().optional(),
+  /** When set, findings from this rule use this instead of inheriting banner confidence. */
+  detection_confidence: z.enum(["high", "medium", "low"]).optional(),
   rationale_plain: z.string().min(1),
   rationale_dev: z.string().min(1),
   remediation_summary: z.string().default(""),

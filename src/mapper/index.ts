@@ -151,7 +151,11 @@ function evaluateRule(
   if (rule.detection.match === "banner") {
     if (!banner) return [];
     if (evalBannerConditions(where, banner, meta)) {
-      return [{ evidence: [], tracker: undefined, detectionConfidence: banner.detection_confidence }];
+      return [{
+        evidence: [],
+        tracker: undefined,
+        detectionConfidence: rule.detection_confidence ?? banner.detection_confidence,
+      }];
     }
     return [];
   }
@@ -415,7 +419,7 @@ function attributeTo(o: Evidence | undefined): string {
 
 function defaultPrompt(rule: Rule): string {
   const fact = rule.needs_input[0];
-  if (fact === "reaches_minors") return "Does this site reach people under 18?";
+  if (fact === "reaches_minors") return "If this site is used by people under 18, then…";
   return fact ? `Confirm: ${fact}` : rule.title;
 }
 
@@ -488,6 +492,8 @@ function bannerSummary(banner: BannerObservation | undefined) {
     has_language_switcher: false,
     mentions_legitimate_interest: false,
     implies_consent_by_browsing: false,
+    text_excerpt: "",
+    notice_url: "",
   };
   if (!banner) return base;
   return {
@@ -501,6 +507,8 @@ function bannerSummary(banner: BannerObservation | undefined) {
     has_language_switcher: banner.has_language_switcher,
     mentions_legitimate_interest: banner.mentions_legitimate_interest,
     implies_consent_by_browsing: banner.implies_consent_by_browsing,
+    text_excerpt: banner.text_excerpt,
+    notice_url: banner.notice_url,
   };
 }
 

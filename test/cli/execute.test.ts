@@ -170,6 +170,14 @@ describe("execute", () => {
     expect(getFiles().has(join("./out2", "findings.json"))).toBe(true);
   });
 
+  it("writes schema-valid ScanResult JSON (spec §7.3)", async () => {
+    const { ScanResult } = await import("../../src/types.js");
+    const { deps, getFiles } = makeDeps();
+    await execute(args({ json: true, out: "./out-valid" }), deps);
+    const parsed = ScanResult.safeParse(JSON.parse(getFiles().get(join("./out-valid", "findings.json"))!));
+    expect(parsed.success).toBe(true);
+  });
+
   it("prints the rules version and exits 0 when --rules-version is set", async () => {
     const { deps, getOut } = makeDeps();
     const code = await execute(args({ rulesVersion: true, url: "" }), deps);

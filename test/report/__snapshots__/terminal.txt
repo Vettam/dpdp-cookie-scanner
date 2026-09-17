@@ -1,18 +1,18 @@
 dpdp-cookie-scan  staging.acme.in     interpretation as of 2026-09-15
 
 SETTLED (5)                                     enforceable 2027-05-13
-  DPDP-C-001  Meta Platforms (meta-pixel)                   s.4(1) s.5(1) s.6(1)
-  DPDP-C-004  Banner has an accept control but no equivalent reject control  s.6(1) s.6(4)
-  DPDP-C-007  Hotjar (hotjar)                               s.6(1) s.9(3)
-  DPDP-C-009  No language option beyond English in the notice or banner  s.5(3) s.6(3)
-  DPDP-C-013  Hotjar (hotjar)                               s.6(1)
+  DPDP-C-001  Meta Platforms (meta-pixel)  [high]           s.4(1) s.5(1) s.6(1)
+  DPDP-C-004  Banner has an accept control but no equivalent reject control  [high]  s.6(1) s.6(4)
+  DPDP-C-007  Hotjar (hotjar)  [high]                       s.6(1) s.9(3)
+  DPDP-C-009  We could not find a language option beyond English in the notice or banner  [low]  s.5(3) s.6(3)
+  DPDP-C-013  Hotjar (hotjar)  [high]                       s.6(1)
 
 OPEN (2)                                        enforceable 2027-05-13
-  DPDP-C-020  Meta Platforms (meta-pixel)                   s.16 Rule 13(4)
-  DPDP-C-020  Hotjar (hotjar)                               s.16 Rule 13(4)
+  DPDP-C-020  Meta Platforms (meta-pixel)  [high]           s.16 Rule 13(4)
+  DPDP-C-020  Hotjar (hotjar)  [high]                       s.16 Rule 13(4)
 
 QUESTIONS (2)
-  DPDP-C-040  Does this site reach people under 18?         s.9(3)
+  DPDP-C-040  If this site is used by people under 18, then…  s.9(3)
   DPDP-C-041  Do your server access logs (which contain visitor IPs) fall under "traffic data" as the term is used in the DPDP Rules, and if so, is the one-year retention floor in Rule 8(3) being met? The term "traffic data" is not defined in the Act or Rules; the likely anchor is the IT Act s.69B regime.
   Rule 8(3) Rule 13(4)
 
