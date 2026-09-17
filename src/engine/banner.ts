@@ -83,3 +83,66 @@ export function textLooksLikeBanner(text: string): boolean {
   const lower = text.toLowerCase();
   return BANNER_VOCAB.some((w) => lower.includes(w.toLowerCase()) || text.includes(w));
 }
+
+/** CMP-specific accept controls, tried before free-text matching. */
+export const ACCEPT_BUTTON_SELECTORS = [
+  "#onetrust-accept-btn-handler",
+  "#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll",
+  "#CybotCookiebotDialogBodyButtonAccept",
+  '[data-cky-tag="accept-button"]',
+  ".cky-btn-accept",
+  "#accept-all",
+];
+
+export const REJECT_BUTTON_SELECTORS = [
+  "#onetrust-reject-all-handler",
+  "#CybotCookiebotDialogBodyButtonDecline",
+  "#CybotCookiebotDialogBodyLevelButtonLevelOptinDeclineAll",
+  '[data-cky-tag="reject-button"]',
+  ".cky-btn-reject",
+  "#reject-all",
+];
+
+export interface ButtonScorePattern {
+  re: string;
+  flags: string;
+  score: number;
+}
+
+/** Higher score wins. Settings/subscribe copy is never a match. */
+export const BUTTON_SCORE_PATTERNS: Record<"accept" | "reject", ButtonScorePattern[]> = {
+  accept: [
+    { re: "accept all|allow all|agree to all|सभी स्वीकार", flags: "i", score: 3 },
+    { re: "^(accept|agree|allow|i agree|accept cookies|स्वीकार करें|स्वीकार|सहमत)$", flags: "i", score: 2 },
+    { re: "\\b(accept|agree|allow)\\b|स्वीकार|सहमत", flags: "i", score: 1 },
+  ],
+  reject: [
+    { re: "reject all|decline all|deny all|सभी अस्वीकार", flags: "i", score: 3 },
+    { re: "^(reject|decline|deny|refuse|opt.?out|अस्वीकार करें|अस्वीकार)$", flags: "i", score: 2 },
+    { re: "\\b(reject|decline|deny|refuse)\\b|अस्वीकार", flags: "i", score: 1 },
+  ],
+};
+
+export function scoreButtonText(text: string, intent: "accept" | "reject"): number {
+  const t = text.replace(/\s+/g, " ").trim();
+  if (!t) return 0;
+  if (/\b(settings|preferences|manage|customize|subscribe|सेटिंग|वरीयता)\b/i.test(t)) return 0;
+  let best = 0;
+  for (const p of BUTTON_SCORE_PATTERNS[intent]) {
+    if (new RegExp(p.re, p.flags).test(t)) best = Math.max(best, p.score);
+  }
+  return best;
+}
+
+export function pickBannerButton(
+  buttons: Array<{ text: string }>,
+  intent: "accept" | "reject",
+): { text: string; score: number; index: number } | null {
+  let best: { text: string; score: number; index: number } | null = null;
+  for (let i = 0; i < buttons.length; i++) {
+    const text = buttons[i]!.text;
+    const score = scoreButtonText(text, intent);
+    if (score > 0 && (!best || score > best.score)) best = { text, score, index: i };
+  }
+  return best;
+}

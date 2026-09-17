@@ -3,6 +3,7 @@ import {
   BANNER_VOCAB,
   CMP_SIGNATURES,
   interpretBanner,
+  pickBannerButton,
   textLooksLikeBanner,
   type BannerRaw,
 } from "../../src/engine/banner.js";
@@ -66,5 +67,23 @@ describe("interpretBanner", () => {
   it("raises detection_confidence to high when a known CMP signature matched", () => {
     const b = interpretBanner(raw({ cmpId: "cookieyes" }));
     expect(b.detection_confidence).toBe("high");
+  });
+});
+
+describe("pickBannerButton", () => {
+  it("prefers accept-all over a generic accept, and ignores settings", () => {
+    const picked = pickBannerButton(
+      [{ text: "Settings" }, { text: "Accept" }, { text: "Accept all" }],
+      "accept",
+    );
+    expect(picked?.text).toBe("Accept all");
+  });
+
+  it("matches Hindi reject copy and does not pick subscribe", () => {
+    const picked = pickBannerButton(
+      [{ text: "Subscribe" }, { text: "अस्वीकार करें" }],
+      "reject",
+    );
+    expect(picked?.text).toBe("अस्वीकार करें");
   });
 });

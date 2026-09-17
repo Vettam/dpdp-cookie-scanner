@@ -16,9 +16,11 @@ before opening a PR that touches `rules/` or `trackers/`.
 | A new legal reading | Adds or amends a `rules/DPDP-C-NNN.yaml` file, with citations — see the legal-content bar below |
 | A vendor hostname correction | Updates the existing tracker YAML and `last_verified` |
 
-Do **not** send: telemetry, remote rule fetching, blocking/enforcement gates,
-statements that a site "is compliant", or copies of EasyPrivacy / Tracker Radar
-/ Open Cookie Database (licence not yet cleared — see `trackers/PROVENANCE.md`).
+Do **not** send: telemetry, remote rule fetching, default enforcement gates
+(the only opt-in gate is `--fail-on settled`, which must never trigger on
+arguable or open findings), statements that a site "is compliant", or copies
+of EasyPrivacy / Tracker Radar / Open Cookie Database (licence not yet
+cleared — see `trackers/PROVENANCE.md`).
 
 ## Trackers (`trackers/`)
 

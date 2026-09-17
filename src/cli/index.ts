@@ -1,5 +1,5 @@
 import { defineCommand, runMain } from "citty";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execute, type CliArgs } from "./execute.js";
@@ -28,6 +28,17 @@ const command = defineCommand({
     settle: { type: "string", default: "3000", description: "post-load settle wait (ms)" },
     rulesVersion: { type: "boolean", description: "print catalogue version and exit" },
     browser: { type: "string", default: "", description: "Chrome/Edge/Chromium binary path" },
+    interact: {
+      type: "boolean",
+      description: "three-pass banner interaction (load, accept-all, reject-all)",
+    },
+    failOn: {
+      type: "string",
+      default: "",
+      description: "opt-in CI gate; only 'settled' is accepted",
+    },
+    diffFrom: { type: "string", default: "", description: "ScanResult JSON to diff from" },
+    diffTo: { type: "string", default: "", description: "ScanResult JSON to diff to" },
   },
   run: async ({ args }) => {
     const cliArgs: CliArgs = {
@@ -43,6 +54,10 @@ const command = defineCommand({
       settle: Number(args.settle),
       rulesVersion: Boolean(args.rulesVersion),
       browser: args.browser,
+      interact: Boolean(args.interact),
+      failOn: args.failOn ?? "",
+      diffFrom: args.diffFrom ?? "",
+      diffTo: args.diffTo ?? "",
     };
     const code = await execute(cliArgs, {
       stdout: { write: (s) => process.stdout.write(s) },
@@ -52,6 +67,7 @@ const command = defineCommand({
         mkdirSync(dirname(path), { recursive: true });
         writeFileSync(path, data);
       },
+      readFile: (path) => readFileSync(path, "utf8"),
       mkdir: (p) => mkdirSync(p, { recursive: true }),
       rulesDir,
       trackersDir,

@@ -62,10 +62,14 @@ rule fetching.
   --settle <ms>          post-load settle wait (default 3000)
   --rules-version        print catalogue version and exit
   --browser <path>       use a specific Chrome/Edge/Chromium binary
+  --interact             three-pass banner interaction (load, accept-all, reject-all)
+  --fail-on settled      opt-in CI gate; never trips on arguable or open findings
+  --diff-from <json>     with --diff-to, compare two ScanResult files (no crawl)
+  --diff-to <json>
 ```
 
-Exit codes: `0` completed scan · `2` usage error · `3` navigation failure.
-There is **no** exit code for "findings present".
+Exit codes: `0` completed scan · `1` `--fail-on settled` and at least one settled finding · `2` usage error · `3` navigation failure.
+Default is still **no** exit code for findings. `--fail-on` accepts only `settled`.
 
 ## Notice content checks
 
@@ -172,6 +176,11 @@ Offline IP-to-country uses bundled DB-IP Lite (`data/geo/`). The tracker
 dataset covers the spec §6 Indian-vendor priority set (payments, engagement,
 Freshworks, Zoho, VWO, Netcore, InMobi, …). Contribution guide:
 `CONTRIBUTING.md`.
+
+v1.0 — "interaction and drift": `--interact` runs load, accept-all, and
+reject-all as three fresh contexts and compares findings; `--diff-from` /
+`--diff-to` separates site changes from rule-catalogue changes; `--fail-on
+settled` is an opt-in CI gate that never trips on arguable or open findings.
 
 ---
 

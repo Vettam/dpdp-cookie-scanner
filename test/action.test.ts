@@ -26,7 +26,9 @@ describe("GitHub Action wrapper (action/action.yml)", () => {
     expect(actionText).toContain("dpdp-cookie-scan");
     expect(actionText).toContain("--ci");
     expect(actionText).toContain("findings.json");
-    expect(actionText).toContain("findings.md");
+    expect(actionText).toContain("--fail-on");
+    expect(action.inputs["fail-on"]?.default).toBe("");
+    expect(action.inputs.interact?.default).toBe("false");
   });
 
   it("uploads the JSON artifact and posts findings.md on a pull_request", () => {

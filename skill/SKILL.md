@@ -37,7 +37,9 @@ commence 13 May 2027) and an `explainer_url` linking to a versioned rationale pa
 
    Add `--gpc` if the user wants the Sec-GPC / DPDP-C-050 evaluation. Add
    `--include-query` only if the user explicitly asks to keep query strings, and warn
-   them that the output may contain sensitive URL parameters.
+   them that the output may contain sensitive URL parameters. Add `--interact` if
+   they want accept-all / reject-all comparison (`interaction` on the ScanResult).
+   Do not pass `--fail-on` unless they explicitly want the opt-in CI gate.
 
 2. Read `/tmp/dpdp-scan/findings.json`. The shape is `ScanResult` (see
    `schema/scanresult.schema.json`). The fields you need:
@@ -46,6 +48,17 @@ commence 13 May 2027) and an `explainer_url` linking to a versioned rationale pa
    - `questions[]`: rules that need a fact the crawler cannot observe
      (`observable: false` or `needs_input`). Present these as questions, not findings.
    - `summary`: `third_parties`, `third_parties_outside_india`, `fired_before_banner`.
+   - `interaction` (when `--interact`): `survived_reject`, `cleared_on_reject`,
+     `appeared_on_accept`. The `findings[]` array is still the load pass.
+
+   To compare two previous scans without recrawling:
+
+   ```sh
+   npx dpdp-cookie-scan --diff-from /tmp/a.json --diff-to /tmp/b.json --out /tmp/dpdp-diff
+   ```
+
+   Read `diff.json`. `site` is inventory/finding drift on the page; `catalogue` is
+   drift from a different rules or tracker version.
 
 3. Summarise **grouped by certainty tier** (settled, then arguable, then open).
    For each finding give: the rule id, the short title, the provisions it cites,

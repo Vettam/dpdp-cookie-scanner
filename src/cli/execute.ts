@@ -3,7 +3,10 @@ import { scan, type ScanRunOptions } from "../index.js";
 import { renderTerminal } from "../report/terminal.js";
 import { renderJson } from "../report/json.js";
 import { renderMarkdown } from "../report/markdown.js";
+import { diffScanResults } from "../diff/index.js";
+import { hasSettledFindings, parseFailOn } from "./fail-on.js";
 import type { ScanEngine } from "../engine/types.js";
+import { ScanResult } from "../types.js";
 import { readRulesVersion } from "../rules/loader.js";
 import { readTrackersVersion } from "../trackers/loader.js";
 
@@ -20,6 +23,10 @@ export interface CliArgs {
   settle: number;
   rulesVersion: boolean;
   browser: string;
+  interact: boolean;
+  failOn: string;
+  diffFrom: string;
+  diffTo: string;
 }
 
 export interface CliDeps {
@@ -27,11 +34,14 @@ export interface CliDeps {
   stderr: { write: (s: string) => void };
   exit: (code: number) => void;
   writeFile: (path: string, data: string) => void;
+  readFile?: (path: string) => string;
   mkdir: (path: string) => void;
   engine?: ScanEngine;
   rulesDir: string;
   trackersDir: string;
 }
+
+const USAGE = "usage: dpdp-cookie-scan <url> [options]\n";
 
 export async function execute(args: CliArgs, deps: CliDeps): Promise<number> {
   if (args.rulesVersion) {
@@ -39,8 +49,19 @@ export async function execute(args: CliArgs, deps: CliDeps): Promise<number> {
     return 0;
   }
 
+  const failOn = parseFailOn(args.failOn);
+  if (failOn === "invalid") {
+    deps.stderr.write("error: --fail-on accepts only 'settled'\n");
+    deps.exit(2);
+    return 2;
+  }
+
+  if (args.diffFrom || args.diffTo) {
+    return executeDiff(args, deps);
+  }
+
   if (!args.url) {
-    deps.stderr.write("usage: dpdp-cookie-scan <url> [options]\n");
+    deps.stderr.write(USAGE);
     deps.exit(2);
     return 2;
   }
@@ -54,6 +75,7 @@ export async function execute(args: CliArgs, deps: CliDeps): Promise<number> {
       screenshot: args.screenshot,
       timeout: args.timeout,
       settle: args.settle,
+      interact: args.interact,
     };
     if (deps.engine) scanOpts.engine = deps.engine;
     if (args.browser) scanOpts.browserPath = args.browser;
@@ -85,12 +107,65 @@ export async function execute(args: CliArgs, deps: CliDeps): Promise<number> {
       deps.stderr.write("warning: --include-query keeps query strings in evidence; do not share this output.\n");
     }
 
+    if (failOn === "settled" && hasSettledFindings(sr)) {
+      const n = sr.findings.filter((f) => f.certainty === "settled").length;
+      deps.stderr.write(`${n} settled finding(s); --fail-on settled\n`);
+      return 1;
+    }
+
     return 0;
   } catch (e) {
     deps.stderr.write(`error: ${(e as Error).message}\n`);
     deps.exit(3);
     return 3;
   }
+}
+
+function executeDiff(args: CliArgs, deps: CliDeps): number {
+  if (!args.diffFrom || !args.diffTo) {
+    deps.stderr.write("usage: dpdp-cookie-scan --diff-from <a.json> --diff-to <b.json>\n");
+    deps.exit(2);
+    return 2;
+  }
+  if (!deps.readFile) {
+    deps.stderr.write("error: this environment cannot read files for --diff-from/--diff-to\n");
+    deps.exit(2);
+    return 2;
+  }
+  let fromJson: unknown;
+  let toJson: unknown;
+  try {
+    fromJson = JSON.parse(deps.readFile(args.diffFrom));
+    toJson = JSON.parse(deps.readFile(args.diffTo));
+  } catch (e) {
+    deps.stderr.write(`error: ${(e as Error).message}\n`);
+    deps.exit(2);
+    return 2;
+  }
+  const from = ScanResult.safeParse(fromJson);
+  const to = ScanResult.safeParse(toJson);
+  if (!from.success || !to.success) {
+    deps.stderr.write("error: --diff-from/--diff-to must be ScanResult JSON\n");
+    deps.exit(2);
+    return 2;
+  }
+  const diff = diffScanResults(from.data, to.data);
+  const json = JSON.stringify(diff, null, 2) + "\n";
+  deps.mkdir(args.out);
+  deps.writeFile(join(args.out, "diff.json"), json);
+  if (args.json || args.ci) {
+    deps.writeFile(join(args.out, "findings-diff.json"), json);
+  }
+  deps.stdout.write(renderDiffSummary(diff) + "\n");
+  return 0;
+}
+
+function renderDiffSummary(diff: ReturnType<typeof diffScanResults>): string {
+  const lines = [
+    `SITE  hosts +${diff.site.hosts_added.length} −${diff.site.hosts_removed.length}  findings +${diff.site.findings_added.length} −${diff.site.findings_removed.length}`,
+    `CATALOGUE  ${diff.catalogue_changed ? `${diff.from.rules_version} → ${diff.to.rules_version}` : "unchanged"}  findings +${diff.catalogue.findings_added.length} −${diff.catalogue.findings_removed.length}  reclassified ${diff.catalogue.findings_reclassified.length}`,
+  ];
+  return lines.join("\n");
 }
 
 // Keep these imported so the bundle includes the version readers for --rules-version.

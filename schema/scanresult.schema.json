@@ -872,6 +872,88 @@
         "type": "string"
       },
       "default": []
+    },
+    "interaction": {
+      "type": "object",
+      "properties": {
+        "performed": {
+          "type": "boolean",
+          "default": false
+        },
+        "accept_findings": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "reject_findings": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "survived_reject": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule_id": {
+                "type": "string"
+              },
+              "tracker_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "host": {
+                "type": "string",
+                "default": ""
+              },
+              "certainty": {
+                "type": "string",
+                "enum": [
+                  "settled",
+                  "arguable",
+                  "open"
+                ]
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "rule_id",
+              "tracker_id",
+              "certainty",
+              "title"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "cleared_on_reject": {
+          "type": "array",
+          "items": {
+            "$ref": "#/properties/interaction/properties/survived_reject/items"
+          },
+          "default": []
+        },
+        "appeared_on_accept": {
+          "type": "array",
+          "items": {
+            "$ref": "#/properties/interaction/properties/survived_reject/items"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false,
+      "default": {
+        "performed": false,
+        "accept_findings": 0,
+        "reject_findings": 0,
+        "survived_reject": [],
+        "cleared_on_reject": [],
+        "appeared_on_accept": []
+      }
     }
   },
   "required": [

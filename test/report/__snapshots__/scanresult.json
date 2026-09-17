@@ -370,5 +370,13 @@
     "Server-side tagging, backend relays, logs and retention are not observable by a crawler.",
     "Consent-banner interaction was not performed; findings reflect the page state before any user action.",
     "This is a reading of the DPDP Act and Rules, not legal advice and not a compliance verdict."
-  ]
+  ],
+  "interaction": {
+    "performed": false,
+    "accept_findings": 0,
+    "reject_findings": 0,
+    "survived_reject": [],
+    "cleared_on_reject": [],
+    "appeared_on_accept": []
+  }
 }

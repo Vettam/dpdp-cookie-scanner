@@ -148,7 +148,7 @@ The library entry point is `scan(url, options): Promise<ScanResult>`. The hosted
 7. Wait a further configurable settle period (default 3s) to catch late-firing tags.
 8. Close context. Emit `Observation[]`.
 
-Consent-banner interaction (accept-all / reject-all comparison scans) is **v1, not v0.1**. Design the engine so a second and third pass can be added without restructuring.
+Consent-banner interaction (accept-all / reject-all comparison scans) is **v1, not v0.1**. Design the engine so a second and third pass can be added without restructuring. With `--interact`, `scan()` runs three independent passes (fresh context each) and attaches `interaction` on the load-pass `ScanResult`: findings that survived reject-all, cleared on reject-all, and appeared only after accept-all. The `findings[]` array remains the load pass.
 
 ### 4.2 Observations captured
 
@@ -396,7 +396,15 @@ last_verified: "2026-09-15"
   "limits": [
     "Server-side tagging, backend relays, logs and retention are not observable by a crawler.",
     "Consent-banner interaction was not performed; findings reflect the page state before any user action."
-  ]
+  ],
+  "interaction": {
+    "performed": false,
+    "accept_findings": 0,
+    "reject_findings": 0,
+    "survived_reject": [],
+    "cleared_on_reject": [],
+    "appeared_on_accept": []
+  }
 }
 ```
 
@@ -449,9 +457,13 @@ npx dpdp-cookie-scan <url> [options]
   --settle <ms>          post-load settle wait (default 3000)
   --rules-version        print catalogue version and exit
   --browser <path>       use a specific Chrome/Edge/Chromium binary
+  --interact             three-pass banner interaction (load, accept-all, reject-all)
+  --fail-on settled      opt-in CI gate; never trips on arguable or open findings
+  --diff-from <json>     with --diff-to, compare two ScanResult files (no crawl)
+  --diff-to <json>
 ```
 
-Exit codes: `0` on a completed scan regardless of findings. `2` on usage error. `3` on navigation failure (site unreachable, timeout). There is **no** exit code for "findings present". A future `--fail-on settled` may be added as opt-in only, and must never trigger on arguable or open findings.
+Exit codes: `0` on a completed scan regardless of findings. `1` only when `--fail-on settled` is set and the scan has at least one **settled** finding (never arguable, open, or questions). `2` on usage error. `3` on navigation failure (site unreachable, timeout). There is **no** default exit code for "findings present".
 
 ### 8.2 CI mode
 
@@ -521,9 +533,9 @@ The repo must not contain the PDF renderer, email code, or anything that gates o
 
 ### v1.0 — "interaction and drift"
 
-- Consent-banner interaction: accept-all pass and reject-all pass; findings compare the three states
-- Interpretation diff: given two `ScanResult`s, produce a diff separating site changes from rule-catalogue changes
-- Opt-in `--fail-on settled`
+- Consent-banner interaction: `--interact` runs accept-all and reject-all passes; findings compare the three states (`interaction` on `ScanResult`)
+- Interpretation diff: `--diff-from` / `--diff-to` given two `ScanResult`s, separating site changes from rule-catalogue changes
+- Opt-in `--fail-on settled` (exit 1); must never trigger on arguable or open findings
 
 ---
 

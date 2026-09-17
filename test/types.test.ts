@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ScanResult, Observation, Finding, Question } from "../src/types.js";
+import { ScanResult, ScanResultDiff, Observation, Finding, Question } from "../src/types.js";
 
 const requestObs = {
   type: "request" as const,
@@ -128,5 +128,30 @@ describe("ScanResult", () => {
       limits: ["Server-side tagging, backend relays, logs and retention are not observable by a crawler."],
     };
     expect(ScanResult.safeParse(sr).success).toBe(true);
+    expect(ScanResult.parse(sr).interaction.performed).toBe(false);
+  });
+
+  it("parses a ScanResultDiff", () => {
+    const d = {
+      schema_version: "1.0.0",
+      from: {
+        scanned_at: "2026-09-17T09:12:00.000Z",
+        rules_version: "0.3.1",
+        trackers_version: "0.2.0",
+        interpretation_as_of: "2026-09-15",
+        target_url: "https://staging.acme.in",
+      },
+      to: {
+        scanned_at: "2026-09-18T09:12:00.000Z",
+        rules_version: "0.4.0",
+        trackers_version: "0.2.0",
+        interpretation_as_of: "2026-09-15",
+        target_url: "https://staging.acme.in",
+      },
+      catalogue_changed: true,
+      site: { hosts_added: ["static.hotjar.com"], hosts_removed: [], findings_added: [], findings_removed: [] },
+      catalogue: { findings_added: [], findings_removed: [], findings_reclassified: [] },
+    };
+    expect(ScanResultDiff.safeParse(d).success).toBe(true);
   });
 });

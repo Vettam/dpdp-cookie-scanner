@@ -18,6 +18,11 @@ function makeDeps(): CliDeps {
       exitCode = c;
     },
     writeFile: (path: string, data: string) => files.set(path, data),
+    readFile: (path: string) => {
+      const data = files.get(path);
+      if (data === undefined) throw new Error(`ENOENT: ${path}`);
+      return data;
+    },
     mkdir: (_p: string) => {},
     engine: new FixtureEngine(
       new Map<string, unknown[]>([
@@ -45,6 +50,66 @@ function makeDeps(): CliDeps {
             },
           ],
         ],
+        [
+          "https://clean.example",
+          [
+            {
+              type: "meta", timestamp_ms: 0, before_first_paint: true, before_banner_detected: true,
+              url: "https://clean.example", final_url: "https://clean.example/",
+              page_language: "en", title: "Clean", scan_started_at: "2026-09-17T09:12:00.000Z",
+              engine_version: "1.0.0", rules_version: "0.1.0", trackers_version: "0.1.0",
+              geo_source: "DB-IP Lite", geo_date: "2026-09-01",
+            },
+          ],
+        ],
+        [
+          "https://staging.acme.in#reject",
+          [
+            {
+              type: "meta", timestamp_ms: 0, before_first_paint: true, before_banner_detected: true,
+              url: "https://staging.acme.in", final_url: "https://staging.acme.in/",
+              page_language: "en", title: "Acme", scan_started_at: "2026-09-17T09:12:00.000Z",
+              engine_version: "1.0.0", rules_version: "0.1.0", trackers_version: "0.1.0",
+              geo_source: "DB-IP Lite", geo_date: "2026-09-01",
+            },
+            {
+              type: "banner", timestamp_ms: 2000, before_first_paint: false, before_banner_detected: false,
+              detected: true, has_accept: true, has_reject: true, has_settings: false,
+              has_pre_ticked: false, has_language_switcher: false, mentions_legitimate_interest: false,
+              implies_consent_by_browsing: false, text_excerpt: "", detection_confidence: "high",
+            },
+          ],
+        ],
+        [
+          "https://staging.acme.in#accept",
+          [
+            {
+              type: "meta", timestamp_ms: 0, before_first_paint: true, before_banner_detected: true,
+              url: "https://staging.acme.in", final_url: "https://staging.acme.in/",
+              page_language: "en", title: "Acme", scan_started_at: "2026-09-17T09:12:00.000Z",
+              engine_version: "1.0.0", rules_version: "0.1.0", trackers_version: "0.1.0",
+              geo_source: "DB-IP Lite", geo_date: "2026-09-01",
+            },
+            {
+              type: "request", timestamp_ms: 412, before_first_paint: true, before_banner_detected: true,
+              method: "GET", host: "www.facebook.com", path: "/tr",
+              initiator_host: "www.googletagmanager.com", resource_type: "image",
+              is_third_party: true, destination_country: "US",
+            },
+            {
+              type: "request", timestamp_ms: 4100, before_first_paint: false, before_banner_detected: false,
+              method: "GET", host: "static.hotjar.com", path: "/c/hotjar.js",
+              initiator_host: "www.googletagmanager.com", resource_type: "script",
+              is_third_party: true, destination_country: "US",
+            },
+            {
+              type: "banner", timestamp_ms: 2000, before_first_paint: false, before_banner_detected: false,
+              detected: true, has_accept: true, has_reject: true, has_settings: false,
+              has_pre_ticked: false, has_language_switcher: false, mentions_legitimate_interest: false,
+              implies_consent_by_browsing: false, text_excerpt: "", detection_confidence: "high",
+            },
+          ],
+        ],
       ]) as never,
     ),
     rulesDir,
@@ -67,6 +132,10 @@ function args(over: Partial<CliArgs> = {}): CliArgs {
     settle: 3000,
     rulesVersion: false,
     browser: "",
+    interact: false,
+    failOn: "",
+    diffFrom: "",
+    diffTo: "",
     ...over,
   };
 }
@@ -127,5 +196,58 @@ describe("execute", () => {
     const code = await execute(args({ screenshot: true, out: "./shot-out" }), deps);
     expect(code).toBe(0);
     expect(seenPath).toBe(join("./shot-out", "screenshot.png"));
+  });
+
+  it("exits 1 with --fail-on settled when settled findings exist, after writing --ci files", async () => {
+    const { deps, getFiles, getErr } = makeDeps();
+    const code = await execute(args({ ci: true, failOn: "settled", out: "./fail-out" }), deps);
+    expect(code).toBe(1);
+    expect(getFiles().has(join("./fail-out", "findings.json"))).toBe(true);
+    expect(getErr()).toMatch(/settled finding/);
+  });
+
+  it("does not fail --fail-on settled when there are no settled findings", async () => {
+    const { deps } = makeDeps();
+    const code = await execute(args({ url: "https://clean.example", failOn: "settled" }), deps);
+    expect(code).toBe(0);
+  });
+
+  it("rejects --fail-on values other than settled", async () => {
+    const { deps, getErr } = makeDeps();
+    const code = await execute(args({ failOn: "arguable" }), deps);
+    expect(code).toBe(2);
+    expect(getErr()).toContain("settled");
+  });
+
+  it("runs three passes with --interact and compares findings", async () => {
+    const { deps, getOut } = makeDeps();
+    const inner = deps.engine!;
+    const actions: Array<string | undefined> = [];
+    deps.engine = {
+      scan: async (url, options) => {
+        actions.push(options?.bannerAction);
+        return inner.scan(url, options);
+      },
+    };
+    const code = await execute(args({ interact: true, json: true, out: "./interact-out" }), deps);
+    expect(code).toBe(0);
+    expect(actions).toEqual([undefined, "accept", "reject"]);
+    expect(getOut()).toContain("INTERACTION");
+    expect(getOut()).toContain("survived reject");
+  });
+
+  it("diffs two ScanResults with --diff-from/--diff-to and writes diff.json", async () => {
+    const { deps, getFiles, getOut } = makeDeps();
+    await execute(args({ json: true, out: "./diff-a" }), deps);
+    const a = getFiles().get(join("./diff-a", "findings.json"))!;
+    await execute(args({ url: "https://clean.example", json: true, out: "./diff-b" }), deps);
+    const b = getFiles().get(join("./diff-b", "findings.json"))!;
+    getFiles().set("from.json", a);
+    getFiles().set("to.json", b);
+    const code = await execute(args({ url: "", diffFrom: "from.json", diffTo: "to.json", out: "./diff-out" }), deps);
+    expect(code).toBe(0);
+    expect(getFiles().has(join("./diff-out", "diff.json"))).toBe(true);
+    expect(getOut()).toContain("SITE");
+    expect(getOut()).toContain("CATALOGUE");
   });
 });

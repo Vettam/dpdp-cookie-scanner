@@ -2,9 +2,9 @@ import type { Observation } from "../types.js";
 
 /**
  * The engine records facts (Observation[]). It does NOT interpret them — that is
- * the mapper's job (spec §1.5). v0.1 ships a baseline scan with no banner
- * interaction; the interface is shaped so a second and third pass can be added
- * without restructuring (spec §4.1).
+ * the mapper's job (spec §1.5). Default scan is load-only; `bannerAction` runs
+ * a single extra pass. `scan({ interact: true })` orchestrates three passes
+ * without changing this one-call interface (spec §4.1 / §9 v1.0).
  */
 export interface ScanOptions {
   timeout?: number;
@@ -15,6 +15,11 @@ export interface ScanOptions {
   /** Viewport PNG path. Written only when --screenshot is set; never embedded in JSON. */
   screenshotPath?: string;
   browserPath?: string;
+  /**
+   * After load, click the matching consent-banner control and settle again.
+   * Each call is still one pass with a fresh context (spec §4.1).
+   */
+  bannerAction?: "accept" | "reject";
 }
 
 export interface ScanEngine {

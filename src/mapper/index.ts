@@ -15,6 +15,7 @@ import type {
   ScanResult,
   StorageObservation,
 } from "../types.js";
+import { emptyInteraction } from "../types.js";
 
 export interface MapInput {
   observations: Observation[];
@@ -121,6 +122,7 @@ export function mapScan(input: MapInput): ScanResult {
     questions,
     summary,
     limits: defaultLimits(),
+    interaction: emptyInteraction(),
   };
 }
 

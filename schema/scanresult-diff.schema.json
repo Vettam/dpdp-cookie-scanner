@@ -1,0 +1,185 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "from": {
+      "type": "object",
+      "properties": {
+        "scanned_at": {
+          "type": "string",
+          "default": ""
+        },
+        "rules_version": {
+          "type": "string"
+        },
+        "trackers_version": {
+          "type": "string"
+        },
+        "interpretation_as_of": {
+          "type": "string"
+        },
+        "target_url": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "rules_version",
+        "trackers_version",
+        "interpretation_as_of"
+      ],
+      "additionalProperties": false
+    },
+    "to": {
+      "$ref": "#/properties/from"
+    },
+    "catalogue_changed": {
+      "type": "boolean"
+    },
+    "site": {
+      "type": "object",
+      "properties": {
+        "hosts_added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "hosts_removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "findings_added": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule_id": {
+                "type": "string"
+              },
+              "tracker_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "host": {
+                "type": "string",
+                "default": ""
+              },
+              "certainty": {
+                "type": "string",
+                "enum": [
+                  "settled",
+                  "arguable",
+                  "open"
+                ]
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "rule_id",
+              "tracker_id",
+              "certainty",
+              "title"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "findings_removed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/properties/site/properties/findings_added/items"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "catalogue": {
+      "type": "object",
+      "properties": {
+        "findings_added": {
+          "type": "array",
+          "items": {
+            "$ref": "#/properties/site/properties/findings_added/items"
+          },
+          "default": []
+        },
+        "findings_removed": {
+          "type": "array",
+          "items": {
+            "$ref": "#/properties/site/properties/findings_added/items"
+          },
+          "default": []
+        },
+        "findings_reclassified": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule_id": {
+                "type": "string"
+              },
+              "tracker_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "host": {
+                "type": "string",
+                "default": ""
+              },
+              "from_certainty": {
+                "type": "string",
+                "enum": [
+                  "settled",
+                  "arguable",
+                  "open"
+                ]
+              },
+              "to_certainty": {
+                "type": "string",
+                "enum": [
+                  "settled",
+                  "arguable",
+                  "open"
+                ]
+              }
+            },
+            "required": [
+              "rule_id",
+              "tracker_id",
+              "from_certainty",
+              "to_certainty"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "from",
+    "to",
+    "catalogue_changed",
+    "site",
+    "catalogue"
+  ],
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

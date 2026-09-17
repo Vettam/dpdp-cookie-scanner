@@ -50,6 +50,28 @@ describe("scan()", () => {
     expect(sr.questions.map((q) => q.rule_id)).toContain("DPDP-C-040");
     expect(sr.rules_version).toBe("0.3.1");
     expect(sr.trackers_version).toBe("0.2.0");
-    expect(sr.engine_version).toBe("0.3.0");
+    expect(sr.engine_version).toBe("1.0.0");
+  });
+
+  it("runs three independent passes when interact is set", async () => {
+    const actions: Array<string | undefined> = [];
+    const inner = fixtureEngine();
+    const engine = {
+      scan: async (url: string, options?: { bannerAction?: "accept" | "reject" }) => {
+        actions.push(options?.bannerAction);
+        return inner.scan(url, options);
+      },
+    };
+    const sr = await scan("https://staging.acme.in", {
+      engine,
+      rulesDir,
+      trackersDir,
+      interpretationAsOf: "2026-09-15",
+      interact: true,
+    });
+    expect(actions).toEqual([undefined, "accept", "reject"]);
+    expect(sr.interaction.performed).toBe(true);
+    expect(sr.findings.map((f) => f.rule_id)).toContain("DPDP-C-001");
+    expect(sr.limits.some((l) => /was performed/.test(l))).toBe(true);
   });
 });

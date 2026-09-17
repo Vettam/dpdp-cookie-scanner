@@ -5,7 +5,15 @@ import { applyDestinationCountries } from "./geo.js";
 import { geoMeta, loadBundledGeo, type GeoDb } from "../geo/lookup.js";
 import { redactBannerText } from "./redact.js";
 import { applyBeforeFirstPaint, redirectChain } from "./timing.js";
-import { BANNER_VOCAB, CMP_SIGNATURES, interpretBanner } from "./banner.js";
+import {
+  ACCEPT_BUTTON_SELECTORS,
+  BANNER_VOCAB,
+  BUTTON_SCORE_PATTERNS,
+  CMP_SIGNATURES,
+  REJECT_BUTTON_SELECTORS,
+  interpretBanner,
+  type ButtonScorePattern,
+} from "./banner.js";
 import { fingerprintInitScript } from "./fingerprint.js";
 import type {
   ApiCallObservation,
@@ -143,6 +151,22 @@ export const defaultEngine: ScanEngine = {
     });
     await page.waitForTimeout(options.settle ?? 3000);
 
+    const banner = await detectBanner(page);
+    if (banner) {
+      observations.push({
+        type: "banner",
+        timestamp_ms: Date.now() - navStart,
+        before_first_paint: false,
+        before_banner_detected: false,
+        ...banner,
+      } as BannerObservation);
+    }
+
+    if (options.bannerAction) {
+      await clickConsentButton(page, options.bannerAction);
+      await page.waitForTimeout(options.settle ?? 3000);
+    }
+
     const cookies = await context.cookies();
     for (const c of cookies) {
       const setBy = c.domain === targetHost || c.domain.endsWith("." + targetHost) ? "" : c.domain;
@@ -255,17 +279,6 @@ export const defaultEngine: ScanEngine = {
       }
     }
 
-    const banner = await detectBanner(page);
-    if (banner) {
-      observations.push({
-        type: "banner",
-        timestamp_ms: Date.now() - navStart,
-        before_first_paint: false,
-        before_banner_detected: false,
-        ...banner,
-      } as BannerObservation);
-    }
-
     if (options.screenshotPath) {
       await page.screenshot({ path: options.screenshotPath, fullPage: false }).catch(() => {
         /* screenshot is best-effort; never fail the scan */
@@ -289,7 +302,7 @@ export const defaultEngine: ScanEngine = {
       page_language: await page.evaluate(() => document.documentElement.lang || "en"),
       title: await page.title(),
       scan_started_at: new Date().toISOString(),
-      engine_version: "0.3.0",
+      engine_version: "1.0.0",
       rules_version: "0.1.0",
       trackers_version: "0.1.0",
       geo_source: "DB-IP Lite",
@@ -302,7 +315,7 @@ export const defaultEngine: ScanEngine = {
     if (geo) applyDestinationCountries(observations, ipByHost, geo);
     applyBeforeFirstPaint(observations, firstPaintMs || null);
 
-    const bannerTime = banner ? observations.find((o) => o.type === "banner")?.timestamp_ms ?? Infinity : Infinity;
+    const bannerTime = observations.find((o) => o.type === "banner")?.timestamp_ms ?? Infinity;
     for (const o of observations) {
       if (o.type === "request") {
         (o as RequestObservation).before_banner_detected = o.timestamp_ms < bannerTime;
@@ -355,4 +368,51 @@ async function detectBanner(
   const fields = interpretBanner(raw);
   fields.text_excerpt = redactBannerText(fields.text_excerpt);
   return fields;
+}
+
+async function clickConsentButton(
+  page: import("playwright-core").Page,
+  intent: "accept" | "reject",
+): Promise<boolean> {
+  const selectors = intent === "accept" ? ACCEPT_BUTTON_SELECTORS : REJECT_BUTTON_SELECTORS;
+  const patterns = BUTTON_SCORE_PATTERNS[intent];
+  return page.evaluate(
+    ({
+      selectors,
+      patterns,
+    }: {
+      selectors: string[];
+      patterns: ButtonScorePattern[];
+    }) => {
+      const clickEl = (el: Element): boolean => {
+        if (el instanceof HTMLElement) {
+          el.click();
+          return true;
+        }
+        return false;
+      };
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && clickEl(el)) return true;
+      }
+      const nodes = Array.from(
+        document.querySelectorAll("button, a, [role='button'], input[type='button'], input[type='submit']"),
+      );
+      let best: { el: Element; score: number } | null = null;
+      for (const n of nodes) {
+        const raw =
+          n instanceof HTMLInputElement ? n.value : ((n as HTMLElement).textContent ?? "");
+        const text = raw.replace(/\s+/g, " ").trim();
+        if (!text) continue;
+        if (/\b(settings|preferences|manage|customize|subscribe|सेटिंग|वरीयता)\b/i.test(text)) continue;
+        let score = 0;
+        for (const p of patterns) {
+          if (new RegExp(p.re, p.flags).test(text)) score = Math.max(score, p.score);
+        }
+        if (score > 0 && (!best || score > best.score)) best = { el: n, score };
+      }
+      return best ? clickEl(best.el) : false;
+    },
+    { selectors, patterns },
+  );
 }

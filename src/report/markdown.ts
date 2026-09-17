@@ -1,4 +1,4 @@
-import type { Finding, Question, ScanResult } from "../types.js";
+import type { Finding, FindingPresence, Question, ScanResult } from "../types.js";
 
 /** Markdown renderer for PR comments and issues (spec §7.3). */
 export function renderMarkdown(sr: ScanResult): string {
@@ -21,6 +21,19 @@ export function renderMarkdown(sr: ScanResult): string {
     for (const f of fs) out.push(renderFindingBlock(f));
   }
 
+  if (sr.interaction.performed) {
+    out.push(`## INTERACTION — load vs accept-all vs reject-all`);
+    out.push("");
+    out.push(
+      `Accept-all findings: ${sr.interaction.accept_findings}. Reject-all findings: ${sr.interaction.reject_findings}. The findings above are the load pass.`,
+    );
+    out.push("");
+    out.push(renderPresenceList("Survived reject-all", sr.interaction.survived_reject));
+    out.push(renderPresenceList("Cleared on reject-all", sr.interaction.cleared_on_reject));
+    out.push(renderPresenceList("Appeared on accept-all", sr.interaction.appeared_on_accept));
+    out.push("");
+  }
+
   if (sr.questions.length > 0) {
     out.push(`## QUESTIONS (${sr.questions.length})`);
     out.push("");
@@ -40,6 +53,12 @@ export function renderMarkdown(sr: ScanResult): string {
   for (const l of sr.limits) out.push(`- ${l}`);
   out.push("");
   return out.join("\n");
+}
+
+function renderPresenceList(label: string, rows: FindingPresence[]): string {
+  if (rows.length === 0) return `- **${label}:** none`;
+  const items = rows.map((f) => `${f.rule_id} ${f.title}`).join("; ");
+  return `- **${label}:** ${items}`;
 }
 
 function renderFindingBlock(f: Finding): string {

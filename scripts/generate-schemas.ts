@@ -5,7 +5,7 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { ruleJsonSchema } from "../src/rules/schema.js";
 import { trackerJsonSchema } from "../src/trackers/schema.js";
-import { scanResultJsonSchema } from "../src/types.js";
+import { scanResultJsonSchema, scanResultDiffJsonSchema } from "../src/types.js";
 
 mkdirSync("rules", { recursive: true });
 mkdirSync("trackers", { recursive: true });
@@ -20,5 +20,11 @@ writeFileSync(
   "schema/scanresult.schema.json",
   JSON.stringify(scanResultJsonSchema(), null, 2) + "\n",
 );
+writeFileSync(
+  "schema/scanresult-diff.schema.json",
+  JSON.stringify(scanResultDiffJsonSchema(), null, 2) + "\n",
+);
 
-console.log("schemas written: rules/schema.json, trackers/schema.json, schema/scanresult.schema.json");
+console.log(
+  "schemas written: rules/schema.json, trackers/schema.json, schema/scanresult.schema.json, schema/scanresult-diff.schema.json",
+);

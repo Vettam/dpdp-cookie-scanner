@@ -4,9 +4,10 @@ Thin wrapper around the CLI. It runs `dpdp-cookie-scan --ci`, uploads
 `findings.json` / `findings.md` as the `dpdp-scan` artifact, and on a
 `pull_request` event posts (or updates) `findings.md` as a PR comment.
 
-All interpretation stays in the CLI. This Action does not decide certainty,
-does not fail the job because findings exist, and does not say a site is or
-is not compliant.
+All interpretation stays in the CLI. This Action does not decide certainty
+and does not say a site is or is not compliant. It does not fail the job
+because findings exist unless you set `fail-on: settled` (opt-in; never
+trips on arguable or open findings).
 
 ## Usage
 
@@ -42,6 +43,8 @@ wrapper and the CLI cannot drift.
 | `include-query` | `false` | Keep query strings in evidence |
 | `timeout` | `15000` | Navigation timeout (ms) |
 | `settle` | `3000` | Post-load wait (ms) |
+| `interact` | `false` | Three-pass banner interaction |
+| `fail-on` | empty | Opt-in gate; only `settled` is accepted |
 | `out` | `dpdp-scan` | Output directory |
 | `comment` | `true` | Post/update the PR comment |
 | `github-token` | `${{ github.token }}` | Token for the comment |
@@ -52,4 +55,5 @@ wrapper and the CLI cannot drift.
 - `md-path` — path to `findings.md`
 
 The job exit code follows the CLI: `0` on a completed scan regardless of
-findings, non-zero on usage or navigation failure. There is no `--fail-on`.
+findings, `1` only when `fail-on: settled` and settled findings exist,
+non-zero on usage or navigation failure.

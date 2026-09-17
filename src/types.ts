@@ -209,6 +209,39 @@ export const Summary = z.object({
 });
 export type Summary = z.infer<typeof Summary>;
 
+/** Compact finding identity used in interaction comparison and scan diffs. */
+export const FindingPresence = z.object({
+  rule_id: z.string(),
+  tracker_id: z.string().nullable(),
+  host: z.string().default(""),
+  certainty: z.enum(CERTAINTY_TIERS),
+  title: z.string(),
+});
+export type FindingPresence = z.infer<typeof FindingPresence>;
+
+/**
+ * Comparison of load vs accept-all vs reject-all (spec §4.1 / §9 v1.0).
+ * The ScanResult findings array remains the load pass.
+ */
+export const Interaction = z.object({
+  performed: z.boolean().default(false),
+  accept_findings: z.number().int().min(0).default(0),
+  reject_findings: z.number().int().min(0).default(0),
+  survived_reject: z.array(FindingPresence).default([]),
+  cleared_on_reject: z.array(FindingPresence).default([]),
+  appeared_on_accept: z.array(FindingPresence).default([]),
+});
+export type Interaction = z.infer<typeof Interaction>;
+
+export const emptyInteraction = (): Interaction => ({
+  performed: false,
+  accept_findings: 0,
+  reject_findings: 0,
+  survived_reject: [],
+  cleared_on_reject: [],
+  appeared_on_accept: [],
+});
+
 export const ScanResult = z.object({
   schema_version: z.string(),
   engine_version: z.string(),
@@ -223,10 +256,65 @@ export const ScanResult = z.object({
   questions: z.array(Question).default([]),
   summary: Summary,
   limits: z.array(z.string()).default([]),
+  interaction: Interaction.default({
+    performed: false,
+    accept_findings: 0,
+    reject_findings: 0,
+    survived_reject: [],
+    cleared_on_reject: [],
+    appeared_on_accept: [],
+  }),
 });
 export type ScanResult = z.infer<typeof ScanResult>;
+
+export const ScanDiffSide = z.object({
+  scanned_at: z.string().default(""),
+  rules_version: z.string(),
+  trackers_version: z.string(),
+  interpretation_as_of: z.string(),
+  target_url: z.string().default(""),
+});
+export type ScanDiffSide = z.infer<typeof ScanDiffSide>;
+
+export const FindingReclassified = z.object({
+  rule_id: z.string(),
+  tracker_id: z.string().nullable(),
+  host: z.string().default(""),
+  from_certainty: z.enum(CERTAINTY_TIERS),
+  to_certainty: z.enum(CERTAINTY_TIERS),
+});
+export type FindingReclassified = z.infer<typeof FindingReclassified>;
+
+/**
+ * Diff of two ScanResults (spec §9 v1.0). Site changes are inventory/finding
+ * shifts on the page; catalogue changes are shifts attributable to a different
+ * rules or tracker dataset version.
+ */
+export const ScanResultDiff = z.object({
+  schema_version: z.literal("1.0.0"),
+  from: ScanDiffSide,
+  to: ScanDiffSide,
+  catalogue_changed: z.boolean(),
+  site: z.object({
+    hosts_added: z.array(z.string()).default([]),
+    hosts_removed: z.array(z.string()).default([]),
+    findings_added: z.array(FindingPresence).default([]),
+    findings_removed: z.array(FindingPresence).default([]),
+  }),
+  catalogue: z.object({
+    findings_added: z.array(FindingPresence).default([]),
+    findings_removed: z.array(FindingPresence).default([]),
+    findings_reclassified: z.array(FindingReclassified).default([]),
+  }),
+});
+export type ScanResultDiff = z.infer<typeof ScanResultDiff>;
 
 /** JSON Schema (draft-07) for the published ScanResult. Published at schema/scanresult.schema.json. */
 export function scanResultJsonSchema(): Record<string, unknown> {
   return zodToJsonSchema(ScanResult) as Record<string, unknown>;
+}
+
+/** JSON Schema (draft-07) for ScanResultDiff. Published at schema/scanresult-diff.schema.json. */
+export function scanResultDiffJsonSchema(): Record<string, unknown> {
+  return zodToJsonSchema(ScanResultDiff) as Record<string, unknown>;
 }

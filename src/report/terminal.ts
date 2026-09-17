@@ -33,6 +33,23 @@ export function renderTerminal(sr: ScanResult, opts: TerminalOptions = {}): stri
     lines.push("");
   }
 
+  if (sr.interaction.performed) {
+    lines.push(`${c.bold("INTERACTION")}  accept-all ${sr.interaction.accept_findings} · reject-all ${sr.interaction.reject_findings}`);
+    lines.push(
+      `  survived reject ${sr.interaction.survived_reject.length} · cleared on reject ${sr.interaction.cleared_on_reject.length} · appeared on accept ${sr.interaction.appeared_on_accept.length}`,
+    );
+    for (const f of sr.interaction.survived_reject) {
+      lines.push(`  survived reject  ${f.rule_id}  ${f.title}`);
+    }
+    for (const f of sr.interaction.cleared_on_reject) {
+      lines.push(`  cleared on reject  ${f.rule_id}  ${f.title}`);
+    }
+    for (const f of sr.interaction.appeared_on_accept) {
+      lines.push(`  appeared on accept  ${f.rule_id}  ${f.title}`);
+    }
+    lines.push("");
+  }
+
   if (sr.questions.length > 0) {
     lines.push(`${c.bold("QUESTIONS")} (${sr.questions.length})`);
     for (const q of sr.questions) {
