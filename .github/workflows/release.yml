@@ -34,3 +34,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # setup-node with registry-url writes .npmrc against NODE_AUTH_TOKEN.
+          # An empty token makes npm return E404 on PUT (it hides 401 as 404).
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
