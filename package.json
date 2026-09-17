@@ -30,6 +30,9 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "gen:schemas": "tsx scripts/generate-schemas.ts",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "publish": "npm run build && changeset publish",
     "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {
@@ -40,6 +43,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@types/node": "^22.10.0",
     "tsup": "^8.3.5",
     "tsx": "^4.23.13",
