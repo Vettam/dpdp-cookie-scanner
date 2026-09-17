@@ -1,5 +1,11 @@
 # dpdp-cookie-scanner
 
+## 0.4.1
+
+### Patch Changes
+
+- 23a3534: Close the v0.1 engine holes in spec §4: first-paint timestamps, redirect chain, banner redaction, Hindi + CMP banner detection, IndexedDB and img/font embeds, remaining fingerprinting APIs, and `--screenshot` writing a viewport PNG (never embedded in JSON).
+
 ## 0.4.0
 
 ### Minor Changes
