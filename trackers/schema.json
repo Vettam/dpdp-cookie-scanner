@@ -143,6 +143,39 @@
     "provenance": {
       "type": "string",
       "default": "direct observation"
+    },
+    "cmp": {
+      "type": "object",
+      "properties": {
+        "selectors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "accept_selectors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": []
+        },
+        "reject_selectors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "selectors"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [

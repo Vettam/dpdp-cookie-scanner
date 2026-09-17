@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
+import { join } from "node:path";
 import {
   BANNER_VOCAB,
-  CMP_SIGNATURES,
+  cmpSignaturesFromTrackers,
+  consentButtonSelectors,
   interpretBanner,
   pickBannerButton,
   pickNoticeUrl,
   textLooksLikeBanner,
   type BannerRaw,
 } from "../../src/engine/banner.js";
+import { loadTrackers } from "../../src/trackers/loader.js";
 
 function raw(over: Partial<BannerRaw> = {}): BannerRaw {
   return {
@@ -26,9 +29,52 @@ describe("banner vocabulary", () => {
     expect(BANNER_VOCAB.some((w) => /[\u0900-\u097F]/.test(w))).toBe(true);
   });
 
-  it("ships CMP signatures for OneTrust, Cookiebot, CookieYes, Osano, Quantcast", () => {
-    const ids = CMP_SIGNATURES.map((s) => s.id);
-    expect(ids).toEqual(expect.arrayContaining(["onetrust", "cookiebot", "cookieyes", "osano", "quantcast"]));
+  it("covers every Eighth Schedule script family, not only Hindi", () => {
+    const joined = BANNER_VOCAB.join("\n");
+    const scripts: Record<string, RegExp> = {
+      bengali: /[\u0980-\u09FF]/,
+      gurmukhi: /[\u0A00-\u0A7F]/,
+      gujarati: /[\u0A80-\u0AFF]/,
+      odia: /[\u0B00-\u0B7F]/,
+      tamil: /[\u0B80-\u0BFF]/,
+      telugu: /[\u0C00-\u0C7F]/,
+      kannada: /[\u0C80-\u0CFF]/,
+      malayalam: /[\u0D00-\u0D7F]/,
+      arabic: /[\u0600-\u06FF]/,
+      olChiki: /[\u1C50-\u1C7F]/,
+      meitei: /[\uABC0-\uABFF]/,
+    };
+    for (const [name, re] of Object.entries(scripts)) {
+      expect(re.test(joined), `missing ${name} consent vocabulary`).toBe(true);
+    }
+  });
+
+  it("treats Tamil, Bengali and Urdu cookie copy as a banner", () => {
+    expect(textLooksLikeBanner("இந்த தளம் குக்கீகளைப் பயன்படுத்துகிறது. ஒப்புதல்.")).toBe(true);
+    expect(textLooksLikeBanner("আমরা কুকি ব্যবহার করি। সম্মতি দিন।")).toBe(true);
+    expect(textLooksLikeBanner("ہم کوکیز استعمال کرتے ہیں۔ رضامندی۔")).toBe(true);
+    expect(textLooksLikeBanner("Welcome to our shop")).toBe(false);
+  });
+});
+
+describe("CMP signatures from trackers/ C10 (spec §4.3)", () => {
+  it("loads OneTrust, Cookiebot, CookieYes, Osano and Quantcast from the dataset", async () => {
+    const trackers = await loadTrackers(join(process.cwd(), "trackers"));
+    const ids = cmpSignaturesFromTrackers(trackers).map((s) => s.id);
+    expect(ids).toEqual(
+      expect.arrayContaining(["onetrust", "cookiebot", "cookieyes", "osano", "quantcast"]),
+    );
+  });
+
+  it("uses CMP accept/reject selectors from the tracker records", async () => {
+    const trackers = await loadTrackers(join(process.cwd(), "trackers"));
+    const sigs = cmpSignaturesFromTrackers(trackers);
+    expect(consentButtonSelectors("accept", sigs)).toEqual(
+      expect.arrayContaining(["#onetrust-accept-btn-handler", ".osano-cm-accept-all", "#accept-all"]),
+    );
+    expect(consentButtonSelectors("reject", sigs)).toEqual(
+      expect.arrayContaining(["#onetrust-reject-all-handler", ".osano-cm-denyAll", "#reject-all"]),
+    );
   });
 });
 
@@ -58,6 +104,21 @@ describe("interpretBanner", () => {
     );
     expect(b.has_accept).toBe(true);
     expect(b.has_reject).toBe(true);
+  });
+
+  it("flags IAB TCF legitimate-interest phrasing beyond English and Hindi", () => {
+    expect(
+      interpretBanner(raw({ text: "Vendors rely on berechtigtes Interesse for some purposes." }))
+        .mentions_legitimate_interest,
+    ).toBe(true);
+    expect(
+      interpretBanner(raw({ text: "Certains fournisseurs invoquent un intérêt légitime." }))
+        .mentions_legitimate_interest,
+    ).toBe(true);
+    expect(
+      interpretBanner(raw({ text: "Tratamos datos por interés legítimo de los proveedores." }))
+        .mentions_legitimate_interest,
+    ).toBe(true);
   });
 
   it("treats Hindi cookie copy as banner vocabulary", () => {

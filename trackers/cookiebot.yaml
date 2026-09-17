@@ -15,5 +15,15 @@ notice_itemisation: >
 destination_countries: [EU]
 fires_pre_consent_by_default: true
 withdrawal_mechanism: "Reopen the banner; mirror the choice server-side."
-last_verified: "2026-09-15"
+last_verified: "2026-09-17"
 provenance: direct observation
+cmp:
+  selectors:
+    - "#CybotCookiebotDialog"
+    - "#CybotCookiebotDialogBody"
+  accept_selectors:
+    - "#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll"
+    - "#CybotCookiebotDialogBodyButtonAccept"
+  reject_selectors:
+    - "#CybotCookiebotDialogBodyButtonDecline"
+    - "#CybotCookiebotDialogBodyLevelButtonLevelOptinDeclineAll"

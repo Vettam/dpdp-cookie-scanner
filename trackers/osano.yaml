@@ -1,8 +1,9 @@
-id: onetrust
-vendor: OneTrust
+id: osano
+vendor: Osano
 match:
-  hosts: ["cdn.cookielaw.org", "onetrust.com", "cdn.onetrust.com"]
-  cookies: ["OptanonConsent", "OptanonAlertBoxClosed", "eupconsent-v2", "OTTask"]
+  hosts: ["cmp.osano.com", "osano.com"]
+  cookies: ["osano"]
+  storage_keys: ["osano"]
 data_points: [consent_state, ip_address, user_agent]
 category: C10
 flags: [3PF, XFER, PRE]
@@ -10,20 +11,22 @@ role: processor
 lawful_basis: s7a
 provisions: ["s.6(10)", "s.8(2)", "Rule 3(c)"]
 notice_itemisation: >
-  Consent state and your IP address, recorded by OneTrust. The device-side
+  Consent state and your IP address, recorded by Osano. The device-side
   consent cookie is not proof under s.6(10); the ledger must be under your
   control and exportable.
 destination_countries: [US]
 fires_pre_consent_by_default: true
 withdrawal_mechanism: "Reopen the banner; mirror the choice server-side."
 last_verified: "2026-09-17"
-provenance: direct observation
+provenance: vendor documentation
 cmp:
   selectors:
-    - "#onetrust-banner-sdk"
-    - "#onetrust-consent-sdk"
-    - ".ot-sdk-container"
+    - ".osano-cm-window"
+    - "#osano-cm-window"
+    - ".osano-cm-dialog"
   accept_selectors:
-    - "#onetrust-accept-btn-handler"
+    - ".osano-cm-accept-all"
+    - ".osano-cm-confirm-button"
   reject_selectors:
-    - "#onetrust-reject-all-handler"
+    - ".osano-cm-denyAll"
+    - ".osano-cm-deny"

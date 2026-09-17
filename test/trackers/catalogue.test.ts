@@ -60,4 +60,15 @@ describe("shipped tracker dataset", () => {
       expect(ids.has(id), `missing Indian-priority tracker ${id}`).toBe(true);
     }
   });
+
+  it("ships spec §4.3 CMP signatures as C10 tracker records", async () => {
+    const trackers = await loadTrackers(trackersDir);
+    const byId = new Map(trackers.map((t) => [t.id, t]));
+    for (const id of ["onetrust", "cookiebot", "cookieyes", "osano", "quantcast"]) {
+      const t = byId.get(id);
+      expect(t, `missing C10 CMP ${id}`).toBeDefined();
+      expect(t!.category).toBe("C10");
+      expect(t!.cmp?.selectors.length, `${id} needs cmp.selectors`).toBeGreaterThan(0);
+    }
+  });
 });

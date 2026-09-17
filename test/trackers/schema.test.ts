@@ -53,4 +53,18 @@ describe("TrackerSchema", () => {
     const r = validateTracker({ ...valid, match: {} });
     expect(r.ok).toBe(false);
   });
+
+  it("accepts optional CMP banner selectors on a C10 record", () => {
+    const r = validateTracker({
+      ...valid,
+      category: "C10",
+      cmp: {
+        selectors: ["#onetrust-banner-sdk"],
+        accept_selectors: ["#onetrust-accept-btn-handler"],
+        reject_selectors: ["#onetrust-reject-all-handler"],
+      },
+    });
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.value.cmp?.selectors).toEqual(["#onetrust-banner-sdk"]);
+  });
 });

@@ -1,0 +1,30 @@
+id: quantcast
+vendor: Quantcast (Choice)
+match:
+  hosts: ["quantcast.mgr.consensu.org", "cmp.quantcast.com", "quantcast.com"]
+data_points: [consent_state, ip_address, user_agent]
+category: C10
+flags: [3PF, XFER, PRE]
+role: processor
+lawful_basis: s7a
+provisions: ["s.6(10)", "s.8(2)", "Rule 3(c)"]
+notice_itemisation: >
+  Consent state and your IP address, recorded by Quantcast Choice. The
+  device-side TCF string is not proof under s.6(10); the ledger must be
+  under your control and exportable.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Reopen the banner; mirror the choice server-side."
+last_verified: "2026-09-17"
+provenance: vendor documentation
+cmp:
+  selectors:
+    - "#qc-cmp2-ui"
+    - "#qc-cmp2-container"
+    - ".qc-cmp-cleanslate"
+  accept_selectors:
+    - ".qc-cmp2-summary-buttons button[mode='primary']"
+    - "button.qc-cmp2-accept-all"
+  reject_selectors:
+    - ".qc-cmp2-summary-buttons button[mode='secondary']"
+    - "button.qc-cmp2-reject-all"

@@ -46,6 +46,14 @@ export const TrackerSchema = z.object({
   withdrawal_mechanism: z.string().default(""),
   last_verified: z.string(),
   provenance: z.string().default("direct observation"),
+  /** Banner CSS selectors for C10 CMPs (spec §4.3). */
+  cmp: z
+    .object({
+      selectors: z.array(z.string().min(1)).min(1),
+      accept_selectors: z.array(z.string().min(1)).default([]),
+      reject_selectors: z.array(z.string().min(1)).default([]),
+    })
+    .optional(),
 });
 
 export type Tracker = z.infer<typeof TrackerSchema>;

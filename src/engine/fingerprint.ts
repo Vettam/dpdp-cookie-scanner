@@ -45,14 +45,26 @@ export function fingerprintInitScript(): string {
       OfflineAudioContext.prototype.createOscillator = function () { log("AudioContext.createOscillator"); return o.apply(this, arguments); };
     }
   } catch (e) {}
-  try {
-    if (window.WebGLRenderingContext) {
-      const rp = WebGLRenderingContext.prototype.readPixels;
-      WebGLRenderingContext.prototype.readPixels = function () { log("WebGLRenderingContext.readPixels"); return rp.apply(this, arguments); };
-      const gp = WebGLRenderingContext.prototype.getParameter;
-      WebGLRenderingContext.prototype.getParameter = function (p) { log("WebGLRenderingContext.getParameter"); return gp.apply(this, arguments); };
-    }
-  } catch (e) {}
+  const hookWebGL = (proto) => {
+    try {
+      if (!proto) return;
+      const rp = proto.readPixels;
+      proto.readPixels = function () { log("WebGLRenderingContext.readPixels"); return rp.apply(this, arguments); };
+      const gp = proto.getParameter;
+      proto.getParameter = function (p) {
+        log("WebGLRenderingContext.getParameter");
+        if (p === 0x9245 || p === 0x9246) log("WebGLRenderingContext.renderer");
+        return gp.apply(this, arguments);
+      };
+      const ge = proto.getExtension;
+      proto.getExtension = function (name) {
+        if (String(name).toLowerCase() === "webgl_debug_renderer_info") log("WebGLRenderingContext.renderer");
+        return ge.apply(this, arguments);
+      };
+    } catch (e) {}
+  };
+  hookWebGL(window.WebGLRenderingContext && WebGLRenderingContext.prototype);
+  hookWebGL(window.WebGL2RenderingContext && WebGL2RenderingContext.prototype);
   try {
     if (window.RTCPeerConnection) {
       const Orig = window.RTCPeerConnection;
@@ -64,13 +76,41 @@ export function fingerprintInitScript(): string {
   wrap(Navigator.prototype, "languages", "navigator.languages");
   wrap(Navigator.prototype, "hardwareConcurrency", "navigator.hardwareConcurrency");
   wrap(Navigator.prototype, "deviceMemory", "navigator.deviceMemory");
-  wrap(Screen.prototype, "width", "window.screen.width");
-  wrap(Screen.prototype, "height", "window.screen.height");
+  try {
+    let seenW = false, seenH = false;
+    const markDim = (prop, name) => {
+      const desc = Object.getOwnPropertyDescriptor(Screen.prototype, prop);
+      if (!desc || !desc.get) return;
+      Object.defineProperty(Screen.prototype, prop, {
+        get: function () {
+          log(name);
+          if (prop === "width" || prop === "availWidth") seenW = true;
+          if (prop === "height" || prop === "availHeight") seenH = true;
+          if (seenW && seenH) log("window.screen.dimensions");
+          return desc.get.call(this);
+        },
+        configurable: true,
+      });
+    };
+    markDim("width", "window.screen.width");
+    markDim("height", "window.screen.height");
+    markDim("availWidth", "window.screen.availWidth");
+    markDim("availHeight", "window.screen.availHeight");
+  } catch (e) {}
   wrap(Screen.prototype, "colorDepth", "window.screen.colorDepth");
   try {
-    if (document.fonts && document.fonts.check) {
-      const orig = document.fonts.check.bind(document.fonts);
-      document.fonts.check = function () { log("document.fonts.check"); return orig.apply(document.fonts, arguments); };
+    const fonts = document.fonts;
+    if (fonts) {
+      if (fonts.check) {
+        const orig = fonts.check.bind(fonts);
+        fonts.check = function () { log("document.fonts.check"); return orig.apply(fonts, arguments); };
+      }
+      const enumMethods = ["forEach", "values", "entries", "keys"];
+      for (const m of enumMethods) {
+        if (typeof fonts[m] !== "function") continue;
+        const orig = fonts[m].bind(fonts);
+        fonts[m] = function () { log("document.fonts"); return orig.apply(fonts, arguments); };
+      }
     }
   } catch (e) {}
 })();`;

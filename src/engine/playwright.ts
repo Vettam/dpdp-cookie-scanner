@@ -6,15 +6,24 @@ import { applyBeforeFirstPaint, redirectChain } from "./timing.js";
 import { detectSystemBrowser, ensureChromium, launchOptions, playwrightChromiumInstalled } from "./browser.js";
 import { gotoUrl } from "./navigate.js";
 import {
-  ACCEPT_BUTTON_SELECTORS,
   BANNER_VOCAB,
   BUTTON_SCORE_PATTERNS,
-  CMP_SIGNATURES,
-  REJECT_BUTTON_SELECTORS,
+  LANG_SWITCHER_TERMS,
+  consentButtonSelectors,
   interpretBanner,
   type ButtonScorePattern,
+  type CmpSignature,
 } from "./banner.js";
 import { fingerprintInitScript } from "./fingerprint.js";
+import {
+  cookieSetBy,
+  cookieSetterInitScript,
+  firstPartyCookie,
+  hostFromStack,
+  initiatorHost,
+  recordSetCookieHeaders,
+  type CdpInitiator,
+} from "./initiator.js";
 import type {
   ApiCallObservation,
   BannerObservation,
@@ -67,6 +76,7 @@ async function collectObservations(
     const context = await browser.newContext(contextOptions);
     // Instrument fingerprinting APIs before any page script runs (C-060).
     await context.addInitScript(fingerprintInitScript());
+    await context.addInitScript(cookieSetterInitScript());
     const observations: Observation[] = [];
     const pageUrl = new URL(url);
     const targetHost = pageUrl.host;
@@ -77,6 +87,9 @@ async function collectObservations(
       if (frame === page.mainFrame()) hops.push(frame.url());
     });
     const ipByHost = new Map<string, string>();
+    const cdpInitiatorByUrl = new Map<string, CdpInitiator>();
+    const cdpInitiatorByRequestId = new Map<string, CdpInitiator>();
+    const cookieSetters = new Map<string, string>();
     let geo: GeoDb | undefined;
     try {
       geo = loadBundledGeo();
@@ -86,6 +99,30 @@ async function collectObservations(
     try {
       const cdp = await context.newCDPSession(page);
       await cdp.send("Network.enable");
+      await cdp.send("Debugger.enable").catch(() => undefined);
+      await cdp.send("Debugger.setSkipAllPauses", { skip: true }).catch(() => undefined);
+      await cdp.send("Debugger.setAsyncCallStackDepth", { maxDepth: 32 }).catch(() => undefined);
+      cdp.on(
+        "Network.requestWillBeSent",
+        (ev: { requestId?: string; request?: { url?: string }; initiator?: CdpInitiator }) => {
+          const rawUrl = ev.request?.url;
+          if (!rawUrl || !ev.initiator) return;
+          cdpInitiatorByUrl.set(rawUrl, ev.initiator);
+          if (ev.requestId) cdpInitiatorByRequestId.set(ev.requestId, ev.initiator);
+        },
+      );
+      cdp.on(
+        "Network.responseReceivedExtraInfo",
+        (ev: { requestId?: string; headers?: Record<string, string> }) => {
+          const header = ev.headers?.["set-cookie"] ?? ev.headers?.["Set-Cookie"] ?? "";
+          if (!header) return;
+          const setter = initiatorHost({
+            pageHost: targetHost,
+            cdpInitiator: ev.requestId ? cdpInitiatorByRequestId.get(ev.requestId) : undefined,
+          });
+          recordSetCookieHeaders(cookieSetters, header, setter);
+        },
+      );
       cdp.on("Network.responseReceived", (ev: { response?: { url?: string; remoteIPAddress?: string } }) => {
         const ip = ev.response?.remoteIPAddress;
         const rawUrl = ev.response?.url;
@@ -104,8 +141,11 @@ async function collectObservations(
     page.on("request", (req) => {
       try {
         const u = new URL(req.url());
-        const referer = req.headers()["referer"] ?? "";
-        const initiator = referer ? new URL(referer).host : "";
+        const initiator = initiatorHost({
+          pageHost: targetHost,
+          referer: req.headers()["referer"] ?? "",
+          cdpInitiator: cdpInitiatorByUrl.get(req.url()),
+        });
         const isThirdParty = u.host !== targetHost && !u.host.endsWith("." + targetHost);
         observations.push({
           type: "request",
@@ -124,11 +164,25 @@ async function collectObservations(
         /* ignore malformed */
       }
     });
+    page.on("response", (res) => {
+      try {
+        const header = res.headers()["set-cookie"] ?? "";
+        if (!header) return;
+        const setter = initiatorHost({
+          pageHost: targetHost,
+          referer: res.request().headers()["referer"] ?? "",
+          cdpInitiator: cdpInitiatorByUrl.get(res.url()),
+        });
+        recordSetCookieHeaders(cookieSetters, header, setter);
+      } catch {
+        /* ignore */
+      }
+    });
 
     await gotoUrl(page, url, options.timeout ?? 15000);
     await page.waitForTimeout(options.settle ?? 3000);
 
-    const banner = await detectBanner(page);
+    const banner = await detectBanner(page, options.cmpSignatures ?? []);
     if (banner) {
       observations.push({
         type: "banner",
@@ -141,13 +195,29 @@ async function collectObservations(
 
     let bannerActionClicked = false;
     if (options.bannerAction) {
-      bannerActionClicked = await clickConsentButton(page, options.bannerAction);
+      bannerActionClicked = await clickConsentButton(page, options.bannerAction, options.cmpSignatures ?? []);
       await page.waitForTimeout(options.settle ?? 3000);
+    }
+
+    const jsSets = await page.evaluate(() => {
+      return ((window as unknown as { __dpdpCookieSets?: Array<{ name: string; stack: string }> }).__dpdpCookieSets ??
+        []) as Array<{ name: string; stack: string }>;
+    }).catch(() => [] as Array<{ name: string; stack: string }>);
+    for (const s of jsSets) {
+      if (!s.name || cookieSetters.has(s.name)) continue;
+      const setter = hostFromStack(s.stack, targetHost);
+      if (setter) cookieSetters.set(s.name, setter);
     }
 
     const cookies = await context.cookies();
     for (const c of cookies) {
-      const setBy = c.domain === targetHost || c.domain.endsWith("." + targetHost) ? "" : c.domain;
+      const firstParty = firstPartyCookie(c.domain, targetHost);
+      const setBy = cookieSetBy({
+        name: c.name,
+        domain: c.domain,
+        pageHost: targetHost,
+        setters: cookieSetters,
+      });
       observations.push({
         type: "cookie",
         timestamp_ms: 0,
@@ -160,7 +230,7 @@ async function collectObservations(
         secure: c.secure,
         httpOnly: c.httpOnly,
         sameSite: c.sameSite ?? "",
-        first_party: !setBy,
+        first_party: firstParty,
         set_by: setBy,
       } as CookieObservation);
     }
@@ -304,18 +374,28 @@ async function collectObservations(
 
 async function detectBanner(
   page: import("playwright-core").Page,
+  signatures: CmpSignature[],
 ): Promise<Omit<BannerObservation, "type" | "timestamp_ms" | "before_first_paint" | "before_banner_detected"> | null> {
   const raw = await page.evaluate(
-    ({ signatures, vocab }: { signatures: { id: string; selectors: string[] }[]; vocab: string[] }) => {
+    ({
+      signatures,
+      vocab,
+      langTerms,
+    }: {
+      signatures: { id: string; selectors: string[] }[];
+      vocab: string[];
+      langTerms: string[];
+    }) => {
       const extract = (el: Element, cmpId: string | null) => {
         const text = (el.textContent ?? "").trim();
         const buttons = Array.from(el.querySelectorAll("button, a, input[type='submit']"));
         const btnText = buttons.map((b) => (b.textContent ?? "").trim()).join(" ");
         const toggles = Array.from(el.querySelectorAll("input[type='checkbox'], [role='switch']"));
         const hasPreTicked = toggles.some((t) => (t as HTMLInputElement).checked);
+        const btnLower = btnText.toLowerCase();
         const hasLangSwitcher =
           !!el.querySelector("select, [data-lang], [aria-label*='language' i], [aria-label*='भाषा']") ||
-          /हिंदी|english|भाषा/i.test(btnText);
+          langTerms.some((t) => btnLower.includes(t.toLowerCase()) || btnText.includes(t));
         const links = Array.from(el.querySelectorAll("a[href]")).map((a) => ({
           href: (a as HTMLAnchorElement).href,
           text: (a.textContent ?? "").trim(),
@@ -343,7 +423,7 @@ async function detectBanner(
       }
       return null;
     },
-    { signatures: CMP_SIGNATURES, vocab: BANNER_VOCAB },
+    { signatures, vocab: BANNER_VOCAB, langTerms: LANG_SWITCHER_TERMS },
   );
   if (!raw) return null;
   const fields = interpretBanner(raw);
@@ -354,8 +434,9 @@ async function detectBanner(
 async function clickConsentButton(
   page: import("playwright-core").Page,
   intent: "accept" | "reject",
+  signatures: CmpSignature[],
 ): Promise<boolean> {
-  const selectors = intent === "accept" ? ACCEPT_BUTTON_SELECTORS : REJECT_BUTTON_SELECTORS;
+  const selectors = consentButtonSelectors(intent, signatures);
   const patterns = BUTTON_SCORE_PATTERNS[intent];
   return page.evaluate(
     ({

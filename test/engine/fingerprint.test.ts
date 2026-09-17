@@ -16,7 +16,10 @@ describe("fingerprint instrumentation", () => {
       "navigator.hardwareConcurrency",
       "navigator.deviceMemory",
       "window.screen.width",
+      "window.screen.dimensions",
       "document.fonts.check",
+      "document.fonts",
+      "WebGLRenderingContext.renderer",
     ]) {
       expect(src).toContain(name);
     }
@@ -26,7 +29,10 @@ describe("fingerprint instrumentation", () => {
     const re = new RegExp(rule!.detection.where.api!, "i");
     expect(re.test("navigator.plugins")).toBe(true);
     expect(re.test("window.screen.width")).toBe(true);
+    expect(re.test("window.screen.dimensions")).toBe(true);
     expect(re.test("document.fonts.check")).toBe(true);
+    expect(re.test("document.fonts")).toBe(true);
+    expect(re.test("WebGLRenderingContext.renderer")).toBe(true);
     expect(re.test("fetch")).toBe(false);
   });
 });

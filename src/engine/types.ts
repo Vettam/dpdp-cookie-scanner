@@ -20,6 +20,8 @@ export interface ScanOptions {
    * Each call is still one pass with a fresh context (spec §4.1).
    */
   bannerAction?: "accept" | "reject";
+  /** C10 CMP banner signatures loaded from trackers/ (spec §4.3). */
+  cmpSignatures?: import("./banner.js").CmpSignature[] | undefined;
 }
 
 export interface ScanEngine {

@@ -5,6 +5,7 @@ import { loadTrackers, readTrackersVersion } from "./trackers/loader.js";
 import { TrackerIndex } from "./trackers/matcher.js";
 import { mapScan } from "./mapper/index.js";
 import { attachInteraction, bannerActionClicked } from "./interaction/compare.js";
+import { cmpSignaturesFromTrackers } from "./engine/banner.js";
 import type { ScanResult } from "./types.js";
 import type { ScanEngine, ScanOptions } from "./engine/types.js";
 
@@ -87,7 +88,7 @@ export async function scan(url: string, options: ScanRunOptions = {}): Promise<S
     interpretationAsOf: options.interpretationAsOf ?? new Date().toISOString().slice(0, 10),
   };
 
-  const opts = engineOptions(options);
+  const opts: ScanOptions = { ...engineOptions(options), cmpSignatures: cmpSignaturesFromTrackers(trackers) };
   const loadObs = await engine.scan(url, options.interact ? withoutBannerAction(opts) : opts);
   const load = mapScan({ observations: loadObs, ...mapped });
   if (!options.interact) return load;

@@ -15,5 +15,16 @@ notice_itemisation: >
 destination_countries: [US, IN]
 fires_pre_consent_by_default: true
 withdrawal_mechanism: "Reopen the banner; mirror the choice server-side."
-last_verified: "2026-09-15"
+last_verified: "2026-09-17"
 provenance: direct observation
+cmp:
+  selectors:
+    - ".cky-consent-container"
+    - "#cookie-law-info-bar"
+    - ".cky-consent-bar"
+  accept_selectors:
+    - '[data-cky-tag="accept-button"]'
+    - ".cky-btn-accept"
+  reject_selectors:
+    - '[data-cky-tag="reject-button"]'
+    - ".cky-btn-reject"
