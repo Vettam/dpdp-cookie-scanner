@@ -27,4 +27,37 @@ describe("shipped tracker dataset", () => {
   it("has a VERSION file", () => {
     expect(readTrackersVersion(trackersDir)).toMatch(/^\d+\.\d+\.\d+$/);
   });
+
+  it("covers the spec §6 Indian-vendor priority set plus the v0.3 expansion", async () => {
+    const trackers = await loadTrackers(trackersDir);
+    const ids = new Set(trackers.map((t) => t.id));
+    for (const id of [
+      "razorpay",
+      "payu",
+      "cashfree",
+      "ccavenue",
+      "instamojo",
+      "juspay",
+      "paytm",
+      "clevertap",
+      "moengage",
+      "webengage",
+      "netcore-smartech",
+      "notifyvisitors",
+      "convertcart",
+      "freshchat",
+      "freshdesk",
+      "freshmarketer",
+      "zoho-salesiq",
+      "zoho-pagesense",
+      "vwo",
+      "pushengage",
+      "inmobi",
+      "media-net",
+      "cuelinks",
+      "cookieyes",
+    ]) {
+      expect(ids.has(id), `missing Indian-priority tracker ${id}`).toBe(true);
+    }
+  });
 });

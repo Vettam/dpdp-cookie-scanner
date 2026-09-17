@@ -1,0 +1,19 @@
+id: zoho-pagesense
+vendor: Zoho (PageSense)
+match:
+  hosts: ["cdn.pagesense.io", "pagesense-collect.zoho.com", "pagesense-enablement.zoho.com"]
+  cookies: ["zps-*", "pagesense_*"]
+data_points: [persistent_browser_id, page_url, experiment_id, ip_address, user_agent]
+category: C5
+flags: [3PF, XFER, KIDS, PRE, PII-LEAK]
+role: processor_or_3pf
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.8(2)", "s.16"]
+notice_itemisation: >
+  A persistent identifier, pages visited, experiment assignment, IP address
+  and browser details, sent to Zoho PageSense for A/B testing and heatmaps.
+destination_countries: [IN, US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear zps-* cookies."
+last_verified: "2026-09-17"
+provenance: vendor documentation

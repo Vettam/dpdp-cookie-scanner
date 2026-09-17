@@ -109,7 +109,15 @@ Surfaces (CLI / --ci / skill)  →  Mapper  →  Engine (Playwright)
 - **`trackers/` dataset:** CC BY-SA 4.0 (see `trackers/LICENSE`).
 - **Rule rationale text and explainer pages:** CC BY-ND 4.0, owned by Rylematic
   Technologies Private Limited.
-- **IP-to-country dataset:** DB-IP Lite, CC BY 4.0 (see `trackers/PROVENANCE.md`).
+- **IP-to-country dataset:** DB-IP Lite, CC BY 4.0 (see `data/geo/README.md`
+  and `trackers/PROVENANCE.md`).
+
+## Contributing
+
+Tracker records (especially Indian vendors) and bug-fixes are welcome.
+Rule-catalogue changes are welcome too, but they are reviewed as legal
+content, not just code. See [CONTRIBUTING.md](CONTRIBUTING.md) and
+[docs/contributing-rules.md](docs/contributing-rules.md).
 
 ## Trademarks
 
@@ -139,6 +147,10 @@ C-020 (cross-border transfer — *not* a contravention, the corrective rule)
 and C-041 (access logs as "traffic data", a standing question). C-050's
 tier is corrected from arguable to open to match spec §5.3. The engine now
 instruments fingerprinting APIs and parses `<script>` tags for SRI.
+Offline IP-to-country uses bundled DB-IP Lite (`data/geo/`). The tracker
+dataset covers the spec §6 Indian-vendor priority set (payments, engagement,
+Freshworks, Zoho, VWO, Netcore, InMobi, …). Contribution guide:
+`CONTRIBUTING.md`.
 
 ---
 

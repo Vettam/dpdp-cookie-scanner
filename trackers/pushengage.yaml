@@ -1,0 +1,20 @@
+id: pushengage
+vendor: PushEngage
+match:
+  hosts: ["clientcdn.pushengage.com", "pushengage.com", "api.pushengage.com"]
+  cookies: ["pushengage_*", "pe_*"]
+data_points: [push_subscription, persistent_browser_id, ip_address, user_agent]
+category: C6
+flags: [3PF, XFER, PRE]
+role: processor_or_3pf
+lawful_basis: consent
+provisions: ["s.6(1)", "s.8(2)", "s.16"]
+notice_itemisation: >
+  Push subscription endpoint, a browser identifier, IP address and browser
+  details, sent to PushEngage for web-push campaigns. Marketing push is a
+  separate purpose from transactional notifications.
+destination_countries: [IN, US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; revoke the browser push permission; clear pushengage_* cookies."
+last_verified: "2026-09-17"
+provenance: vendor documentation

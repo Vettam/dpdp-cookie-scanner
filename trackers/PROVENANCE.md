@@ -20,11 +20,11 @@ with its licence and the date of adoption.
 
 | Source | Use | Licence | Date bundled |
 |---|---|---|---|
-| DB-IP Lite (`dbip-country-lite.csv`) | Offline IP-to-country lookup for request `destination_country`. Bundled; no network call at runtime. | CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) — attribution required | 2026-09-17 |
+| DB-IP Lite (`dbip-country-lite-2026-09.csv.gz`) | Offline IP-to-country lookup for request `destination_country`. Packed into `data/geo/dbip-country.bin.gz`; no network call at runtime. | CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) — attribution required | 2026-09-01 |
 
 Attribution for DB-IP Lite: "This product includes DB-IP Lite data created by
 DB-IP (https://db-ip.com/), licensed under CC BY 4.0. The dataset is bundled
-unchanged; see `src/geo/` for the bundled copy and its version."
+as a compact binary; see `data/geo/` for the bundled copy and its version."
 
-The bundled copy records its source date (the DB-IP Lite release date) in
-`src/geo/VERSION`.
+The bundled copy records its source date (the DB-IP Lite release month) in
+`data/geo/VERSION`. Rebuild with `npx tsx scripts/build-geo.ts <csv.gz>`.

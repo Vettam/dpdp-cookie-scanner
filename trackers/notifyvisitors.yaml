@@ -1,0 +1,19 @@
+id: notifyvisitors
+vendor: NotifyVisitors
+match:
+  hosts: ["cdn.notifyvisitors.com", "www.notifyvisitors.com", "notifyvisitors.com"]
+  cookies: ["nv_*", "notifyvisitors_*"]
+data_points: [persistent_browser_id, page_url, event_name, ip_address, user_agent, push_token]
+category: C9
+flags: [3PF, XFER, KIDS, PRE, SENS]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  A persistent identifier, pages visited, events, IP address, browser details
+  and push token, sent to NotifyVisitors for engagement and pop-ups.
+destination_countries: [IN]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear nv_* cookies."
+last_verified: "2026-09-17"
+provenance: vendor documentation

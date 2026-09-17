@@ -20,7 +20,8 @@
     "rules",
     "trackers",
     "schema",
-    "NOTICE"
+    "NOTICE",
+    "data"
   ],
   "engines": {
     "node": ">=22"
@@ -31,6 +32,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "gen:schemas": "tsx scripts/generate-schemas.ts",
+    "geo:build": "tsx scripts/build-geo.ts",
     "changeset": "changeset",
     "version": "changeset version",
     "publish": "npm run build && changeset publish",

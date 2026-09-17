@@ -1,0 +1,20 @@
+id: inmobi
+vendor: InMobi
+match:
+  hosts: ["sdk.open.inmobi.com", "i.l.inmobicdn.net", "cf.cdn.inmobi.com", "inmobi.com"]
+  cookies: ["inmobi_*"]
+data_points: [advertising_id, ip_address, user_agent, page_url]
+category: C6
+flags: [3PF, XFER, KIDS, PRE, SENS]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  An advertising identifier, IP address, browser details and the page URL,
+  sent to InMobi for advertising. Named in the notice; prohibited for
+  under-18s even with consent.
+destination_countries: [IN, SG, US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; do not load InMobi tags."
+last_verified: "2026-09-17"
+provenance: vendor documentation

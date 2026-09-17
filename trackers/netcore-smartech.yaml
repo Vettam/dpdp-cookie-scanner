@@ -1,0 +1,20 @@
+id: netcore-smartech
+vendor: Netcore Cloud (Smartech)
+match:
+  hosts: ["cdnt.netcoresmartech.com", "netcoresmartech.com", "ws4.netcoresmartech.com", "netcore.co.in"]
+  cookies: ["sm_*", "smartech_*"]
+data_points: [persistent_browser_id, page_url, event_name, ip_address, user_agent, identity]
+category: C9
+flags: [3PF, XFER, KIDS, PRE, SENS]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  A persistent identifier, pages visited, events, identity, IP address and
+  browser details, sent to Netcore Smartech for engagement and segmentation.
+  Inferred segments are outside s.7(a) and need consent.
+destination_countries: [IN]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear sm_* cookies; request deletion via Netcore."
+last_verified: "2026-09-17"
+provenance: vendor documentation

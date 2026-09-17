@@ -1,0 +1,19 @@
+id: convertcart
+vendor: ConvertCart
+match:
+  hosts: ["cdn.convertcart.com", "app.convertcart.com", "convertcart.com"]
+  cookies: ["cc_*", "convertcart_*"]
+data_points: [persistent_browser_id, page_url, event_name, cart_contents, ip_address, user_agent]
+category: C9
+flags: [3PF, XFER, PRE, SENS]
+role: processor_or_3pf
+lawful_basis: consent
+provisions: ["s.6(1)", "s.8(2)", "s.16"]
+notice_itemisation: >
+  A persistent identifier, pages visited, cart events, IP address and browser
+  details, sent to ConvertCart for ecommerce personalisation and recovery.
+destination_countries: [IN, US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear cc_* cookies."
+last_verified: "2026-09-17"
+provenance: vendor documentation

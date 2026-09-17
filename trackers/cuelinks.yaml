@@ -1,0 +1,19 @@
+id: cuelinks
+vendor: Cuelinks
+match:
+  hosts: ["cdn.cuelinks.com", "www.cuelinks.com", "cuelinks.com"]
+  cookies: ["cuelinks_*"]
+data_points: [click_id, page_url, ip_address, user_agent]
+category: C6
+flags: [3PF, XFER, PRE]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  Click identifiers, the page URL, IP address and browser details, sent to
+  Cuelinks for affiliate conversion tracking.
+destination_countries: [IN]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear cuelinks_* cookies."
+last_verified: "2026-09-17"
+provenance: vendor documentation

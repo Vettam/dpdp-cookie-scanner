@@ -25,4 +25,5 @@ Third-party datasets and content
 - Rule rationale text (rationale_plain, rationale_dev) and the explainer pages:
   CC BY-ND 4.0, owned by Rylematic Technologies Private Limited.
 - IP-to-country lookups use the DB-IP Lite dataset (CC BY 4.0). See
-  trackers/PROVENANCE.md for the source, version, and date of the bundled copy.
+  `data/geo/README.md` and `trackers/PROVENANCE.md` for the source, version,
+  and date of the bundled copy.

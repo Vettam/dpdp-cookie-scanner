@@ -1,0 +1,19 @@
+id: freshdesk
+vendor: Freshworks (Freshdesk)
+match:
+  hosts: ["freshdesk.com", "assetscdn.freshdesk.com", "ind-widget.freshworks.com"]
+  cookies: ["_helpkit_session", "freshdesk_*"]
+data_points: [identity, message_content, page_context, ip_address, user_agent]
+category: C7
+flags: [3PF, XFER, SENS]
+role: processor
+lawful_basis: consent
+provisions: ["s.6(1)", "s.8(2)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  Identity, ticket content and page context, plus IP address and browser
+  details, sent to Freshdesk for support.
+destination_countries: [IN, US]
+fires_pre_consent_by_default: false
+withdrawal_mechanism: "Stop firing; clear freshdesk_* cookies."
+last_verified: "2026-09-17"
+provenance: vendor documentation

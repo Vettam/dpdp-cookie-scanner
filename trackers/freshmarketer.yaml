@@ -1,0 +1,19 @@
+id: freshmarketer
+vendor: Freshworks (Freshmarketer)
+match:
+  hosts: ["cdn.freshmarketer.com", "freshmarketer.com"]
+  cookies: ["fw_fm_*", "freshmarketer_*"]
+data_points: [persistent_browser_id, page_url, event_name, ip_address, user_agent]
+category: C4
+flags: [3PF, XFER, PRE]
+role: processor_or_3pf
+lawful_basis: consent
+provisions: ["s.6(1)", "s.8(2)", "s.16"]
+notice_itemisation: >
+  A persistent identifier, pages visited, events, IP address and browser
+  details, sent to Freshmarketer for marketing analytics.
+destination_countries: [IN, US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear fw_fm_* cookies."
+last_verified: "2026-09-17"
+provenance: vendor documentation

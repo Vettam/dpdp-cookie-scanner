@@ -1,6 +1,8 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { ScanEngine, ScanOptions } from "./types.js";
+import { applyDestinationCountries } from "./geo.js";
+import { geoMeta, loadBundledGeo, type GeoDb } from "../geo/lookup.js";
 import type {
   ApiCallObservation,
   BannerObservation,
@@ -82,6 +84,30 @@ export const defaultEngine: ScanEngine = {
     const targetHost = pageUrl.host;
     const navStart = Date.now();
     const page = await context.newPage();
+    const ipByHost = new Map<string, string>();
+    let geo: GeoDb | undefined;
+    try {
+      geo = loadBundledGeo();
+    } catch {
+      geo = undefined;
+    }
+    try {
+      const cdp = await context.newCDPSession(page);
+      await cdp.send("Network.enable");
+      cdp.on("Network.responseReceived", (ev: { response?: { url?: string; remoteIPAddress?: string } }) => {
+        const ip = ev.response?.remoteIPAddress;
+        const rawUrl = ev.response?.url;
+        if (!ip || !rawUrl) return;
+        try {
+          const host = new URL(rawUrl).host;
+          if (!ipByHost.has(host)) ipByHost.set(host, ip);
+        } catch {
+          /* ignore malformed */
+        }
+      });
+    } catch {
+      /* CDP unavailable — destination_country stays empty; mapper falls back to the tracker dataset */
+    }
 
     // Instrument fingerprinting APIs before any page script runs (C-060).
     await context.addInitScript(() => {
@@ -273,15 +299,17 @@ export const defaultEngine: ScanEngine = {
       page_language: await page.evaluate(() => document.documentElement.lang || "en"),
       title: await page.title(),
       scan_started_at: new Date().toISOString(),
-      engine_version: "0.1.0",
+      engine_version: "0.2.0",
       rules_version: "0.1.0",
       trackers_version: "0.1.0",
       geo_source: "DB-IP Lite",
-      geo_date: "",
+      geo_date: geo ? geoMeta(geo).date : "",
       gpc_sent: Boolean(options.gpc),
     } as MetaObservation);
 
     await browser.close();
+
+    if (geo) applyDestinationCountries(observations, ipByHost, geo);
 
     const bannerTime = banner ? observations.find((o) => o.type === "banner")?.timestamp_ms ?? Infinity : Infinity;
     for (const o of observations) {
