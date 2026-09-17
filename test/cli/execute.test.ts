@@ -219,6 +219,18 @@ describe("execute", () => {
     expect(getErr()).toContain("settled");
   });
 
+  it("exits 3 when navigation fails (spec §8.1)", async () => {
+    const { deps, getErr } = makeDeps();
+    deps.engine = {
+      scan: async () => {
+        throw new Error("navigation failed: https://dead.invalid: net::ERR_NAME_NOT_RESOLVED");
+      },
+    };
+    const code = await execute(args({ url: "https://dead.invalid" }), deps);
+    expect(code).toBe(3);
+    expect(getErr()).toMatch(/navigation failed|ERR_NAME_NOT_RESOLVED/);
+  });
+
   it("runs three passes with --interact and compares findings", async () => {
     const { deps, getOut } = makeDeps();
     const inner = deps.engine!;
@@ -234,6 +246,14 @@ describe("execute", () => {
     expect(actions).toEqual([undefined, "accept", "reject"]);
     expect(getOut()).toContain("INTERACTION");
     expect(getOut()).toContain("survived reject");
+  });
+
+  it("does not report an interaction comparison when accept/reject clicks missed", async () => {
+    const { deps, getOut } = makeDeps();
+    const code = await execute(args({ url: "https://clean.example", interact: true }), deps);
+    expect(code).toBe(0);
+    expect(getOut()).not.toContain("INTERACTION");
+    expect(getOut()).not.toContain("survived reject");
   });
 
   it("diffs two ScanResults with --diff-from/--diff-to and writes diff.json", async () => {

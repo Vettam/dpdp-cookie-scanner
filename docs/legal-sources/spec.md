@@ -399,6 +399,8 @@ last_verified: "2026-09-15"
   ],
   "interaction": {
     "performed": false,
+    "accept_clicked": false,
+    "reject_clicked": false,
     "accept_findings": 0,
     "reject_findings": 0,
     "survived_reject": [],

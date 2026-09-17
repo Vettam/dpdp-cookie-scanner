@@ -87,6 +87,10 @@ export const MetaObservation = ObservationBase.extend({
   geo_source: z.string().default(""),
   geo_date: z.string().default(""),
   gpc_sent: z.boolean().default(false),
+  /** Set on accept/reject passes: which control we tried to click. */
+  banner_action: z.string().default(""),
+  /** True only when that control was found and clicked. */
+  banner_action_clicked: z.boolean().default(false),
 });
 
 export const Observation = z.discriminatedUnion("type", [
@@ -225,6 +229,8 @@ export type FindingPresence = z.infer<typeof FindingPresence>;
  */
 export const Interaction = z.object({
   performed: z.boolean().default(false),
+  accept_clicked: z.boolean().default(false),
+  reject_clicked: z.boolean().default(false),
   accept_findings: z.number().int().min(0).default(0),
   reject_findings: z.number().int().min(0).default(0),
   survived_reject: z.array(FindingPresence).default([]),
@@ -235,6 +241,8 @@ export type Interaction = z.infer<typeof Interaction>;
 
 export const emptyInteraction = (): Interaction => ({
   performed: false,
+  accept_clicked: false,
+  reject_clicked: false,
   accept_findings: 0,
   reject_findings: 0,
   survived_reject: [],
@@ -258,6 +266,8 @@ export const ScanResult = z.object({
   limits: z.array(z.string()).default([]),
   interaction: Interaction.default({
     performed: false,
+    accept_clicked: false,
+    reject_clicked: false,
     accept_findings: 0,
     reject_findings: 0,
     survived_reject: [],

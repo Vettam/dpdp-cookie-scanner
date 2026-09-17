@@ -665,6 +665,14 @@
                     "gpc_sent": {
                       "type": "boolean",
                       "default": false
+                    },
+                    "banner_action": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "banner_action_clicked": {
+                      "type": "boolean",
+                      "default": false
                     }
                   },
                   "required": [
@@ -880,6 +888,14 @@
           "type": "boolean",
           "default": false
         },
+        "accept_clicked": {
+          "type": "boolean",
+          "default": false
+        },
+        "reject_clicked": {
+          "type": "boolean",
+          "default": false
+        },
         "accept_findings": {
           "type": "integer",
           "minimum": 0,
@@ -948,6 +964,8 @@
       "additionalProperties": false,
       "default": {
         "performed": false,
+        "accept_clicked": false,
+        "reject_clicked": false,
         "accept_findings": 0,
         "reject_findings": 0,
         "survived_reject": [],

@@ -4,7 +4,7 @@ import { loadRules, readRulesVersion } from "./rules/loader.js";
 import { loadTrackers, readTrackersVersion } from "./trackers/loader.js";
 import { TrackerIndex } from "./trackers/matcher.js";
 import { mapScan } from "./mapper/index.js";
-import { attachInteraction } from "./interaction/compare.js";
+import { attachInteraction, bannerActionClicked } from "./interaction/compare.js";
 import type { ScanResult } from "./types.js";
 import type { ScanEngine, ScanOptions } from "./engine/types.js";
 
@@ -98,5 +98,6 @@ export async function scan(url: string, options: ScanRunOptions = {}): Promise<S
     load,
     mapScan({ observations: acceptObs, ...mapped }),
     mapScan({ observations: rejectObs, ...mapped }),
+    { accept: bannerActionClicked(acceptObs), reject: bannerActionClicked(rejectObs) },
   );
 }

@@ -68,6 +68,8 @@ function sr(findings: Finding[], over: Partial<ScanResult> = {}): ScanResult {
     ],
     interaction: {
       performed: false,
+      accept_clicked: false,
+      reject_clicked: false,
       accept_findings: 0,
       reject_findings: 0,
       survived_reject: [],
@@ -145,6 +147,34 @@ describe("comparePasses", () => {
     expect(cmp.survived_reject).toHaveLength(1);
     expect(cmp.cleared_on_reject).toHaveLength(0);
   });
+
+  it("does not report survived_reject when the reject click missed", () => {
+    const cmp = comparePasses(sr([meta, hotjar]), sr([meta, hotjar]), sr([meta, hotjar]), {
+      accept: false,
+      reject: false,
+    });
+    expect(cmp.performed).toBe(false);
+    expect(cmp.accept_clicked).toBe(false);
+    expect(cmp.reject_clicked).toBe(false);
+    expect(cmp.survived_reject).toHaveLength(0);
+    expect(cmp.cleared_on_reject).toHaveLength(0);
+    expect(cmp.appeared_on_accept).toHaveLength(0);
+    expect(cmp.accept_findings).toBe(0);
+    expect(cmp.reject_findings).toBe(0);
+  });
+
+  it("compares only the side whose click succeeded", () => {
+    const cmp = comparePasses(sr([meta, hotjar]), sr([meta, hotjar, gaAfterAccept]), sr([meta, hotjar]), {
+      accept: true,
+      reject: false,
+    });
+    expect(cmp.performed).toBe(true);
+    expect(cmp.accept_clicked).toBe(true);
+    expect(cmp.reject_clicked).toBe(false);
+    expect(cmp.appeared_on_accept.map((f) => f.tracker_id)).toEqual(["ga4"]);
+    expect(cmp.survived_reject).toHaveLength(0);
+    expect(cmp.cleared_on_reject).toHaveLength(0);
+  });
 });
 
 describe("attachInteraction", () => {
@@ -156,5 +186,14 @@ describe("attachInteraction", () => {
     expect(out.interaction.cleared_on_reject).toHaveLength(1);
     expect(out.limits.some((l) => /was performed/.test(l))).toBe(true);
     expect(out.limits.some((l) => /was not performed/.test(l))).toBe(false);
+  });
+
+  it("keeps the load-only limit when both clicks missed", () => {
+    const load = sr([meta]);
+    const out = attachInteraction(load, sr([meta]), sr([meta]), { accept: false, reject: false });
+    expect(out.interaction.performed).toBe(false);
+    expect(out.interaction.survived_reject).toHaveLength(0);
+    expect(out.limits.some((l) => /was not performed/.test(l))).toBe(true);
+    expect(out.limits.some((l) => /was performed \(load/.test(l))).toBe(false);
   });
 });

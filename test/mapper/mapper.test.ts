@@ -280,6 +280,7 @@ describe("mapScan", () => {
     const host = sr.inventory.third_party_hosts.find((h) => h.tracker_id === "meta-pixel");
     expect(host?.country).toBe("US");
     expect(sr.summary.third_parties_outside_india).toBe(1);
+    expect(sr.findings.map((f) => f.rule_id)).toContain("DPDP-C-020");
   });
 
   it("leaves destination_country empty for unclassified hosts (cite or don't claim)", () => {
@@ -291,6 +292,16 @@ describe("mapScan", () => {
     const host = sr.inventory.third_party_hosts.find((h) => h.host === "evil-tracker.example");
     expect(host?.country).toBe("");
     expect(host?.tracker_id).toBeNull();
+  });
+
+  it("does not emit C-020 when the country is unknown (empty is not outside India)", () => {
+    const sr = map([
+      meta(),
+      req("evil-tracker.example", { path: "/x", destination_country: "" }),
+      banner({}),
+    ]);
+    expect(sr.findings.map((f) => f.rule_id)).not.toContain("DPDP-C-020");
+    expect(sr.summary.third_parties_outside_india).toBe(0);
   });
 
   it("emits C-020 (open) for a third-party request resolving outside India", () => {

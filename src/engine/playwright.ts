@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import type { ScanEngine, ScanOptions } from "./types.js";
 import { applyDestinationCountries } from "./geo.js";
 import { geoMeta, loadBundledGeo, type GeoDb } from "../geo/lookup.js";
 import { redactBannerText } from "./redact.js";
 import { applyBeforeFirstPaint, redirectChain } from "./timing.js";
+import { detectSystemBrowser, ensureChromium, launchOptions, playwrightChromiumInstalled } from "./browser.js";
+import { gotoUrl } from "./navigate.js";
 import {
   ACCEPT_BUTTON_SELECTORS,
   BANNER_VOCAB,
@@ -33,56 +33,35 @@ import type {
  * URL and its subresources.
  */
 
-interface BrowserPath {
-  executablePath: string;
-  channel: "chrome" | "msedge" | "chromium";
-}
-
-function detectSystemBrowser(browserPath?: string): BrowserPath {
-  if (browserPath && existsSync(browserPath)) {
-    return { executablePath: browserPath, channel: "chromium" };
-  }
-  const platform = process.platform;
-  const candidates: BrowserPath[] = [];
-  if (platform === "darwin") {
-    candidates.push(
-      { executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", channel: "chrome" },
-      { executablePath: "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser", channel: "chromium" },
-      { executablePath: "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge", channel: "msedge" },
-      { executablePath: "/Applications/Chromium.app/Contents/MacOS/Chromium", channel: "chromium" },
-    );
-  } else if (platform === "win32") {
-    const pf = process.env["PROGRAMFILES"] ?? "C:\\Program Files";
-    const pf86 = process.env["PROGRAMFILES(X86)"] ?? "C:\\Program Files (x86)";
-    candidates.push(
-      { executablePath: join(pf, "Google", "Chrome", "Application", "chrome.exe"), channel: "chrome" },
-      { executablePath: join(pf86, "Microsoft", "Edge", "Application", "msedge.exe"), channel: "msedge" },
-    );
-  } else {
-    candidates.push(
-      { executablePath: "/usr/bin/google-chrome", channel: "chrome" },
-      { executablePath: "/usr/bin/chromium", channel: "chromium" },
-      { executablePath: "/usr/bin/microsoft-edge", channel: "msedge" },
-    );
-  }
-  for (const c of candidates) {
-    if (existsSync(c.executablePath)) return c;
-  }
-  process.stderr.write(
-    "dpdp-cookie-scan: no system Chrome/Edge found; downloading Chromium as a fallback (one-time).\n",
-  );
-  return { executablePath: "", channel: "chromium" };
-}
-
 export const defaultEngine: ScanEngine = {
   async scan(url, options = {}) {
     const { chromium } = await import("playwright-core");
     const detected = detectSystemBrowser(options.browserPath);
-    const launchOptions: Record<string, unknown> = { headless: true };
-    if (detected.executablePath) launchOptions["executablePath"] = detected.executablePath;
-    else launchOptions["channel"] = "chromium";
+    if (!detected) {
+      let bundled = "";
+      try {
+        bundled = chromium.executablePath();
+      } catch {
+        bundled = "";
+      }
+      await ensureChromium({ installed: playwrightChromiumInstalled(bundled) });
+    }
+    const browser = await chromium.launch(launchOptions(detected));
+    try {
+      return await collectObservations(browser, url, options);
+    } finally {
+      await browser.close().catch(() => {
+        /* already closing */
+      });
+    }
+  },
+};
 
-    const browser = await chromium.launch(launchOptions);
+async function collectObservations(
+  browser: import("playwright-core").Browser,
+  url: string,
+  options: ScanOptions,
+): Promise<Observation[]> {
     const contextOptions: Record<string, unknown> = {};
     if (options.gpc) contextOptions["extraHTTPHeaders"] = { "Sec-GPC": "1" };
     const context = await browser.newContext(contextOptions);
@@ -146,9 +125,7 @@ export const defaultEngine: ScanEngine = {
       }
     });
 
-    await page.goto(url, { waitUntil: "networkidle", timeout: options.timeout ?? 15000 }).catch(() => {
-      /* navigation failure surfaced by the CLI as exit code 3 */
-    });
+    await gotoUrl(page, url, options.timeout ?? 15000);
     await page.waitForTimeout(options.settle ?? 3000);
 
     const banner = await detectBanner(page);
@@ -162,8 +139,9 @@ export const defaultEngine: ScanEngine = {
       } as BannerObservation);
     }
 
+    let bannerActionClicked = false;
     if (options.bannerAction) {
-      await clickConsentButton(page, options.bannerAction);
+      bannerActionClicked = await clickConsentButton(page, options.bannerAction);
       await page.waitForTimeout(options.settle ?? 3000);
     }
 
@@ -308,9 +286,9 @@ export const defaultEngine: ScanEngine = {
       geo_source: "DB-IP Lite",
       geo_date: geo ? geoMeta(geo).date : "",
       gpc_sent: Boolean(options.gpc),
+      banner_action: options.bannerAction ?? "",
+      banner_action_clicked: bannerActionClicked,
     } as MetaObservation);
-
-    await browser.close();
 
     if (geo) applyDestinationCountries(observations, ipByHost, geo);
     applyBeforeFirstPaint(observations, firstPaintMs || null);
@@ -322,8 +300,7 @@ export const defaultEngine: ScanEngine = {
       }
     }
     return observations;
-  },
-};
+}
 
 async function detectBanner(
   page: import("playwright-core").Page,

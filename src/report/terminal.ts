@@ -34,7 +34,13 @@ export function renderTerminal(sr: ScanResult, opts: TerminalOptions = {}): stri
   }
 
   if (sr.interaction.performed) {
-    lines.push(`${c.bold("INTERACTION")}  accept-all ${sr.interaction.accept_findings} · reject-all ${sr.interaction.reject_findings}`);
+    const acceptBit = sr.interaction.accept_clicked
+      ? `accept-all ${sr.interaction.accept_findings}`
+      : "accept click missed";
+    const rejectBit = sr.interaction.reject_clicked
+      ? `reject-all ${sr.interaction.reject_findings}`
+      : "reject click missed";
+    lines.push(`${c.bold("INTERACTION")}  ${acceptBit} · ${rejectBit}`);
     lines.push(
       `  survived reject ${sr.interaction.survived_reject.length} · cleared on reject ${sr.interaction.cleared_on_reject.length} · appeared on accept ${sr.interaction.appeared_on_accept.length}`,
     );

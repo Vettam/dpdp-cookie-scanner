@@ -30,6 +30,8 @@ function sr(over: { findings?: Finding[]; questions?: Question[] }): ScanResult 
     limits: [],
     interaction: {
       performed: false,
+      accept_clicked: false,
+      reject_clicked: false,
       accept_findings: 0,
       reject_findings: 0,
       survived_reject: [],

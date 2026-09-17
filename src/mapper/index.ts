@@ -290,12 +290,13 @@ function evalRequestConditions(
   if (where.gpc_sent !== undefined && (meta?.gpc_sent ?? false) !== where.gpc_sent) return false;
   if (where.is_third_party !== undefined && o.is_third_party !== where.is_third_party) return false;
   if (where.destination_country !== undefined) {
-    const country = o.destination_country || (tracker?.destination_countries[0] ?? "");
-    if (country !== where.destination_country) return false;
+    const country = resolvedRequestCountry(o, tracker);
+    if (!country || country !== where.destination_country) return false;
   }
   if (where.destination_country_not !== undefined) {
-    const country = o.destination_country || (tracker?.destination_countries[0] ?? "");
-    if (country === where.destination_country_not) return false;
+    const country = resolvedRequestCountry(o, tracker);
+    // Unknown is not "outside India" (or any other named country).
+    if (!country || country === where.destination_country_not) return false;
   }
   return true;
 }
@@ -465,10 +466,15 @@ function buildInventory(
   };
 }
 
+function resolvedRequestCountry(
+  o: RequestObservation,
+  tracker: Tracker | undefined,
+): string {
+  return o.destination_country || (tracker?.destination_countries[0] ?? "");
+}
+
 function resolveCountry(r: { request: RequestObservation; tracker: Tracker | undefined }): string {
-  if (r.request.destination_country) return r.request.destination_country;
-  const first = r.tracker?.destination_countries[0];
-  return first ?? "";
+  return resolvedRequestCountry(r.request, r.tracker);
 }
 
 function bannerSummary(banner: BannerObservation | undefined) {

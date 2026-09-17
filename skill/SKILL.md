@@ -49,7 +49,9 @@ commence 13 May 2027) and an `explainer_url` linking to a versioned rationale pa
      (`observable: false` or `needs_input`). Present these as questions, not findings.
    - `summary`: `third_parties`, `third_parties_outside_india`, `fired_before_banner`.
    - `interaction` (when `--interact`): `survived_reject`, `cleared_on_reject`,
-     `appeared_on_accept`. The `findings[]` array is still the load pass.
+     `appeared_on_accept`. Treat these as meaningful only when
+     `accept_clicked` / `reject_clicked` are true — a missed banner click is a
+     load pass, not a comparison. The `findings[]` array is still the load pass.
 
    To compare two previous scans without recrawling:
 

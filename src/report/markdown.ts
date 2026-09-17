@@ -24,9 +24,13 @@ export function renderMarkdown(sr: ScanResult): string {
   if (sr.interaction.performed) {
     out.push(`## INTERACTION — load vs accept-all vs reject-all`);
     out.push("");
-    out.push(
-      `Accept-all findings: ${sr.interaction.accept_findings}. Reject-all findings: ${sr.interaction.reject_findings}. The findings above are the load pass.`,
-    );
+    const acceptLine = sr.interaction.accept_clicked
+      ? `Accept-all findings: ${sr.interaction.accept_findings}.`
+      : "Accept-all control was not found; accept comparison was not performed.";
+    const rejectLine = sr.interaction.reject_clicked
+      ? `Reject-all findings: ${sr.interaction.reject_findings}.`
+      : "Reject-all control was not found; reject comparison was not performed.";
+    out.push(`${acceptLine} ${rejectLine} The findings above are the load pass.`);
     out.push("");
     out.push(renderPresenceList("Survived reject-all", sr.interaction.survived_reject));
     out.push(renderPresenceList("Cleared on reject-all", sr.interaction.cleared_on_reject));

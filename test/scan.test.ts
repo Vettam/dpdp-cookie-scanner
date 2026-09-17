@@ -70,8 +70,12 @@ describe("scan()", () => {
       interact: true,
     });
     expect(actions).toEqual([undefined, "accept", "reject"]);
-    expect(sr.interaction.performed).toBe(true);
     expect(sr.findings.map((f) => f.rule_id)).toContain("DPDP-C-001");
-    expect(sr.limits.some((l) => /was performed/.test(l))).toBe(true);
+    // No distinct accept/reject fixtures → clicks missed; extra passes are load-only.
+    expect(sr.interaction.performed).toBe(false);
+    expect(sr.interaction.accept_clicked).toBe(false);
+    expect(sr.interaction.reject_clicked).toBe(false);
+    expect(sr.interaction.survived_reject).toHaveLength(0);
+    expect(sr.limits.some((l) => /was not performed/.test(l))).toBe(true);
   });
 });
