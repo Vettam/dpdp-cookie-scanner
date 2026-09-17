@@ -9,6 +9,13 @@ and does not say a site is or is not compliant. It does not fail the job
 because findings exist unless you set `fail-on: settled` (opt-in; never
 trips on arguable or open findings).
 
+The Action downloads the `dpdp-cookie-scanner` package and runs the
+`dpdp-cookie-scan` command. Locally that is:
+
+```bash
+npx --package=dpdp-cookie-scanner dpdp-cookie-scan <url> --ci
+```
+
 ## Usage
 
 ```yaml

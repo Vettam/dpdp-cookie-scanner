@@ -32,7 +32,7 @@ commence 13 May 2027) and an `explainer_url` linking to a versioned rationale pa
 1. Run the scanner, writing JSON to a temp dir (do not print raw JSON to the user):
 
    ```sh
-   npx dpdp-cookie-scan <url> --json --out /tmp/dpdp-scan
+   npx --package=dpdp-cookie-scanner dpdp-cookie-scan <url> --json --out /tmp/dpdp-scan
    ```
 
    Add `--gpc` if the user wants the Sec-GPC / DPDP-C-050 evaluation. Add
@@ -61,7 +61,7 @@ commence 13 May 2027) and an `explainer_url` linking to a versioned rationale pa
    To compare two previous scans without recrawling:
 
    ```sh
-   npx dpdp-cookie-scan --diff-from /tmp/a.json --diff-to /tmp/b.json --out /tmp/dpdp-diff
+   npx --package=dpdp-cookie-scanner dpdp-cookie-scan --diff-from /tmp/a.json --diff-to /tmp/b.json --out /tmp/dpdp-diff
    ```
 
    Read `diff.json`. `site` is inventory/finding drift on the page; `catalogue` is

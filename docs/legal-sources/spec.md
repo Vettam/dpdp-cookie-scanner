@@ -446,7 +446,7 @@ Rules with `observable: false`, or findings with a non-empty `needs_input`, are 
 ### 8.1 CLI
 
 ```
-npx dpdp-cookie-scan <url> [options]
+npx --package=dpdp-cookie-scanner dpdp-cookie-scan <url> [options]
 
   --json                 write findings.json (default in --ci)
   --md                   write findings.md
@@ -477,7 +477,7 @@ Exit codes: `0` on a completed scan regardless of findings. `1` only when `--fai
 
 - Frontmatter: name, description written so an agent triggers on "check this site for DPDP tracking issues", "scan cookies for Indian compliance", "what fires before consent on my site", and similar.
 - A short statement of the certainty model, so the agent explains tiers correctly.
-- Instructions: run `npx dpdp-cookie-scan <url> --json --out <tmp>`, read `findings.json`, summarise findings grouped by certainty, always link `explainer_url`, always append the indicative-not-legal-advice line, never invent provisions not present in the JSON.
+- Instructions: run `npx --package=dpdp-cookie-scanner dpdp-cookie-scan <url> --json --out <tmp>`, read `findings.json`, summarise findings grouped by certainty, always link `explainer_url`, always append the indicative-not-legal-advice line, never invent provisions not present in the JSON.
 - Explicit prohibition: the agent must not describe a site as compliant or non-compliant.
 - Pointer to Sentinel for counsel-reviewed analysis.
 
@@ -515,7 +515,7 @@ The repo must not contain the PDF renderer, email code, or anything that gates o
 - README that explains the certainty model within the first screen
 - Tests: fixture pages (including a real-browser scan of the locally served DoD page), mapper unit tests, schema validation, JSON snapshots
 
-**Definition of done:** `npx dpdp-cookie-scan https://<fixture>` produces correct findings against a fixture page containing GTM, GA4, Meta Pixel, Hotjar, and a CookieYes banner with no reject button, in under 10 seconds on a machine with Chrome installed.
+**Definition of done:** `npx --package=dpdp-cookie-scanner dpdp-cookie-scan https://<fixture>` produces correct findings against a fixture page containing GTM, GA4, Meta Pixel, Hotjar, and a CookieYes banner with no reject button, in under 10 seconds on a machine with Chrome installed.
 
 ### v0.2 — "reach"
 

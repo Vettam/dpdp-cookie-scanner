@@ -41,9 +41,20 @@ not yet enforceable is still reported; the date is shown beside it.
 
 ## Install / run
 
+The npm **package** is `dpdp-cookie-scanner`. It ships two **commands**:
+`dpdp-cookie-scan` (this scanner) and `dpdp-notice-lint`. `npx` needs both
+names — which package to download, then which command to run:
+
 ```bash
-npx dpdp-cookie-scanner <url> [options]
+npx --package=dpdp-cookie-scanner dpdp-cookie-scan <url> [options]
 ```
+
+Example: `npx --package=dpdp-cookie-scanner dpdp-cookie-scan https://example.com --md`
+
+`npx dpdp-cookie-scanner <url>` is the same scan (the package name is an alias
+of `dpdp-cookie-scan`). `npx dpdp-cookie-scan` on its own looks for a different
+package and will not work. After `npm install -g dpdp-cookie-scanner`, call
+`dpdp-cookie-scan` and `dpdp-notice-lint` directly.
 
 Detects an existing system Chrome/Edge and uses it; downloads Chromium only as
 a fallback (with a one-time message). No outbound network calls other than the
@@ -81,7 +92,7 @@ field), a withdrawal mechanism (s.6(4)), a grievance officer (Rule 3), and
 English + Hindi text:
 
 ```bash
-npx dpdp-notice-lint <notice-url-or-file> [--scan ./dpdp-scan/findings.json] [--json] [--ci]
+npx --package=dpdp-cookie-scanner dpdp-notice-lint <notice-url-or-file> [--scan ./dpdp-scan/findings.json] [--json] [--ci]
 ```
 
 Pass `--scan` a `findings.json` from `dpdp-cookie-scan` to drive per-tracker
