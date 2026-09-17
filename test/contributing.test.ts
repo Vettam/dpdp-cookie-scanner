@@ -14,6 +14,8 @@ describe("contribution guides", () => {
     expect(contributing).toMatch(/Indian vendors/);
     expect(contributing).toMatch(/No outbound network/i);
     expect(contributing).toContain("docs/contributing-rules.md");
+    expect(contributing).toContain("docs/legal-sources/");
+    expect(contributing).toMatch(/dod\.html/);
   });
 
   it("keeps the legal-content review bar in docs/contributing-rules.md", () => {
@@ -21,5 +23,7 @@ describe("contribution guides", () => {
     expect(rulesGuide).toMatch(/legal content/);
     expect(rulesGuide).toMatch(/provenance/);
     expect(rulesGuide).toContain("CONTRIBUTING.md");
+    expect(rulesGuide).toMatch(/docs\/legal-sources/);
+    expect(rulesGuide).toMatch(/G\.S\.R\. 846\(E\)/);
   });
 });

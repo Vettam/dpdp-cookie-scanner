@@ -152,8 +152,10 @@ tool. Choose your own name.
 ## Status
 
 v0.1 — "sharp and narrow": settled-tier rules only, baseline scan (no banner
-interaction), terminal + JSON output. See `docs/` for the product spec, the
-provision-by-provision guide, and the web-data map that grounds every rule.
+interaction), terminal + JSON output. See [`docs/legal-sources/`](docs/legal-sources/README.md)
+for the product spec, the provision-by-provision guide, the web-data map, and
+the Gazette PDFs of the Act, Rules, corrigendum, and commencement notification
+that ground every rule.
 
 v0.2 — "reach": markdown renderer, `--ci` mode, the GitHub Action wrapper
 at `action/` (PR comment + JSON artifact), `--gpc` flag and rule C-050

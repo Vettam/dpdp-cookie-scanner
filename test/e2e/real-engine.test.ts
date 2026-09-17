@@ -5,7 +5,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { scan } from "../../src/index.js";
 
-const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "test", "fixtures");
+const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures");
 
 function startServer(): Promise<{ url: string; close: () => void }> {
   return new Promise((resolve) => {
@@ -28,17 +28,20 @@ function startServer(): Promise<{ url: string; close: () => void }> {
   });
 }
 
-const enabled = process.env["DPDP_E2E"] === "1";
-
-describe.skipIf(!enabled)("real engine end-to-end (opt-in: DPDP_E2E=1)", () => {
-  it("scans the fixture page and finds the expected settled rules + the C-040 question", async () => {
+describe("real engine end-to-end (spec §3.2 / §9 v0.1)", () => {
+  it("scans the locally served DoD fixture in a real browser", async () => {
     const server = await startServer();
     try {
       const sr = await scan(server.url, { timeout: 15000, settle: 2000 });
       const ids = sr.findings.map((f) => f.rule_id);
+      expect(sr.banner.detected).toBe(true);
+      expect(sr.banner.confidence).toBe("high");
+      expect(sr.banner.has_accept).toBe(true);
+      expect(sr.banner.has_reject).toBe(false);
       expect(ids).toContain("DPDP-C-001");
       expect(ids).toContain("DPDP-C-004");
       expect(ids).toContain("DPDP-C-007");
+      expect(sr.findings.find((f) => f.rule_id === "DPDP-C-004")?.detection_confidence).toBe("high");
       expect(sr.questions.map((q) => q.rule_id)).toContain("DPDP-C-040");
     } finally {
       server.close();

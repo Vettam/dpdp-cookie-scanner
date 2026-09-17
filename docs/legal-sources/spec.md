@@ -40,11 +40,11 @@ Some links in that chain are settled. Some are arguable. Some will only be resol
 
 ### 0.4 Companion documents
 
-The implementing session should have these in the repo under `/docs/legal-sources/` (they are the legal grounding for every rule):
+The implementing session should have these in the repo under `/docs/legal-sources/` (they are the legal grounding for every rule). See `docs/legal-sources/README.md` for the index.
 
 - `dpdp-web-data-map.md` — engineering reference mapping web data collection to the Act and Rules. **This is the primary source for the rule catalogue and tracker categories.** Its Part 2 (categories C1–C10 and overlay flags), Part 3 (page-load inventory), Part 4 (vendor table), Part 5 (hard calls H1–H9) and Part 6 (what this means for the scanner) are directly implementable.
 - `dpdp-guide.md` — provision-by-provision guide to the Act.
-- The Act (Act 22 of 2023), the Rules (G.S.R. 846(E)), the corrigendum (G.S.R. 892(E)), and the commencement notification (G.S.R. 843(E)).
+- The Act (Act 22 of 2023) as `DPDP Act 2023.pdf`, the Rules (G.S.R. 846(E)) as `DPDP Rules 2025.pdf`, the corrigendum (G.S.R. 892(E)) as `DPDP Rules 2025 Corrigendum.pdf`, and the commencement notification (G.S.R. 843(E)) as `DPDP Enforcement Timeline.pdf`. These Gazette PDFs are the primary legal texts; where a project reading disagrees with them, the Gazette wins.
 
 Where this spec and the web data map disagree on legal content, the web data map wins. Where they disagree on product shape, this spec wins.
 
@@ -513,7 +513,7 @@ The repo must not contain the PDF renderer, email code, or anything that gates o
 - CLI with the flag set in §8.1 minus `--gpc`
 - Explainer pages live at `sentinel.vettam.ai/rules/<id>` for every shipped rule before the npm publish
 - README that explains the certainty model within the first screen
-- Tests: fixture pages, mapper unit tests, schema validation, JSON snapshots
+- Tests: fixture pages (including a real-browser scan of the locally served DoD page), mapper unit tests, schema validation, JSON snapshots
 
 **Definition of done:** `npx dpdp-cookie-scan https://<fixture>` produces correct findings against a fixture page containing GTM, GA4, Meta Pixel, Hotjar, and a CookieYes banner with no reject button, in under 10 seconds on a machine with Chrome installed.
 
@@ -590,7 +590,7 @@ dpdp-cookie-scan/
 ├── skill/
 │   └── SKILL.md
 ├── docs/
-│   ├── legal-sources/         # web data map, guide, Act, Rules, corrigendum, commencement notification
+│   ├── legal-sources/         # README index, web data map, guide, Gazette PDFs (Act, Rules, corrigendum, commencement)
 │   ├── certainty-model.md
 │   └── contributing-rules.md  # how a rule is proposed, cited, tiered and reviewed
 └── test/

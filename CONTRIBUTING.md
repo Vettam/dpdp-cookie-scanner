@@ -5,7 +5,9 @@ This is a public scanner for India's DPDP Act. The interpretation layer
 changes are both welcome; they are reviewed differently.
 
 Please read this file, then [`docs/contributing-rules.md`](docs/contributing-rules.md)
-before opening a PR that touches `rules/` or `trackers/`.
+before opening a PR that touches `rules/` or `trackers/`. Primary legal texts
+(the Act, Rules, corrigendum, and commencement notification) live as Gazette
+PDFs under [`docs/legal-sources/`](docs/legal-sources/README.md).
 
 ## What to contribute
 
@@ -48,15 +50,19 @@ lists under-cover Indian vendors; those records are the priority.
 Held to a higher bar. Full policy: [`docs/contributing-rules.md`](docs/contributing-rules.md).
 
 Short version: a new rule or any change to `certainty`, `provisions`, or
-`rationale_*` needs a PR that quotes the provision and, for `arguable` / `open`,
-states the competing reading. A rule cannot be `settled` if the PR itself
-describes a plausible alternative. Legal-content review is required, not just
-code review. Bump `rules/VERSION` and append a `changelog` entry.
+`rationale_*` needs a PR that quotes the provision from the Gazette PDFs in
+[`docs/legal-sources/`](docs/legal-sources/README.md) and, for `arguable` /
+`open`, states the competing reading. A rule cannot be `settled` if the PR
+itself describes a plausible alternative. Legal-content review is required, not
+just code review. Bump `rules/VERSION` and append a `changelog` entry.
 
 ## Code
 
 - **Node ≥ 22**, TypeScript, tests in Vitest. `npm test` and `npm run typecheck`
-  must pass.
+  must pass. `npm test` includes a real Chromium scan of the locally served
+  `test/fixtures/dod.html` page (spec §3.2 / §9). The first run may download
+  Chromium if no system Chrome/Edge is installed. `npm run test:e2e` runs only
+  that scan.
 - Test-driven: write a failing test at a public seam (schema, mapper, renderer,
   CLI `execute`, geo lookup) before the implementation.
 - Keep the dependency tree small. No outbound network calls other than the
@@ -82,8 +88,9 @@ See `data/geo/README.md` and `trackers/PROVENANCE.md`.
 
 - One concern per PR (one rule, one tracker cluster, or one code change).
 - Include a changeset for user-facing npm changes.
-- The CI workflow runs typecheck, tests, and the build. The Release workflow
-  opens a version PR; maintainers merge that PR to publish.
+- The CI workflow installs Playwright Chromium, then runs typecheck, tests
+  (including the real-browser fixture scan), and the build. The Release
+  workflow opens a version PR; maintainers merge that PR to publish.
 
 ## Licence
 

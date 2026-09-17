@@ -24,6 +24,14 @@ describe("detectSystemBrowser", () => {
     });
     expect(path).toBeUndefined();
   });
+
+  it("finds google-chrome-stable on linux CI images", () => {
+    const path = detectSystemBrowser(undefined, {
+      existsSync: (p) => p === "/usr/bin/google-chrome-stable",
+      platform: "linux",
+    });
+    expect(path).toBe("/usr/bin/google-chrome-stable");
+  });
 });
 
 describe("launchOptions", () => {

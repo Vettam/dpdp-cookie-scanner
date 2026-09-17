@@ -55,6 +55,8 @@
       a.appendChild(r);
     })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
   </script>
+  <!-- CookieYes CMP script host (C10). The banner DOM below is the v0.1 DoD shape. -->
+  <script async src="https://cdn-cookieyes.com/client_data/fixture/script.js"></script>
   <!-- Direct beacons so the PRE finding is deterministic regardless of SDK init IDs.
        These fire synchronously on parse, before the banner renders. -->
   <script>
@@ -63,22 +65,23 @@
   </script>
 
   <style>
-    #cookie-banner {
+    .cky-consent-container {
       position: fixed; bottom: 0; left: 0; right: 0;
       padding: 16px; background: #fff; border-top: 1px solid #ccc;
       font-family: sans-serif; z-index: 9999;
     }
-    #cookie-banner button { margin-right: 8px; padding: 6px 12px; }
+    .cky-consent-container button { margin-right: 8px; padding: 6px 12px; }
   </style>
 </head>
 <body>
   <h1>Acme staging</h1>
-  <p>This page loads GTM, GA4, Meta Pixel and Hotjar, and shows a consent banner with an accept button but no reject button.</p>
+  <p>This page loads GTM, GA4, Meta Pixel and Hotjar, and shows a CookieYes consent banner with an accept button but no reject button.</p>
 
-  <!-- CookieYes-style banner: accept but NO reject -->
-  <div id="cookie-banner" role="dialog" aria-label="Cookie consent">
-    <p>We use cookies to improve your experience. By continuing to browse this site, you accept our use of cookies and our privacy policy.</p>
-    <button id="accept-btn">Accept all</button>
+  <!-- CookieYes banner (spec §9 v0.1 DoD): accept but NO reject.
+       Selectors match trackers/cookieyes.yaml so CMP detection_confidence is high. -->
+  <div id="cookie-law-info-bar" class="cky-consent-container cky-consent-bar" role="dialog" aria-label="Cookie consent">
+    <p data-cky-tag="description">We use cookies to improve your experience. By continuing to browse this site, you accept our use of cookies and our privacy policy.</p>
+    <button type="button" class="cky-btn cky-btn-accept" data-cky-tag="accept-button">Accept all</button>
     <a href="/privacy">Privacy policy</a>
   </div>
 </body>

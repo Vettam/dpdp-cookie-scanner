@@ -22,6 +22,12 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
       - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright Chromium
+        run: node node_modules/playwright-core/cli.js install --with-deps chromium
       - run: npm run typecheck
       - run: npm run build
       - run: npm test

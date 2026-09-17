@@ -30,6 +30,7 @@
     "build": "npm run gen:schemas && tsup",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "vitest run test/e2e/real-engine.test.ts",
     "typecheck": "tsc --noEmit",
     "gen:schemas": "tsx scripts/generate-schemas.ts",
     "geo:build": "tsx scripts/build-geo.ts",

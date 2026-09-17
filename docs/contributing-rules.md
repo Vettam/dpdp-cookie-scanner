@@ -4,7 +4,7 @@ Because the rule catalogue is the product, changes to it are reviewed differentl
 
 ## Rules (`rules/`)
 
-- Any new rule, or any change to `certainty`, `provisions`, `rationale_*`, or `enforceable_from`, requires a PR that cites the provision text and, for `arguable` or `open` tiers, states the competing readings.
+- Any new rule, or any change to `certainty`, `provisions`, `rationale_*`, or `enforceable_from`, requires a PR that cites the provision text from the Gazette PDFs in [`docs/legal-sources/`](legal-sources/README.md) (Act 22 of 2023, G.S.R. 846(E), G.S.R. 892(E), G.S.R. 843(E)) and, for `arguable` or `open` tiers, states the competing readings.
 - Rule PRs require review by a maintainer designated for legal content (not just code review).
 - A rule cannot be tiered `settled` if the PR describes a plausible alternative reading.
 - Every rule change appears in the catalogue changelog (the `changelog` field in the rule file) with the date. The changelog is public and is the source for the explainer pages' "what changed" sections.

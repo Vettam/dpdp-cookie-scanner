@@ -70,7 +70,12 @@ describe("CMP signatures from trackers/ C10 (spec §4.3)", () => {
     const trackers = await loadTrackers(join(process.cwd(), "trackers"));
     const sigs = cmpSignaturesFromTrackers(trackers);
     expect(consentButtonSelectors("accept", sigs)).toEqual(
-      expect.arrayContaining(["#onetrust-accept-btn-handler", ".osano-cm-accept-all", "#accept-all"]),
+      expect.arrayContaining([
+        "#onetrust-accept-btn-handler",
+        ".cky-btn-accept",
+        ".osano-cm-accept-all",
+        "#accept-all",
+      ]),
     );
     expect(consentButtonSelectors("reject", sigs)).toEqual(
       expect.arrayContaining(["#onetrust-reject-all-handler", ".osano-cm-denyAll", "#reject-all"]),

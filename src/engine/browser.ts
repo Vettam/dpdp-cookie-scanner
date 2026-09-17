@@ -50,7 +50,14 @@ function systemBrowserCandidates(platform: string, env: NodeJS.ProcessEnv): stri
       join(pf86, "Microsoft", "Edge", "Application", "msedge.exe"),
     ];
   }
-  return ["/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/microsoft-edge"];
+  return [
+    "/usr/bin/google-chrome",
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+    "/usr/bin/microsoft-edge",
+    "/usr/bin/microsoft-edge-stable",
+  ];
 }
 
 export function launchOptions(executablePath?: string): { headless: true; executablePath?: string } {
