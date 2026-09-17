@@ -1,0 +1,42 @@
+id: DPDP-C-060
+title: Fingerprinting API calls observed
+certainty: arguable
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.6(1)
+  - s.6(4)
+flags: [FP]
+categories: []
+owner: engineering
+penalty_band: consent_notice
+detection:
+  match: api_call
+  where:
+    api: "^(canvas|AudioContext|createOscillator|WebGLRenderingContext|RTCPeerConnection|navigator\\.(deviceMemory|hardwareConcurrency|plugins|languages)|window\\.screen\\.)"
+needs_input: []
+rationale_plain: >
+  The page called a browser API commonly used for fingerprinting (canvas,
+  audio, WebGL, WebRTC, or a high-entropy navigator/screen property).
+  Fingerprinting is processing of personal data: a fingerprint identifies a
+  device "in relation to" a person under s.2(t). s.6(1) requires informed
+  consent, and a fingerprint is rarely disclosed in a notice; s.6(4) makes
+  withdrawal of consent "as easy as giving it", which a silently computed
+  fingerprint makes near-impossible. The arguable turn is that some of these
+  APIs have legitimate non-fingerprinting uses, so the call alone is not
+  conclusive.
+rationale_dev: >
+  Detection: an api_call observation whose api matches the fingerprinting
+  pattern. The engine instruments canvas.toDataURL/getImageData, AudioContext,
+  WebGL readPixels/getParameter, RTCPeerConnection, and navigator/screen
+  high-entropy reads. The mapping to s.6(1)/s.6(4) is settled; the arguable
+  tier reflects that a single API call may have a benign purpose.
+remediation_summary: >
+  Remove the fingerprinting call, or gate it behind explicit, informed consent
+  disclosed in the notice, and provide a working withdrawal mechanism.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-060
+since: "0.3.0"
+changelog:
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Initial rule. Arguable tier; a single API call may have a benign purpose.

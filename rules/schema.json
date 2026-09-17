@@ -189,6 +189,39 @@
             },
             "gpc_sent": {
               "type": "boolean"
+            },
+            "is_third_party": {
+              "type": "boolean"
+            },
+            "destination_country": {
+              "type": "string"
+            },
+            "destination_country_not": {
+              "type": "string"
+            },
+            "cookie_name": {
+              "type": "string"
+            },
+            "cookie_insecure": {
+              "type": "boolean"
+            },
+            "first_party": {
+              "type": "boolean"
+            },
+            "api": {
+              "type": "string"
+            },
+            "embed_kind": {
+              "type": "string",
+              "enum": [
+                "iframe",
+                "script",
+                "img",
+                "font"
+              ]
+            },
+            "sri": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false

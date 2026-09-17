@@ -1,0 +1,40 @@
+id: DPDP-C-031
+title: First-party cookie relies on an unstated s.7(a) basis
+certainty: arguable
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.7(a)
+  - Rule 3
+flags: []
+categories: []
+owner: engineering
+penalty_band: consent_notice
+detection:
+  match: cookie
+  where:
+    first_party: true
+needs_input: []
+rationale_plain: >
+  A first-party cookie was observed. DPDP has no "strictly necessary" exemption
+  like GDPR's PECR; every cookie needs a lawful basis. The most likely basis is
+  s.7(a) ("consent of the Data Principal … where she has not indicated that she
+  does not consent"), but s.7(a) is not self-justifying — the notice must state
+  the purpose, and the cookie must be reasonably necessary for that purpose.
+  Whether any given first-party cookie satisfies s.7(a) is contestable, so the
+  rule is tiered arguable rather than settled.
+rationale_dev: >
+  Detection: any first-party cookie (first_party=true). The rule does not claim
+  the cookie is unlawful; it flags that the s.7(a) basis must be documented in
+  the notice (Rule 3) and itemised. This is the inverse of the GDPR-trained
+  "first-party cookies are fine" assumption.
+remediation_summary: >
+  Document the purpose of each first-party cookie in the privacy notice and
+  confirm it is reasonably necessary for that stated purpose; remove cookies
+  that are not.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-031
+since: "0.3.0"
+changelog:
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Initial rule. Arguable tier; no strictly-necessary exemption under DPDP.

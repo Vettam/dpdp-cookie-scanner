@@ -1,0 +1,44 @@
+id: DPDP-C-010
+title: Analytics tracker (C4) fires before consent
+certainty: arguable
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.4
+  - s.6(1)
+  - s.17(2)(b)
+flags: [PRE]
+categories: [C4]
+owner: engineering
+penalty_band: consent_notice
+detection:
+  match: request
+  where:
+    tracker_category: C4
+    before_banner_detected: true
+needs_input: []
+rationale_plain: >
+  An analytics tracker (category C4) made a request before the consent banner was
+  detected. s.6(1) requires consent to be specific, informed and clear before
+  processing; s.4 says notice must precede collection. The arguable turn is
+  s.17(2)(b), which lets the Centre carve out "statistics" from the Act. If the
+  tracker is configured for aggregate-only statistics it may fall outside DPDP;
+  if it sets a per-user identifier (see C-030) it does not. Without seeing the
+  vendor's configuration we cannot tell, so the rule is tiered arguable rather
+  than settled.
+rationale_dev: >
+  Detection: a request to a C4 (analytics) vendor with before_banner_detected=true.
+  The s.17(2)(b) statistics exemption is the competing reading that keeps this
+  out of the settled tier; per-user analytics (a client-side identifier) is not
+  covered by the exemption. Pair with C-030 to test whether the analytics is
+  per-user.
+remediation_summary: >
+  Load analytics tags after consent (tag-manager gating), or configure the
+  vendor for aggregate-only, identifier-free statistics if you intend to rely
+  on the s.17(2)(b) exemption.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-010
+since: "0.3.0"
+changelog:
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Initial rule. Arguable tier; competes with the s.17(2)(b) statistics exemption.

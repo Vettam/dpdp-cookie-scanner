@@ -2,8 +2,10 @@ import type { Rule } from "../rules/schema.js";
 import type { Tracker } from "../trackers/schema.js";
 import { TrackerIndex } from "../trackers/matcher.js";
 import type {
+  ApiCallObservation,
   BannerObservation,
   CookieObservation,
+  EmbedObservation,
   Evidence,
   Finding,
   MetaObservation,
@@ -67,9 +69,17 @@ export function mapScan(input: MapInput): ScanResult {
   const seenQuestionRules = new Set<string>();
 
   for (const rule of input.rules) {
+    // observable:false rules are standing questions for counsel — always asked,
+    // regardless of what was observed (spec §5.3, e.g. C-041).
+    if (!rule.observable) {
+      if (seenQuestionRules.has(rule.id)) continue;
+      seenQuestionRules.add(rule.id);
+      questions.push(toQuestion(rule));
+      continue;
+    }
     const matches = evaluateRule(rule, input.observations, input.trackers, banner, meta);
     if (matches.length === 0) continue;
-    const isQuestion = !rule.observable || rule.needs_input.length > 0;
+    const isQuestion = rule.needs_input.length > 0;
     if (isQuestion) {
       if (seenQuestionRules.has(rule.id)) continue;
       seenQuestionRules.add(rule.id);
@@ -161,8 +171,105 @@ function evaluateRule(
     }
     return matches;
   }
-  // cookie / storage / api_call / embed / meta matches: not used by v0.1 rules.
+  if (rule.detection.match === "cookie") {
+    const matches: RuleMatch[] = [];
+    const byKey = new Map<string, Evidence[]>();
+    for (const o of obs) {
+      if (o.type !== "cookie") continue;
+      const tracker = trackers.byCookie(o.name);
+      if (!evalCookieConditions(where, o, tracker, banner, meta)) continue;
+      const key = o.name;
+      const list = byKey.get(key) ?? [];
+      list.push(o);
+      byKey.set(key, list);
+    }
+    for (const [, evidence] of byKey) {
+      const first = evidence[0];
+      const tracker = first?.type === "cookie" ? trackers.byCookie(first.name) : undefined;
+      matches.push({ evidence, tracker, detectionConfidence: "high" });
+    }
+    return matches;
+  }
+  if (rule.detection.match === "api_call") {
+    const matches: RuleMatch[] = [];
+    const byApi = new Map<string, Evidence[]>();
+    for (const o of obs) {
+      if (o.type !== "api_call") continue;
+      if (!evalApiCallConditions(where, o, meta)) continue;
+      const list = byApi.get(o.api) ?? [];
+      list.push(o);
+      byApi.set(o.api, list);
+    }
+    for (const [, evidence] of byApi) {
+      matches.push({ evidence, tracker: undefined, detectionConfidence: "high" });
+    }
+    return matches;
+  }
+  if (rule.detection.match === "embed") {
+    const matches: RuleMatch[] = [];
+    const byHost = new Map<string, Evidence[]>();
+    for (const o of obs) {
+      if (o.type !== "embed") continue;
+      const tracker = trackers.byRequest(o.host, "/");
+      if (!evalEmbedConditions(where, o, tracker, meta)) continue;
+      const list = byHost.get(o.host) ?? [];
+      list.push(o);
+      byHost.set(o.host, list);
+    }
+    for (const [, evidence] of byHost) {
+      const first = evidence[0];
+      const tracker = first?.type === "embed" ? trackers.byRequest(first.host, "/") : undefined;
+      matches.push({ evidence, tracker, detectionConfidence: "high" });
+    }
+    return matches;
+  }
+  // storage / meta matches: not used yet.
   return [];
+}
+
+function evalApiCallConditions(
+  where: Rule["detection"]["where"],
+  o: ApiCallObservation,
+  meta: MetaObservation | undefined,
+): boolean {
+  if (where.api && !new RegExp(where.api, "i").test(o.api)) return false;
+  if (where.gpc_sent !== undefined && (meta?.gpc_sent ?? false) !== where.gpc_sent) return false;
+  return true;
+}
+
+function evalEmbedConditions(
+  where: Rule["detection"]["where"],
+  o: EmbedObservation,
+  tracker: Tracker | undefined,
+  meta: MetaObservation | undefined,
+): boolean {
+  if (where.embed_kind && o.kind !== where.embed_kind) return false;
+  if (where.sri !== undefined && o.sri !== where.sri) return false;
+  if (where.is_third_party !== undefined && o.is_third_party !== where.is_third_party) return false;
+  if (where.tracker_category && tracker?.category !== where.tracker_category) return false;
+  if (where.tracker_categories && (!tracker || !where.tracker_categories.includes(tracker.category))) return false;
+  if (where.gpc_sent !== undefined && (meta?.gpc_sent ?? false) !== where.gpc_sent) return false;
+  return true;
+}
+
+function evalCookieConditions(
+  where: Rule["detection"]["where"],
+  o: CookieObservation,
+  tracker: Tracker | undefined,
+  banner: BannerObservation | undefined,
+  meta: MetaObservation | undefined,
+): boolean {
+  if (where.first_party !== undefined && o.first_party !== where.first_party) return false;
+  if (where.cookie_name && !new RegExp(where.cookie_name, "i").test(o.name)) return false;
+  if (where.cookie_insecure !== undefined) {
+    const insecure = !o.secure || !o.httpOnly || !o.sameSite;
+    if (insecure !== where.cookie_insecure) return false;
+  }
+  if (where.tracker_category && tracker?.category !== where.tracker_category) return false;
+  if (where.tracker_categories && (!tracker || !where.tracker_categories.includes(tracker.category))) return false;
+  if (where.banner_detected !== undefined && (banner?.detected ?? false) !== where.banner_detected) return false;
+  if (where.gpc_sent !== undefined && (meta?.gpc_sent ?? false) !== where.gpc_sent) return false;
+  return true;
 }
 
 function evalRequestConditions(
@@ -179,6 +286,15 @@ function evalRequestConditions(
   if (where.before_first_paint !== undefined && o.before_first_paint !== where.before_first_paint) return false;
   if (where.banner_detected !== undefined && (banner?.detected ?? false) !== where.banner_detected) return false;
   if (where.gpc_sent !== undefined && (meta?.gpc_sent ?? false) !== where.gpc_sent) return false;
+  if (where.is_third_party !== undefined && o.is_third_party !== where.is_third_party) return false;
+  if (where.destination_country !== undefined) {
+    const country = o.destination_country || (tracker?.destination_countries[0] ?? "");
+    if (country !== where.destination_country) return false;
+  }
+  if (where.destination_country_not !== undefined) {
+    const country = o.destination_country || (tracker?.destination_countries[0] ?? "");
+    if (country === where.destination_country_not) return false;
+  }
   return true;
 }
 
@@ -207,8 +323,9 @@ function evalBannerConditions(
 function toFinding(rule: Rule, m: RuleMatch): Finding {
   const tracker = m.tracker;
   const firstEvidence = m.evidence[0];
+  const keySuffix = tracker?.id ?? evidenceKey(firstEvidence) ?? "banner";
   return {
-    id: `f_${rule.id}_${tracker?.id ?? "banner"}`.toLowerCase(),
+    id: `f_${rule.id}_${keySuffix}`.toLowerCase().replace(/[^a-z0-9_]/g, "_"),
     rule_id: rule.id,
     title: rule.title,
     certainty: rule.certainty,
@@ -227,6 +344,16 @@ function toFinding(rule: Rule, m: RuleMatch): Finding {
     explainer_url: rule.explainer_url,
     needs_input: rule.needs_input,
   };
+}
+
+function evidenceKey(o: Evidence | undefined): string | undefined {
+  if (!o) return undefined;
+  if (o.type === "request") return o.host;
+  if (o.type === "cookie") return o.name;
+  if (o.type === "api_call") return o.api;
+  if (o.type === "embed") return o.host;
+  if (o.type === "storage") return o.key;
+  return undefined;
 }
 
 function toQuestion(rule: Rule): Question {
@@ -272,8 +399,15 @@ function unmappedFinding(o: RequestObservation, meta: MetaObservation | undefine
 
 function attributeTo(o: Evidence | undefined): string {
   if (!o) return "the consent banner";
-  if (o.initiator_host) return `a tag loaded via ${o.initiator_host}`;
-  return `the page at ${hostOf(o.host)}`;
+  if (o.type === "request") {
+    if (o.initiator_host) return `a tag loaded via ${o.initiator_host}`;
+    return `the page at ${hostOf(o.host)}`;
+  }
+  if (o.type === "cookie") return `a cookie (${o.name}) on ${o.domain}`;
+  if (o.type === "api_call") return `a browser API call (${o.api})`;
+  if (o.type === "embed") return `an embed from ${o.host}`;
+  if (o.type === "storage") return `local storage (${o.key})`;
+  return "the page";
 }
 
 function defaultPrompt(rule: Rule): string {

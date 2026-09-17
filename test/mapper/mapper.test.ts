@@ -79,6 +79,52 @@ function map(observations: Observation[]) {
   });
 }
 
+function cookie(name: string, over: Partial<Observation> = {}): Observation {
+  return {
+    type: "cookie",
+    timestamp_ms: 0,
+    before_first_paint: false,
+    before_banner_detected: false,
+    name,
+    domain: ".acme.in",
+    path: "/",
+    expires: null,
+    secure: true,
+    httpOnly: true,
+    sameSite: "Lax",
+    first_party: true,
+    set_by: "",
+    ...over,
+  } as Observation;
+}
+
+function apiCall(api: string, over: Partial<Observation> = {}): Observation {
+  return {
+    type: "api_call",
+    timestamp_ms: 0,
+    before_first_paint: false,
+    before_banner_detected: false,
+    first_party: true,
+    api,
+    ...over,
+  } as Observation;
+}
+
+function embed(host: string, over: Partial<Observation> = {}): Observation {
+  return {
+    type: "embed",
+    timestamp_ms: 0,
+    before_first_paint: false,
+    before_banner_detected: false,
+    first_party: false,
+    host,
+    kind: "script",
+    sri: false,
+    is_third_party: true,
+    ...over,
+  } as Observation;
+}
+
 describe("mapScan", () => {
   it("emits C-001 when a C6 tracker fires before the banner", () => {
     const sr = map([meta(), req("www.facebook.com", { path: "/tr" }), banner({ timestamp_ms: 2000 })]);
@@ -195,7 +241,7 @@ describe("mapScan", () => {
     }
   });
 
-  it("emits C-050 (arguable) when GPC was sent and a non-essential tracker fired anyway", () => {
+  it("emits C-050 (open) when GPC was sent and a non-essential tracker fired anyway", () => {
     const sr = map([
       meta({ gpc_sent: true }),
       req("www.facebook.com", { path: "/tr" }),
@@ -203,7 +249,7 @@ describe("mapScan", () => {
     ]);
     const f = sr.findings.find((x) => x.rule_id === "DPDP-C-050");
     expect(f).toBeDefined();
-    expect(f!.certainty).toBe("arguable");
+    expect(f!.certainty).toBe("open");
     expect(f!.provisions).toContain("s.7(a)");
   });
 
@@ -245,5 +291,95 @@ describe("mapScan", () => {
     const host = sr.inventory.third_party_hosts.find((h) => h.host === "evil-tracker.example");
     expect(host?.country).toBe("");
     expect(host?.tracker_id).toBeNull();
+  });
+
+  it("emits C-020 (open) for a third-party request resolving outside India", () => {
+    const sr = map([meta(), req("www.facebook.com", { path: "/tr", destination_country: "US" }), banner({})]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-020");
+    expect(f).toBeDefined();
+    expect(f!.certainty).toBe("open");
+    expect(f!.provisions).toContain("s.16");
+    expect(f!.rationale_plain).toMatch(/not a contravention/i);
+  });
+
+  it("does not emit C-020 for a request resolving inside India", () => {
+    const sr = map([meta(), req("www.facebook.com", { path: "/tr", destination_country: "IN" }), banner({})]);
+    expect(sr.findings.map((f) => f.rule_id)).not.toContain("DPDP-C-020");
+  });
+
+  it("emits C-041 (open) as a standing question even with no relevant observations", () => {
+    const sr = map([meta(), banner({ detected: false })]);
+    const q = sr.questions.find((x) => x.rule_id === "DPDP-C-041");
+    expect(q).toBeDefined();
+    expect(q!.certainty).toBe("open");
+    expect(q!.prompt).toMatch(/traffic data/i);
+  });
+
+  it("emits C-010 (arguable) when a C4 analytics tracker fires before the banner", () => {
+    const sr = map([meta(), req("www.google-analytics.com", { path: "/g/collect" }), banner({ timestamp_ms: 2000 })]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-010");
+    expect(f).toBeDefined();
+    expect(f!.certainty).toBe("arguable");
+    expect(f!.provisions).toContain("s.17(2)(b)");
+  });
+
+  it("emits C-015 (arguable) for a C7 font/CDN request", () => {
+    const sr = map([meta(), req("fonts.googleapis.com", { path: "/css" }), banner({})]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-015");
+    expect(f).toBeDefined();
+    expect(f!.certainty).toBe("arguable");
+    expect(f!.provisions).toContain("s.8(2)");
+  });
+
+  it("emits C-030 (arguable) for a pseudonymous _ga cookie", () => {
+    const sr = map([meta(), cookie("_ga", { first_party: false, set_by: ".google-analytics.com" }), banner({})]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-030");
+    expect(f).toBeDefined();
+    expect(f!.certainty).toBe("arguable");
+    expect(f!.provisions).toContain("s.2(t)");
+    expect(f!.evidence[0]!.type).toBe("cookie");
+  });
+
+  it("emits C-031 (arguable) for a first-party cookie", () => {
+    const sr = map([meta(), cookie("sessionid", { first_party: true }), banner({})]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-031");
+    expect(f).toBeDefined();
+    expect(f!.certainty).toBe("arguable");
+    expect(f!.provisions).toContain("s.7(a)");
+  });
+
+  it("emits C-061 (arguable) for a cookie missing security flags", () => {
+    const sr = map([meta(), cookie("sessionid", { secure: false, httpOnly: false, sameSite: "" }), banner({})]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-061");
+    expect(f).toBeDefined();
+    expect(f!.certainty).toBe("arguable");
+    expect(f!.provisions).toContain("Rule 6(1)");
+  });
+
+  it("does not emit C-061 for a cookie with all security flags set", () => {
+    const sr = map([meta(), cookie("sessionid", { secure: true, httpOnly: true, sameSite: "Strict" }), banner({})]);
+    expect(sr.findings.map((f) => f.rule_id)).not.toContain("DPDP-C-061");
+  });
+
+  it("emits C-060 (arguable) when a fingerprinting API is called", () => {
+    const sr = map([meta(), apiCall("canvas.toDataURL"), banner({})]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-060");
+    expect(f).toBeDefined();
+    expect(f!.certainty).toBe("arguable");
+    expect(f!.flags).toContain("FP");
+    expect(f!.evidence[0]!.type).toBe("api_call");
+  });
+
+  it("emits C-062 (arguable) for a third-party script without SRI", () => {
+    const sr = map([meta(), embed("cdn.jsdelivr.net", { kind: "script", sri: false }), banner({})]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-062");
+    expect(f).toBeDefined();
+    expect(f!.certainty).toBe("arguable");
+    expect(f!.provisions).toContain("Rule 6(1)(g)");
+  });
+
+  it("does not emit C-062 for a third-party script that has SRI", () => {
+    const sr = map([meta(), embed("cdn.jsdelivr.net", { kind: "script", sri: true }), banner({})]);
+    expect(sr.findings.map((f) => f.rule_id)).not.toContain("DPDP-C-062");
   });
 });

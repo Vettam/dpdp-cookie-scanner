@@ -55,6 +55,8 @@ export const EmbedObservation = ObservationBase.extend({
   type: z.literal("embed"),
   host: z.string(),
   kind: z.enum(["iframe", "script", "img", "font"]),
+  sri: z.boolean().default(false),
+  is_third_party: z.boolean().default(false),
 });
 
 export const BannerObservation = ObservationBase.extend({
@@ -113,8 +115,8 @@ export const TrackerRef = z.object({
 });
 export type TrackerRef = z.infer<typeof TrackerRef>;
 
-/** Evidence attached to a finding. Always a request observation (the thing that fired). */
-export const Evidence = RequestObservation;
+/** Evidence attached to a finding: the observation(s) that triggered it (a request, cookie, or api call). */
+export const Evidence = Observation;
 export type Evidence = z.infer<typeof Evidence>;
 
 export const Finding = z.object({

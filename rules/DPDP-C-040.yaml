@@ -2,7 +2,7 @@ id: DPDP-C-040
 title: Behavioural tracking or targeted advertising on a site plausibly reaching under-18s
 certainty: settled
 enforceable_from: "2027-05-13"
-observable: false
+observable: true
 provisions:
   - s.9(3)
 flags: [KIDS, 3PF]
@@ -36,3 +36,6 @@ changelog:
   - version: "0.1.0"
     date: "2026-09-15"
     note: Initial rule.
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Corrected observable from false to true — the C5/C6 trigger is observable; only the reaches_minors fact is unobservable, so this is a contingent question, not a standing one.

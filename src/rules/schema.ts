@@ -47,6 +47,15 @@ export const WhereCondition = z
     implies_consent_by_browsing: z.boolean().optional(),
     page_language: z.string().optional(),
     gpc_sent: z.boolean().optional(),
+    is_third_party: z.boolean().optional(),
+    destination_country: z.string().optional(),
+    destination_country_not: z.string().optional(),
+    cookie_name: z.string().optional(),
+    cookie_insecure: z.boolean().optional(),
+    first_party: z.boolean().optional(),
+    api: z.string().optional(),
+    embed_kind: z.enum(["iframe", "script", "img", "font"]).optional(),
+    sri: z.boolean().optional(),
   })
   .strict();
 

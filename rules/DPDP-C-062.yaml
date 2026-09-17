@@ -1,0 +1,39 @@
+id: DPDP-C-062
+title: Third-party script loaded without Subresource Integrity
+certainty: arguable
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - Rule 6(1)(g)
+flags: []
+categories: []
+owner: engineering
+penalty_band: security_safeguard
+detection:
+  match: embed
+  where:
+    embed_kind: script
+    is_third_party: true
+    sri: false
+needs_input: []
+rationale_plain: >
+  A third-party <script> was loaded without a Subresource Integrity (integrity)
+  attribute. Rule 6(1)(g) requires "reasonable security safeguards". Treating
+  SRI as the specific Rule 6(1)(g) control is an inference — the Rules do not
+  name SRI — so the rule is tiered arguable rather than settled. The risk is
+  real: without SRI, a compromised CDN can inject arbitrary code that runs in
+  the first-party origin and exfiltrates personal data.
+rationale_dev: >
+  Detection: an embed observation with kind=script, is_third_party=true and
+  sri=false (no integrity attribute). The engine parses script tags for the
+  integrity attribute. The mapping from "no SRI" to Rule 6(1)(g) is an
+  inference; the Schedule does not name SRI.
+remediation_summary: >
+  Add an integrity attribute (and crossorigin) to the third-party script tag,
+  or self-host the script.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-062
+since: "0.3.0"
+changelog:
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Initial rule. Arguable tier; SRI-as-Rule 6(1)(g) control is an inference.

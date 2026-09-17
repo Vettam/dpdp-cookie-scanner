@@ -54,11 +54,23 @@ function renderFindingBlock(f: Finding): string {
   out.push(`- **Remediation:** ${f.remediation_summary}`);
   out.push(`- **Explainer:** ${f.explainer_url}`);
   if (f.evidence.length > 0) {
-    out.push("");
-    out.push(`| host | path | before banner | country |`);
-    out.push(`|---|---|---|---|`);
-    for (const e of f.evidence) {
-      out.push(`| ${e.host} | ${e.path} | ${e.before_banner_detected} | ${e.destination_country} |`);
+    const reqs = f.evidence.filter((e) => e.type === "request");
+    const cookies = f.evidence.filter((e) => e.type === "cookie");
+    if (reqs.length > 0) {
+      out.push("");
+      out.push(`| host | path | before banner | country |`);
+      out.push(`|---|---|---|---|`);
+      for (const e of reqs) {
+        out.push(`| ${e.host} | ${e.path} | ${e.before_banner_detected} | ${e.destination_country} |`);
+      }
+    }
+    if (cookies.length > 0) {
+      out.push("");
+      out.push(`| cookie | domain | secure | httpOnly | sameSite |`);
+      out.push(`|---|---|---|---|---|`);
+      for (const e of cookies) {
+        out.push(`| ${e.name} | ${e.domain} | ${e.secure} | ${e.httpOnly} | ${e.sameSite} |`);
+      }
     }
   }
   out.push("");

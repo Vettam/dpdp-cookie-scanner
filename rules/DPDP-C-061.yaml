@@ -1,0 +1,39 @@
+id: DPDP-C-061
+title: Cookie missing Secure / HttpOnly / SameSite security flags
+certainty: arguable
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.8(5)
+  - Rule 6(1)
+flags: []
+categories: []
+owner: engineering
+penalty_band: security_safeguard
+detection:
+  match: cookie
+  where:
+    cookie_insecure: true
+needs_input: []
+rationale_plain: >
+  A cookie was observed without one or more of the Secure, HttpOnly and
+  SameSite flags. s.8(5) requires the Data Fiduciary to "protect personal data
+  … against … breach", and Rule 6(1) lists "reasonable security safeguards".
+  Treating the specific flag set as a Rule 6(1) control is an inference — the
+  Rules do not name these flags — so the rule is tiered arguable rather than
+  settled. The risk (theft over a clear channel, or via CSRF) is well
+  understood in security practice.
+rationale_dev: >
+  Detection: a cookie where cookie_insecure is true, i.e. not (secure AND
+  httpOnly AND sameSite is strict/lax). The mapping to Rule 6(1)'s "reasonable
+  security safeguards" is an inference; the Schedule does not name cookie
+  flags. Report the specific missing flags in the finding detail.
+remediation_summary: >
+  Set Secure, HttpOnly and an appropriate SameSite attribute on the cookie;
+  drop the cookie if it is not required.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-061
+since: "0.3.0"
+changelog:
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Initial rule. Arguable tier; flag-to-Rule 6(1) mapping is an inference.

@@ -10,10 +10,25 @@ describe("shipped rule catalogue", () => {
     expect(rules.length).toBeGreaterThanOrEqual(9);
   });
 
-  it("ships only settled or arguable tier rules (no open tier yet)", async () => {
+  it("ships only settled, arguable, or open tier rules", async () => {
     const rules = await loadRules(rulesDir);
     for (const r of rules) {
-      expect(["settled", "arguable"]).toContain(r.certainty);
+      expect(["settled", "arguable", "open"]).toContain(r.certainty);
+    }
+  });
+
+  it("every open-tier rule states the competing reading in its changelog", async () => {
+    const rules = await loadRules(rulesDir);
+    for (const r of rules.filter((r) => r.certainty === "open")) {
+      expect(r.changelog.at(-1)?.note.length).toBeGreaterThan(0);
+      expect(r.rationale_plain.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("every rule's rationale_dev explains the detection and the tier", async () => {
+    const rules = await loadRules(rulesDir);
+    for (const r of rules) {
+      expect(r.rationale_dev.length).toBeGreaterThan(20);
     }
   });
 

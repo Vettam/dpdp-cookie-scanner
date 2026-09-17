@@ -88,7 +88,45 @@
 
 </details>
 
-## QUESTIONS (1)
+## OPEN (2) — enforceable 2027-05-13
+
+<details><summary><b>DPDP-C-020</b> — Meta Platforms (meta-pixel)</summary>
+
+- **Certainty:** open (enforceable 2027-05-13)
+- **Provisions:** s.16, Rule 13(4)
+- **Owner:** counsel
+- **Attributed to:** a tag loaded via www.googletagmanager.com
+- **Rationale:** Detection: a third-party request whose resolved destination_country is not "IN". Resolution prefers the engine's request.destination_country, then the tracker dataset's destination_countries[0]. The finding is informational — it carries the note that transfer is permitted unless the destination is notified. It becomes legally live only if the Data Fiduciary is later designated an SDF.
+
+- **Remediation:** None required by default. If the Data Fiduciary is or may be designated a Significant Data Fiduciary, assess Rule 13(4) localisation before transfer.
+
+- **Explainer:** https://sentinel.vettam.ai/rules/DPDP-C-020
+
+| host | path | before banner | country |
+|---|---|---|---|
+| www.facebook.com | /tr | true | US |
+
+</details>
+
+<details><summary><b>DPDP-C-020</b> — Hotjar (hotjar)</summary>
+
+- **Certainty:** open (enforceable 2027-05-13)
+- **Provisions:** s.16, Rule 13(4)
+- **Owner:** counsel
+- **Attributed to:** a tag loaded via www.googletagmanager.com
+- **Rationale:** Detection: a third-party request whose resolved destination_country is not "IN". Resolution prefers the engine's request.destination_country, then the tracker dataset's destination_countries[0]. The finding is informational — it carries the note that transfer is permitted unless the destination is notified. It becomes legally live only if the Data Fiduciary is later designated an SDF.
+
+- **Remediation:** None required by default. If the Data Fiduciary is or may be designated a Significant Data Fiduciary, assess Rule 13(4) localisation before transfer.
+
+- **Explainer:** https://sentinel.vettam.ai/rules/DPDP-C-020
+
+| host | path | before banner | country |
+|---|---|---|---|
+| static.hotjar.com | /c/hotjar.js | true | US |
+
+</details>
+
+## QUESTIONS (2)
 
 ### DPDP-C-040 — If this site reaches under-18s, switch off C5 (behavioural monitoring) and C6 (targeted advertising) for those users; consent does not cure it.
 
@@ -99,6 +137,16 @@
 - **Rationale:** Tracking, behavioural monitoring and targeted advertising directed at children are prohibited under DPDP, and consent cannot lift that prohibition. Whether a site reaches people under 18 is something a crawler cannot see — so this is a question for you, not a finding from the scan.
 
 - **Explainer:** https://sentinel.vettam.ai/rules/DPDP-C-040
+
+### DPDP-C-041 — Confirm whether access logs are "traffic data"; if so, retain for at least one year per Rule 8(3) and document the basis.
+
+
+- **Provisions:** Rule 8(3), Rule 13(4)
+- **If true:** Confirm whether access logs are "traffic data"; if so, retain for at least one year per Rule 8(3) and document the basis.
+
+- **Rationale:** Rule 8(3) imposes a one-year retention floor for "traffic data". The term is not defined in the Act or the Rules; the likely anchor is the IT Act s.69B regime. Whether server access logs (which contain visitor IP addresses) are "traffic data" is therefore an open question. This rule is unobservable from the page and is put to counsel as a question.
+
+- **Explainer:** https://sentinel.vettam.ai/rules/DPDP-C-041
 
 ## Limits
 

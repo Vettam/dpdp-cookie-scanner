@@ -1,0 +1,39 @@
+id: DPDP-C-015
+title: External font/CDN request discloses visitor IP to a third party
+certainty: arguable
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.8(2)
+  - s.7(a)
+flags: [3PF]
+categories: [C7]
+owner: engineering
+penalty_band: consent_notice
+detection:
+  match: request
+  where:
+    tracker_category: C7
+needs_input: []
+rationale_plain: >
+  A request to a third-party CDN or font provider (category C7) discloses the
+  visitor's IP address and browser headers to that provider. s.8(2) requires a
+  processor to handle data under a contract; whether such a contract exists is
+  not observable from the page, so the disclosure is arguably outside s.8(2)
+  unless the provider is a processor under contract. s.7(a) is the fallback
+  basis but, unlike essential cookies, a web font is not necessary to provide
+  the service the visitor asked for.
+rationale_dev: >
+  Detection: a request to a C7 (CDN / static asset / infrastructure) vendor.
+  The unobservable fact is the processor contract (s.8(2)); the rule is arguable
+  because the disclosure itself is settled but its lawful basis is not. This is
+  passive IP disclosure (H1), not active collection.
+remediation_summary: >
+  Self-host fonts and CDN libraries, or confirm a processor contract with the
+  provider and disclose the disclosure in the privacy notice.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-015
+since: "0.3.0"
+changelog:
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Initial rule. Arguable tier; processor contract (s.8(2)) is unobservable.

@@ -1,6 +1,6 @@
 id: DPDP-C-050
 title: Sec-GPC signal sent, non-essential trackers fired anyway
-certainty: arguable
+certainty: open
 enforceable_from: "2027-05-13"
 observable: true
 provisions:
@@ -23,14 +23,15 @@ rationale_plain: >
   consent". A Global Privacy Control signal is arguably exactly such an
   indication, so a non-essential tracker that fires anyway is arguably
   outside s.7(a). The argument is plausible but unsettled — DPDP is silent
-  on browser signals and there is no Board guidance yet.
+  on browser signals, there is no Board guidance, and no court has addressed
+  it — so the rule is tiered open.
 rationale_dev: >
   A request to a C4/C5/C6/C9 vendor was observed while the scan was run with
   --gpc, so the page received a Sec-GPC: 1 header. s.7(a)'s proviso ("has not
   indicated … that she does not consent") is the hook: a privacy-control signal
   is a reasonable reading of "indicated". Because DPDP does not address browser
-  signals, this is tiered arguable, not settled. Honouring GPC costs little
-  and strengthens every s.7(a) argument made elsewhere.
+  signals and there is no guidance, this is tiered open, not arguable. Honouring
+  GPC costs little and strengthens every s.7(a) argument made elsewhere.
 remediation_summary: >
   Honour the Sec-GPC signal for non-essential (C4/C5/C6/C9) tags: do not fire
   them, or gate them behind an explicit opt-in that survives the signal.
@@ -40,3 +41,6 @@ changelog:
   - version: "0.2.0"
     date: "2026-09-17"
     note: Initial rule. Arguable tier; evaluated only when --gpc is passed.
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Corrected certainty from arguable to open to match the authoritative tier table in spec §5.3 (DPDP is silent on browser signals; no Board guidance).

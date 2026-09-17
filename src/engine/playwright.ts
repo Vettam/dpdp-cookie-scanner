@@ -2,8 +2,10 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { ScanEngine, ScanOptions } from "./types.js";
 import type {
+  ApiCallObservation,
   BannerObservation,
   CookieObservation,
+  EmbedObservation,
   MetaObservation,
   Observation,
   RequestObservation,
@@ -81,6 +83,54 @@ export const defaultEngine: ScanEngine = {
     const navStart = Date.now();
     const page = await context.newPage();
 
+    // Instrument fingerprinting APIs before any page script runs (C-060).
+    await context.addInitScript(() => {
+      (window as unknown as { __dpdpFp?: string[] }).__dpdpFp = [];
+      const log = (api: string) => {
+        try { (window as unknown as { __dpdpFp?: string[] }).__dpdpFp!.push(api); } catch { /* noop */ }
+      };
+      try {
+        const c = (window as unknown as { HTMLCanvasElement?: { prototype: { toDataURL: unknown; getContext: unknown } } }).HTMLCanvasElement;
+        if (c) {
+          const origTo = c.prototype.toDataURL as (...a: unknown[]) => string;
+          c.prototype.toDataURL = function (...a: unknown[]) { log("canvas.toDataURL"); return origTo.apply(this, a); };
+          const origCtx = c.prototype.getContext as (this: unknown, ...a: unknown[]) => unknown;
+          c.prototype.getContext = function (this: unknown, type: string, ...a: unknown[]) {
+            if (type === "2d" || type === "webgl" || type === "webgl2") log("canvas.getContext:" + type);
+            return origCtx.call(this, type, ...a);
+          };
+        }
+      } catch { /* noop */ }
+      try {
+        const AC = (window as unknown as { AudioContext?: { prototype: { createOscillator: unknown } } }).AudioContext;
+        if (AC) {
+          const o = AC.prototype.createOscillator as (...a: unknown[]) => unknown;
+          AC.prototype.createOscillator = function (...a: unknown[]) { log("AudioContext.createOscillator"); return o.apply(this, a); };
+        }
+      } catch { /* noop */ }
+      try {
+        const OAC = (window as unknown as { OfflineAudioContext?: { prototype: { createOscillator: unknown } } }).OfflineAudioContext;
+        if (OAC) {
+          const o = OAC.prototype.createOscillator as (...a: unknown[]) => unknown;
+          OAC.prototype.createOscillator = function (...a: unknown[]) { log("AudioContext.createOscillator"); return o.apply(this, a); };
+        }
+      } catch { /* noop */ }
+      try {
+        const GL = (window as unknown as { WebGLRenderingContext?: { prototype: { readPixels: unknown } } }).WebGLRenderingContext;
+        if (GL) {
+          const rp = GL.prototype.readPixels as (...a: unknown[]) => unknown;
+          GL.prototype.readPixels = function (...a: unknown[]) { log("WebGLRenderingContext.readPixels"); return rp.apply(this, a); };
+        }
+      } catch { /* noop */ }
+      try {
+        const RTC = (window as unknown as { RTCPeerConnection?: unknown }).RTCPeerConnection;
+        if (RTC) {
+          const wrap = function (this: unknown, ...a: unknown[]) { log("RTCPeerConnection"); return (RTC as (...a: unknown[]) => unknown).apply(this, a); };
+          (window as unknown as { RTCPeerConnection: unknown }).RTCPeerConnection = wrap;
+        }
+      } catch { /* noop */ }
+    });
+
     page.on("request", (req) => {
       try {
         const u = new URL(req.url());
@@ -152,6 +202,53 @@ export const defaultEngine: ScanEngine = {
         key: s.key,
         first_party: true,
       } as StorageObservation);
+    }
+
+    // Collect fingerprinting API calls observed during the load (C-060).
+    const fpCalls = await page.evaluate(() => {
+      const arr = (window as unknown as { __dpdpFp?: string[] }).__dpdpFp ?? [];
+      return Array.from(new Set(arr));
+    });
+    for (const api of fpCalls) {
+      observations.push({
+        type: "api_call",
+        timestamp_ms: 0,
+        before_first_paint: false,
+        before_banner_detected: false,
+        first_party: true,
+        api,
+      } as ApiCallObservation);
+    }
+
+    // Collect third-party <script> embeds and whether they carry SRI (C-062).
+    const embeds = await page.evaluate(() => {
+      const out: Array<{ src: string; integrity: boolean; kind: "script" | "iframe" | "img" | "font" }> = [];
+      for (const s of Array.from(document.scripts)) {
+        if (s.src) out.push({ src: s.src, integrity: !!s.integrity, kind: "script" });
+      }
+      for (const f of Array.from(document.querySelectorAll("iframe"))) {
+        if (f.src) out.push({ src: f.src, integrity: false, kind: "iframe" });
+      }
+      return out;
+    });
+    for (const e of embeds) {
+      try {
+        const u = new URL(e.src);
+        const isThirdParty = u.host !== targetHost && !u.host.endsWith("." + targetHost);
+        observations.push({
+          type: "embed",
+          timestamp_ms: 0,
+          before_first_paint: false,
+          before_banner_detected: false,
+          first_party: !isThirdParty,
+          host: u.host,
+          kind: e.kind,
+          sri: e.integrity,
+          is_third_party: isThirdParty,
+        } as EmbedObservation);
+      } catch {
+        /* ignore malformed src */
+      }
     }
 
     const banner = await detectBanner(page);

@@ -1,0 +1,42 @@
+id: DPDP-C-020
+title: Third-party endpoint resolves outside India (permitted by default)
+certainty: open
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.16
+  - Rule 13(4)
+flags: [XFER]
+categories: []
+owner: counsel
+penalty_band: none
+detection:
+  match: request
+  where:
+    is_third_party: true
+    destination_country_not: IN
+needs_input: []
+rationale_plain: >
+  A third-party endpoint resolves outside India. This is NOT a contravention:
+  s.16 permits the transfer of personal data outside India unless the
+  destination is notified by the Central Government. The rule is tiered open
+  only because the criteria for "Significant Data Fiduciary" designation —
+  under which Rule 13(4) localisation may bite — are not yet specified. This
+  rule exists to correct the GDPR-trained assumption that cross-border transfer
+  is automatically a problem; under DPDP it is permitted by default.
+rationale_dev: >
+  Detection: a third-party request whose resolved destination_country is not
+  "IN". Resolution prefers the engine's request.destination_country, then the
+  tracker dataset's destination_countries[0]. The finding is informational —
+  it carries the note that transfer is permitted unless the destination is
+  notified. It becomes legally live only if the Data Fiduciary is later
+  designated an SDF.
+remediation_summary: >
+  None required by default. If the Data Fiduciary is or may be designated a
+  Significant Data Fiduciary, assess Rule 13(4) localisation before transfer.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-020
+since: "0.3.0"
+changelog:
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Initial rule. Open tier; corrective — cross-border is permitted by default under s.16.

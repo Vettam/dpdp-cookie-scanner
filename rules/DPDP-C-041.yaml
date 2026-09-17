@@ -1,0 +1,41 @@
+id: DPDP-C-041
+title: Access logs as "traffic data" under the one-year retention floor
+certainty: open
+enforceable_from: "2027-05-13"
+observable: false
+provisions:
+  - Rule 8(3)
+  - Rule 13(4)
+flags: []
+categories: []
+owner: counsel
+penalty_band: none
+detection:
+  match: meta
+  where: {}
+needs_input:
+  - access_log_retention
+prompt: >
+  Do your server access logs (which contain visitor IPs) fall under "traffic
+  data" as the term is used in the DPDP Rules, and if so, is the one-year
+  retention floor in Rule 8(3) being met? The term "traffic data" is not
+  defined in the Act or Rules; the likely anchor is the IT Act s.69B regime.
+rationale_plain: >
+  Rule 8(3) imposes a one-year retention floor for "traffic data". The term is
+  not defined in the Act or the Rules; the likely anchor is the IT Act s.69B
+  regime. Whether server access logs (which contain visitor IP addresses) are
+  "traffic data" is therefore an open question. This rule is unobservable from
+  the page and is put to counsel as a question.
+rationale_dev: >
+  observable:false — the scan cannot see server-side log retention. Emitted as
+  a standing question regardless of observations. The open tier reflects the
+  undefined term; resolution will come from Board guidance or amendment.
+remediation_summary: >
+  Confirm whether access logs are "traffic data"; if so, retain for at least
+  one year per Rule 8(3) and document the basis.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-041
+since: "0.3.0"
+changelog:
+  - version: "0.3.0"
+    date: "2026-09-17"
+    note: Initial rule. Open tier; observable:false standing question — "traffic data" is undefined.

@@ -424,57 +424,263 @@
           "evidence": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "timestamp_ms": {
-                  "$ref": "#/properties/inventory/properties/cookies/items/properties/timestamp_ms"
+              "anyOf": [
+                {
+                  "$ref": "#/properties/inventory/properties/cookies/items"
                 },
-                "before_first_paint": {
-                  "$ref": "#/properties/inventory/properties/cookies/items/properties/before_first_paint"
+                {
+                  "$ref": "#/properties/inventory/properties/storage/items"
                 },
-                "before_banner_detected": {
-                  "$ref": "#/properties/inventory/properties/cookies/items/properties/before_banner_detected"
+                {
+                  "type": "object",
+                  "properties": {
+                    "timestamp_ms": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/timestamp_ms"
+                    },
+                    "before_first_paint": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/before_first_paint"
+                    },
+                    "before_banner_detected": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/before_banner_detected"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "request"
+                    },
+                    "method": {
+                      "type": "string",
+                      "default": "GET"
+                    },
+                    "host": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string",
+                      "default": "/"
+                    },
+                    "initiator_host": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "resource_type": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "is_third_party": {
+                      "type": "boolean"
+                    },
+                    "destination_country": {
+                      "type": "string",
+                      "default": ""
+                    }
+                  },
+                  "required": [
+                    "timestamp_ms",
+                    "before_first_paint",
+                    "before_banner_detected",
+                    "type",
+                    "host",
+                    "is_third_party"
+                  ],
+                  "additionalProperties": false
                 },
-                "type": {
-                  "type": "string",
-                  "const": "request"
+                {
+                  "$ref": "#/properties/inventory/properties/fingerprinting_apis/items"
                 },
-                "method": {
-                  "type": "string",
-                  "default": "GET"
+                {
+                  "type": "object",
+                  "properties": {
+                    "timestamp_ms": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/timestamp_ms"
+                    },
+                    "before_first_paint": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/before_first_paint"
+                    },
+                    "before_banner_detected": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/before_banner_detected"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "embed"
+                    },
+                    "host": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "iframe",
+                        "script",
+                        "img",
+                        "font"
+                      ]
+                    },
+                    "sri": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "is_third_party": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  },
+                  "required": [
+                    "timestamp_ms",
+                    "before_first_paint",
+                    "before_banner_detected",
+                    "type",
+                    "host",
+                    "kind"
+                  ],
+                  "additionalProperties": false
                 },
-                "host": {
-                  "type": "string"
+                {
+                  "type": "object",
+                  "properties": {
+                    "timestamp_ms": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/timestamp_ms"
+                    },
+                    "before_first_paint": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/before_first_paint"
+                    },
+                    "before_banner_detected": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/before_banner_detected"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "banner"
+                    },
+                    "detected": {
+                      "type": "boolean"
+                    },
+                    "has_accept": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "has_reject": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "has_settings": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "has_pre_ticked": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "has_language_switcher": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "mentions_legitimate_interest": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "implies_consent_by_browsing": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "text_excerpt": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "detection_confidence": {
+                      "type": "string",
+                      "enum": [
+                        "high",
+                        "medium",
+                        "low"
+                      ],
+                      "default": "medium"
+                    }
+                  },
+                  "required": [
+                    "timestamp_ms",
+                    "before_first_paint",
+                    "before_banner_detected",
+                    "type",
+                    "detected"
+                  ],
+                  "additionalProperties": false
                 },
-                "path": {
-                  "type": "string",
-                  "default": "/"
-                },
-                "initiator_host": {
-                  "type": "string",
-                  "default": ""
-                },
-                "resource_type": {
-                  "type": "string",
-                  "default": ""
-                },
-                "is_third_party": {
-                  "type": "boolean"
-                },
-                "destination_country": {
-                  "type": "string",
-                  "default": ""
+                {
+                  "type": "object",
+                  "properties": {
+                    "timestamp_ms": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/timestamp_ms"
+                    },
+                    "before_first_paint": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/before_first_paint"
+                    },
+                    "before_banner_detected": {
+                      "$ref": "#/properties/inventory/properties/cookies/items/properties/before_banner_detected"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "meta"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "final_url": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "redirects": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "page_language": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "title": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "scan_started_at": {
+                      "type": "string"
+                    },
+                    "engine_version": {
+                      "type": "string"
+                    },
+                    "rules_version": {
+                      "type": "string"
+                    },
+                    "trackers_version": {
+                      "type": "string"
+                    },
+                    "geo_source": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "geo_date": {
+                      "type": "string",
+                      "default": ""
+                    },
+                    "gpc_sent": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  },
+                  "required": [
+                    "timestamp_ms",
+                    "before_first_paint",
+                    "before_banner_detected",
+                    "type",
+                    "url",
+                    "scan_started_at",
+                    "engine_version",
+                    "rules_version",
+                    "trackers_version"
+                  ],
+                  "additionalProperties": false
                 }
-              },
-              "required": [
-                "timestamp_ms",
-                "before_first_paint",
-                "before_banner_detected",
-                "type",
-                "host",
-                "is_third_party"
-              ],
-              "additionalProperties": false
+              ]
             },
             "default": []
           },

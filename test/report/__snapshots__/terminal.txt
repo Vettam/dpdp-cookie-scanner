@@ -7,8 +7,14 @@ SETTLED (5)                                     enforceable 2027-05-13
   DPDP-C-009  No language option beyond English in the notice or banner  s.5(3) s.6(3)
   DPDP-C-013  Hotjar (hotjar)                               s.6(1)
 
-QUESTIONS (1)
+OPEN (2)                                        enforceable 2027-05-13
+  DPDP-C-020  Meta Platforms (meta-pixel)                   s.16 Rule 13(4)
+  DPDP-C-020  Hotjar (hotjar)                               s.16 Rule 13(4)
+
+QUESTIONS (2)
   DPDP-C-040  Does this site reach people under 18?         s.9(3)
+  DPDP-C-041  Do your server access logs (which contain visitor IPs) fall under "traffic data" as the term is used in the DPDP Rules, and if so, is the one-year retention floor in Rule 8(3) being met? The term "traffic data" is not defined in the Act or Rules; the likely anchor is the IT Act s.69B regime.
+  Rule 8(3) Rule 13(4)
 
 2 third parties · 2 outside India · 2 fired before the banner
 Rationale for each rule: https://sentinel.vettam.ai/rules/<id>

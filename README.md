@@ -130,6 +130,16 @@ v0.2 — "reach": markdown renderer, `--ci` mode, `--gpc` flag and rule C-050
 (arguable tier), the `/skill/SKILL.md` agent skill, and the separate
 `dpdp-notice-lint` command for Rule 3 notice-content checks.
 
+v0.3 — "the hedged tiers": arguable and open rules released. Arguable tier
+adds C-010 (analytics before consent), C-015 (font/CDN IP disclosure),
+C-030 (pseudonymous IDs as personal data), C-031 (first-party cookies need a
+stated s.7(a) basis), C-060 (fingerprinting API calls), C-061 (insecure
+cookie flags), and C-062 (third-party scripts without SRI). Open tier adds
+C-020 (cross-border transfer — *not* a contravention, the corrective rule)
+and C-041 (access logs as "traffic data", a standing question). C-050's
+tier is corrected from arguable to open to match spec §5.3. The engine now
+instruments fingerprinting APIs and parses `<script>` tags for SRI.
+
 ---
 
 *This tool reports risk under the DPDP Act and Rules. It is not legal advice
