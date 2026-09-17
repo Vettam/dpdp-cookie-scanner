@@ -312,7 +312,7 @@ function buildInventory(
       host: r.request.host,
       tracker_id: r.tracker?.id ?? null,
       category: r.tracker?.category ?? ("UNCLASSIFIED" as const),
-      country: r.request.destination_country,
+      country: resolveCountry(r),
       first_seen_ms: r.request.timestamp_ms,
       before_banner: r.request.before_banner_detected,
     }));
@@ -327,6 +327,12 @@ function buildInventory(
     fingerprinting_apis: fingerprinting,
     unclassified_hosts: Array.from(new Set(unclassified)),
   };
+}
+
+function resolveCountry(r: { request: RequestObservation; tracker: Tracker | undefined }): string {
+  if (r.request.destination_country) return r.request.destination_country;
+  const first = r.tracker?.destination_countries[0];
+  return first ?? "";
 }
 
 function bannerSummary(banner: BannerObservation | undefined) {

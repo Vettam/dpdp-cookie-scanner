@@ -224,4 +224,26 @@ describe("mapScan", () => {
     ]);
     expect(sr.findings.map((f) => f.rule_id)).not.toContain("DPDP-C-050");
   });
+
+  it("resolves destination_country from the tracker dataset when the engine left it empty", () => {
+    const sr = map([
+      meta(),
+      req("www.facebook.com", { path: "/tr", destination_country: "" }),
+      banner({}),
+    ]);
+    const host = sr.inventory.third_party_hosts.find((h) => h.tracker_id === "meta-pixel");
+    expect(host?.country).toBe("US");
+    expect(sr.summary.third_parties_outside_india).toBe(1);
+  });
+
+  it("leaves destination_country empty for unclassified hosts (cite or don't claim)", () => {
+    const sr = map([
+      meta(),
+      req("evil-tracker.example", { path: "/x", destination_country: "" }),
+      banner({}),
+    ]);
+    const host = sr.inventory.third_party_hosts.find((h) => h.host === "evil-tracker.example");
+    expect(host?.country).toBe("");
+    expect(host?.tracker_id).toBeNull();
+  });
 });
