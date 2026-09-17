@@ -181,6 +181,7 @@ export const defaultEngine: ScanEngine = {
       trackers_version: "0.1.0",
       geo_source: "DB-IP Lite",
       geo_date: "",
+      gpc_sent: Boolean(options.gpc),
     } as MetaObservation);
 
     await browser.close();

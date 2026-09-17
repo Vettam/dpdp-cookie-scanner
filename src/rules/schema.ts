@@ -46,6 +46,7 @@ export const WhereCondition = z
     mentions_legitimate_interest: z.boolean().optional(),
     implies_consent_by_browsing: z.boolean().optional(),
     page_language: z.string().optional(),
+    gpc_sent: z.boolean().optional(),
   })
   .strict();
 

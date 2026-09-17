@@ -1,0 +1,42 @@
+id: DPDP-C-050
+title: Sec-GPC signal sent, non-essential trackers fired anyway
+certainty: arguable
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.7(a)
+flags: [PRE]
+categories: [C4, C5, C6, C9]
+owner: engineering
+penalty_band: consent_notice
+detection:
+  match: request
+  where:
+    tracker_categories: [C4, C5, C6, C9]
+    gpc_sent: true
+needs_input: []
+rationale_plain: >
+  The visitor's browser sent a Sec-GPC: 1 header, which is a machine-readable
+  indication that she does not consent to tracking. DPDP does not mention
+  browser signals, but s.7(a) only permits processing without consent where
+  the person "has not indicated to the Data Fiduciary that she does not
+  consent". A Global Privacy Control signal is arguably exactly such an
+  indication, so a non-essential tracker that fires anyway is arguably
+  outside s.7(a). The argument is plausible but unsettled — DPDP is silent
+  on browser signals and there is no Board guidance yet.
+rationale_dev: >
+  A request to a C4/C5/C6/C9 vendor was observed while the scan was run with
+  --gpc, so the page received a Sec-GPC: 1 header. s.7(a)'s proviso ("has not
+  indicated … that she does not consent") is the hook: a privacy-control signal
+  is a reasonable reading of "indicated". Because DPDP does not address browser
+  signals, this is tiered arguable, not settled. Honouring GPC costs little
+  and strengthens every s.7(a) argument made elsewhere.
+remediation_summary: >
+  Honour the Sec-GPC signal for non-essential (C4/C5/C6/C9) tags: do not fire
+  them, or gate them behind an explicit opt-in that survives the signal.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-050
+since: "0.2.0"
+changelog:
+  - version: "0.2.0"
+    date: "2026-09-17"
+    note: Initial rule. Arguable tier; evaluated only when --gpc is passed.

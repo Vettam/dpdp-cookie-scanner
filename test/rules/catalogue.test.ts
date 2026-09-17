@@ -10,10 +10,10 @@ describe("shipped rule catalogue", () => {
     expect(rules.length).toBeGreaterThanOrEqual(9);
   });
 
-  it("ships only settled-tier rules in v0.1", async () => {
+  it("ships only settled or arguable tier rules (no open tier yet)", async () => {
     const rules = await loadRules(rulesDir);
     for (const r of rules) {
-      expect(r.certainty).toBe("settled");
+      expect(["settled", "arguable"]).toContain(r.certainty);
     }
   });
 

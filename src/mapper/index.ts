@@ -149,7 +149,7 @@ function evaluateRule(
     for (const o of obs) {
       if (o.type !== "request") continue;
       const tracker = trackers.byRequest(o.host, o.path);
-      if (!evalRequestConditions(where, o, tracker, banner)) continue;
+      if (!evalRequestConditions(where, o, tracker, banner, meta)) continue;
       const key = tracker?.id ?? o.host;
       const list = byTracker.get(key) ?? [];
       list.push(o);
@@ -170,6 +170,7 @@ function evalRequestConditions(
   o: RequestObservation,
   tracker: Tracker | undefined,
   banner: BannerObservation | undefined,
+  meta: MetaObservation | undefined,
 ): boolean {
   if (where.tracker_category && tracker?.category !== where.tracker_category) return false;
   if (where.tracker_categories && (!tracker || !where.tracker_categories.includes(tracker.category))) return false;
@@ -177,6 +178,7 @@ function evalRequestConditions(
   if (where.before_banner_detected !== undefined && o.before_banner_detected !== where.before_banner_detected) return false;
   if (where.before_first_paint !== undefined && o.before_first_paint !== where.before_first_paint) return false;
   if (where.banner_detected !== undefined && (banner?.detected ?? false) !== where.banner_detected) return false;
+  if (where.gpc_sent !== undefined && (meta?.gpc_sent ?? false) !== where.gpc_sent) return false;
   return true;
 }
 

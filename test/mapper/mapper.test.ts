@@ -10,7 +10,7 @@ const rules = await loadRules(join(process.cwd(), "rules"));
 const trackers = await loadTrackers(join(process.cwd(), "trackers"));
 const index = new TrackerIndex(trackers);
 
-function meta(): Observation {
+function meta(over: Partial<Observation> = {}): Observation {
   return {
     type: "meta",
     timestamp_ms: 0,
@@ -26,6 +26,7 @@ function meta(): Observation {
     trackers_version: "0.1.0",
     geo_source: "DB-IP Lite",
     geo_date: "2026-09-01",
+    ...over,
   } as Observation;
 }
 
@@ -192,5 +193,35 @@ describe("mapScan", () => {
     for (const f of sr.findings) {
       expect(f.attributed_to.length).toBeGreaterThan(0);
     }
+  });
+
+  it("emits C-050 (arguable) when GPC was sent and a non-essential tracker fired anyway", () => {
+    const sr = map([
+      meta({ gpc_sent: true }),
+      req("www.facebook.com", { path: "/tr" }),
+      banner({}),
+    ]);
+    const f = sr.findings.find((x) => x.rule_id === "DPDP-C-050");
+    expect(f).toBeDefined();
+    expect(f!.certainty).toBe("arguable");
+    expect(f!.provisions).toContain("s.7(a)");
+  });
+
+  it("does not emit C-050 when GPC was not sent", () => {
+    const sr = map([
+      meta({ gpc_sent: false }),
+      req("www.facebook.com", { path: "/tr" }),
+      banner({}),
+    ]);
+    expect(sr.findings.map((f) => f.rule_id)).not.toContain("DPDP-C-050");
+  });
+
+  it("does not emit C-050 for an essential (C1) tracker even with GPC on", () => {
+    const sr = map([
+      meta({ gpc_sent: true }),
+      req("www.googletagmanager.com", { path: "/gtm.js" }),
+      banner({}),
+    ]);
+    expect(sr.findings.map((f) => f.rule_id)).not.toContain("DPDP-C-050");
   });
 });

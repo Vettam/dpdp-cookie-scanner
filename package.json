@@ -5,7 +5,8 @@
   "license": "Apache-2.0",
   "type": "module",
   "bin": {
-    "dpdp-cookie-scan": "./dist/cli.js"
+    "dpdp-cookie-scan": "./dist/cli.js",
+    "dpdp-notice-lint": "./dist/notice-cli.js"
   },
   "main": "./dist/index.js",
   "exports": {

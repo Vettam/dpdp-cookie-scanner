@@ -84,6 +84,7 @@ export const MetaObservation = ObservationBase.extend({
   trackers_version: z.string(),
   geo_source: z.string().default(""),
   geo_date: z.string().default(""),
+  gpc_sent: z.boolean().default(false),
 });
 
 export const Observation = z.discriminatedUnion("type", [

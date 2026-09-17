@@ -186,6 +186,9 @@
             },
             "page_language": {
               "type": "string"
+            },
+            "gpc_sent": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false

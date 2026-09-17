@@ -67,6 +67,29 @@ rule fetching.
 Exit codes: `0` completed scan · `2` usage error · `3` navigation failure.
 There is **no** exit code for "findings present".
 
+## Notice content checks
+
+The scanner captures the inventory and the consent banner; it does **not**
+check the published notice's text. That is `dpdp-notice-lint` (v0.2), a
+separate command that checks a notice against DPDP **Rule 3** — itemisation of
+each observed tracker (bridged via the tracker dataset's `notice_itemisation`
+field), a withdrawal mechanism (s.6(4)), a grievance officer (Rule 3), and
+English + Hindi text:
+
+```bash
+npx dpdp-notice-lint <notice-url-or-file> [--scan ./dpdp-scan/findings.json] [--json] [--ci]
+```
+
+Pass `--scan` a `findings.json` from `dpdp-cookie-scan` to drive per-tracker
+itemisation checks against what the scan actually observed.
+
+## Agent skill
+
+`skill/SKILL.md` is a Cursor/agent skill that runs the CLI and summarises the
+`ScanResult` grouped by certainty — for "check this site for DPDP tracking
+issues" style prompts. It contains no scanning logic; if the JSON schema
+changes, the skill's parsing instructions change in the same commit.
+
 ## Architecture
 
 One engine, many surfaces. The core is a library: `scan(url, options)` returns
@@ -102,6 +125,10 @@ tool. Choose your own name.
 v0.1 — "sharp and narrow": settled-tier rules only, baseline scan (no banner
 interaction), terminal + JSON output. See `docs/` for the product spec, the
 provision-by-provision guide, and the web-data map that grounds every rule.
+
+v0.2 — "reach": markdown renderer, `--ci` mode, `--gpc` flag and rule C-050
+(arguable tier), the `/skill/SKILL.md` agent skill, and the separate
+`dpdp-notice-lint` command for Rule 3 notice-content checks.
 
 ---
 
