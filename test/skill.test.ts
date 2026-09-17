@@ -31,7 +31,7 @@ describe("skill/SKILL.md", () => {
   });
 
   it("instructs the agent to run the CLI and read findings.json", () => {
-    expect(skill).toContain("npx dpdp-cookie-scan");
+    expect(skill).toContain("npx --package=dpdp-cookie-scanner dpdp-cookie-scan");
     expect(skill).toContain("findings.json");
   });
 
