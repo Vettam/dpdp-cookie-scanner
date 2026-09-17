@@ -1,5 +1,14 @@
 # dpdp-cookie-scanner
 
+## 0.5.1
+
+### Patch Changes
+
+- 7c332cf: Fix four spec gaps: navigation failure now exits 3, C-020 ignores unknown country, --interact no longer treats a missed click as survived_reject, and the Chromium fallback actually downloads Playwright Chromium.
+- 974a454: Close engine capture gaps: request initiator_host from CDP (not Referer), cookie set_by from the initiator, C10 CMP signatures in trackers/ (Osano, Quantcast), Eighth Schedule banner vocabulary, and the remaining §4.2 fingerprinting APIs plus IAB TCF legitimate-interest phrasing.
+- 8ceea81: Close output/renderer spec gaps: display banner detection confidence (C-009 forced to low), phrase C-009 as "we could not find", render C-040 as the under-18 conditional, schema-validate JSON at write time, and capture notice_url for the notice-lint hand-off.
+- 8a58c2f: Run the v0.1 fixture in a real browser on every `npm test` / CI job, use CookieYes selectors on the DoD page, and index the Gazette PDFs under docs/legal-sources.
+
 ## 0.5.0
 
 ### Minor Changes
