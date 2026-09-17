@@ -1,5 +1,11 @@
 # dpdp-cookie-scanner
 
+## 0.5.0
+
+### Minor Changes
+
+- 363782f: Spec v1.0: three-pass banner interaction (`--interact`), ScanResult interpretation diff (`--diff-from` / `--diff-to`), and opt-in `--fail-on settled` that never trips on arguable or open findings.
+
 ## 0.4.1
 
 ### Patch Changes
