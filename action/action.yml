@@ -1,0 +1,134 @@
+name: dpdp-cookie-scan
+description: Scan a URL with dpdp-cookie-scan --ci, upload findings.json, and post findings.md on the PR.
+author: Rylematic Technologies Private Limited
+branding:
+  icon: shield
+  color: purple
+
+inputs:
+  url:
+    description: URL to scan
+    required: true
+  version:
+    description: npm package version to run (e.g. 0.3.0). Empty means latest.
+    required: false
+    default: ""
+  gpc:
+    description: "Send Sec-GPC: 1 (evaluates DPDP-C-050)"
+    required: false
+    default: "false"
+  include-query:
+    description: Keep query strings in request evidence
+    required: false
+    default: "false"
+  timeout:
+    description: Navigation timeout in milliseconds
+    required: false
+    default: "15000"
+  settle:
+    description: Post-load settle wait in milliseconds
+    required: false
+    default: "3000"
+  out:
+    description: Directory for findings.json and findings.md
+    required: false
+    default: "dpdp-scan"
+  comment:
+    description: Post (or update) findings.md as a pull-request comment
+    required: false
+    default: "true"
+  github-token:
+    description: Token used to post the PR comment
+    required: false
+    default: "${{ github.token }}"
+
+outputs:
+  json-path:
+    description: Path to findings.json
+    value: "${{ steps.scan.outputs.json-path }}"
+  md-path:
+    description: Path to findings.md
+    value: "${{ steps.scan.outputs.md-path }}"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+
+    - uses: browser-actions/setup-chrome@v1
+      id: chrome
+
+    - name: Run dpdp-cookie-scan --ci
+      id: scan
+      shell: bash
+      env:
+        CHROME_PATH: "${{ steps.chrome.outputs.chrome-path }}"
+        SCAN_URL: "${{ inputs.url }}"
+        SCAN_VERSION: "${{ inputs.version }}"
+        SCAN_GPC: "${{ inputs.gpc }}"
+        SCAN_QUERY: "${{ inputs.include-query }}"
+        SCAN_TIMEOUT: "${{ inputs.timeout }}"
+        SCAN_SETTLE: "${{ inputs.settle }}"
+        SCAN_OUT: "${{ inputs.out }}"
+      run: |
+        set -euo pipefail
+        PKG="dpdp-cookie-scanner"
+        if [ -n "$SCAN_VERSION" ]; then
+          PKG="dpdp-cookie-scanner@${SCAN_VERSION}"
+        fi
+        EXTRA=()
+        if [ "$SCAN_GPC" = "true" ]; then EXTRA+=(--gpc); fi
+        if [ "$SCAN_QUERY" = "true" ]; then EXTRA+=(--include-query); fi
+        npx --yes --package="$PKG" dpdp-cookie-scan "$SCAN_URL" --ci --out "$SCAN_OUT" \
+          --timeout "$SCAN_TIMEOUT" --settle "$SCAN_SETTLE" --browser "$CHROME_PATH" \
+          ${EXTRA[@]+"${EXTRA[@]}"}
+        echo "json-path=${SCAN_OUT}/findings.json" >> "$GITHUB_OUTPUT"
+        echo "md-path=${SCAN_OUT}/findings.md" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: dpdp-scan
+        path: |
+          ${{ inputs.out }}/findings.json
+          ${{ inputs.out }}/findings.md
+        if-no-files-found: error
+
+    - name: Post findings.md on the pull request
+      if: "${{ inputs.comment == 'true' && github.event_name == 'pull_request' }}"
+      uses: actions/github-script@v7
+      env:
+        SCAN_OUT: "${{ inputs.out }}"
+        SCAN_URL: "${{ inputs.url }}"
+      with:
+        github-token: "${{ inputs.github-token }}"
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          const marker = '<!-- dpdp-cookie-scan -->';
+          const mdPath = path.join(process.env.SCAN_OUT, 'findings.md');
+          let report = fs.readFileSync(mdPath, 'utf8');
+          const limit = 60000;
+          if (report.length > limit) {
+            report = report.slice(0, limit) + '\n\n…truncated. Full report is in the `dpdp-scan` artifact.\n';
+          }
+          const body = [
+            marker,
+            `Scanned ${process.env.SCAN_URL} with \`dpdp-cookie-scan --ci\`.`,
+            '',
+            report,
+          ].join('\n');
+          const { owner, repo } = context.repo;
+          const issue_number = context.payload.pull_request.number;
+          const comments = await github.paginate(github.rest.issues.listComments, {
+            owner, repo, issue_number, per_page: 100,
+          });
+          const existing = comments.find((c) =>
+            c.body && c.body.includes(marker) && c.user && c.user.login === 'github-actions[bot]'
+          );
+          if (existing) {
+            await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+          } else {
+            await github.rest.issues.createComment({ owner, repo, issue_number, body });
+          }

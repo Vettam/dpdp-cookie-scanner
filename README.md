@@ -90,6 +90,23 @@ itemisation checks against what the scan actually observed.
 issues" style prompts. It contains no scanning logic; if the JSON schema
 changes, the skill's parsing instructions change in the same commit.
 
+## GitHub Action
+
+`action/` is a composite Action that runs `dpdp-cookie-scan --ci`, uploads
+`findings.json` and `findings.md` as an artifact, and posts (or updates)
+`findings.md` as a pull-request comment. It does not interpret findings —
+that stays in the CLI. See [`action/README.md`](action/README.md).
+
+```yaml
+- uses: Vettam/dpdp-cookie-scanner/action@v0.3.0
+  with:
+    url: https://staging.example.com
+    version: "0.3.0"
+```
+
+The job succeeds on a completed scan even when findings exist. Grant
+`pull-requests: write` so the comment can be posted.
+
 ## Architecture
 
 One engine, many surfaces. The core is a library: `scan(url, options)` returns
@@ -134,7 +151,8 @@ v0.1 — "sharp and narrow": settled-tier rules only, baseline scan (no banner
 interaction), terminal + JSON output. See `docs/` for the product spec, the
 provision-by-provision guide, and the web-data map that grounds every rule.
 
-v0.2 — "reach": markdown renderer, `--ci` mode, `--gpc` flag and rule C-050
+v0.2 — "reach": markdown renderer, `--ci` mode, the GitHub Action wrapper
+at `action/` (PR comment + JSON artifact), `--gpc` flag and rule C-050
 (arguable tier), the `/skill/SKILL.md` agent skill, and the separate
 `dpdp-notice-lint` command for Rule 3 notice-content checks.
 
