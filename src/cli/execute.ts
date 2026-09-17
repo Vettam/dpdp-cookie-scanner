@@ -57,6 +57,10 @@ export async function execute(args: CliArgs, deps: CliDeps): Promise<number> {
     };
     if (deps.engine) scanOpts.engine = deps.engine;
     if (args.browser) scanOpts.browserPath = args.browser;
+    if (args.screenshot) {
+      deps.mkdir(args.out);
+      scanOpts.screenshotPath = join(args.out, "screenshot.png");
+    }
     const sr = await scan(args.url, scanOpts);
 
     const useColor = !args.ci;

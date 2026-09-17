@@ -3,6 +3,10 @@ import { join } from "node:path";
 import type { ScanEngine, ScanOptions } from "./types.js";
 import { applyDestinationCountries } from "./geo.js";
 import { geoMeta, loadBundledGeo, type GeoDb } from "../geo/lookup.js";
+import { redactBannerText } from "./redact.js";
+import { applyBeforeFirstPaint, redirectChain } from "./timing.js";
+import { BANNER_VOCAB, CMP_SIGNATURES, interpretBanner } from "./banner.js";
+import { fingerprintInitScript } from "./fingerprint.js";
 import type {
   ApiCallObservation,
   BannerObservation,
@@ -62,11 +66,6 @@ function detectSystemBrowser(browserPath?: string): BrowserPath {
   return { executablePath: "", channel: "chromium" };
 }
 
-const BANNER_VOCAB = [
-  "cookie", "consent", "privacy", "preferences", "accept", "reject", "agree",
-  "i agree", "by continuing", "by browsing", "legitimate interest",
-];
-
 export const defaultEngine: ScanEngine = {
   async scan(url, options = {}) {
     const { chromium } = await import("playwright-core");
@@ -79,11 +78,17 @@ export const defaultEngine: ScanEngine = {
     const contextOptions: Record<string, unknown> = {};
     if (options.gpc) contextOptions["extraHTTPHeaders"] = { "Sec-GPC": "1" };
     const context = await browser.newContext(contextOptions);
+    // Instrument fingerprinting APIs before any page script runs (C-060).
+    await context.addInitScript(fingerprintInitScript());
     const observations: Observation[] = [];
     const pageUrl = new URL(url);
     const targetHost = pageUrl.host;
     const navStart = Date.now();
     const page = await context.newPage();
+    const hops: string[] = [];
+    page.on("framenavigated", (frame) => {
+      if (frame === page.mainFrame()) hops.push(frame.url());
+    });
     const ipByHost = new Map<string, string>();
     let geo: GeoDb | undefined;
     try {
@@ -108,54 +113,6 @@ export const defaultEngine: ScanEngine = {
     } catch {
       /* CDP unavailable — destination_country stays empty; mapper falls back to the tracker dataset */
     }
-
-    // Instrument fingerprinting APIs before any page script runs (C-060).
-    await context.addInitScript(() => {
-      (window as unknown as { __dpdpFp?: string[] }).__dpdpFp = [];
-      const log = (api: string) => {
-        try { (window as unknown as { __dpdpFp?: string[] }).__dpdpFp!.push(api); } catch { /* noop */ }
-      };
-      try {
-        const c = (window as unknown as { HTMLCanvasElement?: { prototype: { toDataURL: unknown; getContext: unknown } } }).HTMLCanvasElement;
-        if (c) {
-          const origTo = c.prototype.toDataURL as (...a: unknown[]) => string;
-          c.prototype.toDataURL = function (...a: unknown[]) { log("canvas.toDataURL"); return origTo.apply(this, a); };
-          const origCtx = c.prototype.getContext as (this: unknown, ...a: unknown[]) => unknown;
-          c.prototype.getContext = function (this: unknown, type: string, ...a: unknown[]) {
-            if (type === "2d" || type === "webgl" || type === "webgl2") log("canvas.getContext:" + type);
-            return origCtx.call(this, type, ...a);
-          };
-        }
-      } catch { /* noop */ }
-      try {
-        const AC = (window as unknown as { AudioContext?: { prototype: { createOscillator: unknown } } }).AudioContext;
-        if (AC) {
-          const o = AC.prototype.createOscillator as (...a: unknown[]) => unknown;
-          AC.prototype.createOscillator = function (...a: unknown[]) { log("AudioContext.createOscillator"); return o.apply(this, a); };
-        }
-      } catch { /* noop */ }
-      try {
-        const OAC = (window as unknown as { OfflineAudioContext?: { prototype: { createOscillator: unknown } } }).OfflineAudioContext;
-        if (OAC) {
-          const o = OAC.prototype.createOscillator as (...a: unknown[]) => unknown;
-          OAC.prototype.createOscillator = function (...a: unknown[]) { log("AudioContext.createOscillator"); return o.apply(this, a); };
-        }
-      } catch { /* noop */ }
-      try {
-        const GL = (window as unknown as { WebGLRenderingContext?: { prototype: { readPixels: unknown } } }).WebGLRenderingContext;
-        if (GL) {
-          const rp = GL.prototype.readPixels as (...a: unknown[]) => unknown;
-          GL.prototype.readPixels = function (...a: unknown[]) { log("WebGLRenderingContext.readPixels"); return rp.apply(this, a); };
-        }
-      } catch { /* noop */ }
-      try {
-        const RTC = (window as unknown as { RTCPeerConnection?: unknown }).RTCPeerConnection;
-        if (RTC) {
-          const wrap = function (this: unknown, ...a: unknown[]) { log("RTCPeerConnection"); return (RTC as (...a: unknown[]) => unknown).apply(this, a); };
-          (window as unknown as { RTCPeerConnection: unknown }).RTCPeerConnection = wrap;
-        }
-      } catch { /* noop */ }
-    });
 
     page.on("request", (req) => {
       try {
@@ -206,8 +163,8 @@ export const defaultEngine: ScanEngine = {
       } as CookieObservation);
     }
 
-    const storage = await page.evaluate(() => {
-      const out: Array<{ kind: "local" | "session"; key: string }> = [];
+    const storage = await page.evaluate(async () => {
+      const out: Array<{ kind: "local" | "session" | "indexeddb"; key: string }> = [];
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
         if (k) out.push({ kind: "local", key: k });
@@ -215,6 +172,16 @@ export const defaultEngine: ScanEngine = {
       for (let i = 0; i < sessionStorage.length; i++) {
         const k = sessionStorage.key(i);
         if (k) out.push({ kind: "session", key: k });
+      }
+      try {
+        if (indexedDB.databases) {
+          const dbs = await indexedDB.databases();
+          for (const d of dbs) {
+            if (d.name) out.push({ kind: "indexeddb", key: d.name });
+          }
+        }
+      } catch {
+        /* Safari-old / blocked */
       }
       return out;
     });
@@ -255,6 +222,17 @@ export const defaultEngine: ScanEngine = {
       for (const f of Array.from(document.querySelectorAll("iframe"))) {
         if (f.src) out.push({ src: f.src, integrity: false, kind: "iframe" });
       }
+      for (const img of Array.from(document.querySelectorAll("img"))) {
+        if (img.src) out.push({ src: img.src, integrity: false, kind: "img" });
+      }
+      for (const link of Array.from(document.querySelectorAll("link"))) {
+        const rel = (link.rel || "").toLowerCase();
+        const as = (link.getAttribute("as") || "").toLowerCase();
+        const type = (link.type || "").toLowerCase();
+        if (as === "font" || type.includes("font") || (rel === "preload" && as === "font")) {
+          if (link.href) out.push({ src: link.href, integrity: !!link.integrity, kind: "font" });
+        }
+      }
       return out;
     });
     for (const e of embeds) {
@@ -288,6 +266,18 @@ export const defaultEngine: ScanEngine = {
       } as BannerObservation);
     }
 
+    if (options.screenshotPath) {
+      await page.screenshot({ path: options.screenshotPath, fullPage: false }).catch(() => {
+        /* screenshot is best-effort; never fail the scan */
+      });
+    }
+
+    const firstPaintMs = await page.evaluate(() => {
+      const paints = performance.getEntriesByType("paint");
+      const fp = paints.find((e) => e.name === "first-paint" || e.name === "first-contentful-paint");
+      return fp ? fp.startTime : 0;
+    }).catch(() => 0);
+
     observations.push({
       type: "meta",
       timestamp_ms: 0,
@@ -295,11 +285,11 @@ export const defaultEngine: ScanEngine = {
       before_banner_detected: true,
       url,
       final_url: page.url(),
-      redirects: [],
+      redirects: redirectChain(url, page.url(), hops),
       page_language: await page.evaluate(() => document.documentElement.lang || "en"),
       title: await page.title(),
       scan_started_at: new Date().toISOString(),
-      engine_version: "0.2.0",
+      engine_version: "0.3.0",
       rules_version: "0.1.0",
       trackers_version: "0.1.0",
       geo_source: "DB-IP Lite",
@@ -310,6 +300,7 @@ export const defaultEngine: ScanEngine = {
     await browser.close();
 
     if (geo) applyDestinationCountries(observations, ipByHost, geo);
+    applyBeforeFirstPaint(observations, firstPaintMs || null);
 
     const bannerTime = banner ? observations.find((o) => o.type === "banner")?.timestamp_ms ?? Infinity : Infinity;
     for (const o of observations) {
@@ -324,39 +315,44 @@ export const defaultEngine: ScanEngine = {
 async function detectBanner(
   page: import("playwright-core").Page,
 ): Promise<Omit<BannerObservation, "type" | "timestamp_ms" | "before_first_paint" | "before_banner_detected"> | null> {
-  const found = await page.evaluate((vocab) => {
-    const words = (vocab as string[]).map((w) => w.toLowerCase());
-    const elems = Array.from(document.querySelectorAll("div, section, aside, [role='dialog']"));
-    for (const el of elems) {
-      const cs = window.getComputedStyle(el);
-      if (cs.position !== "fixed" && cs.position !== "sticky") continue;
-      const text = (el.textContent ?? "").toLowerCase();
-      if (text.length === 0 || text.length > 4000) continue;
-      if (!words.some((w) => text.includes(w))) continue;
-      const buttons = Array.from(el.querySelectorAll("button, a, input[type='submit']"));
-      const btnText = buttons.map((b) => (b.textContent ?? "").toLowerCase()).join(" ");
-      const hasAccept = /\b(accept|agree|i agree|allow)\b/.test(btnText);
-      const hasReject = /\b(reject|decline|deny|refuse)\b/.test(btnText);
-      const hasSettings = /\b(settings|preferences|manage|customize|more)\b/.test(btnText);
-      const toggles = Array.from(el.querySelectorAll("input[type='checkbox'], [role='switch']"));
-      const hasPreTicked = toggles.some((t) => (t as HTMLInputElement).checked);
-      const hasLangSwitcher = !!el.querySelector("select, [data-lang], [aria-label*='language']");
-      const mentionsLI = /legitimate interest/.test(text);
-      const impliesBrowsing = /by continuing|by browsing|by scrolling|closing this (banner|message|box)/.test(text);
-      return {
-        detected: true,
-        has_accept: hasAccept,
-        has_reject: hasReject,
-        has_settings: hasSettings,
-        has_pre_ticked: hasPreTicked,
-        has_language_switcher: hasLangSwitcher,
-        mentions_legitimate_interest: mentionsLI,
-        implies_consent_by_browsing: impliesBrowsing,
-        text_excerpt: text.slice(0, 500),
-        detection_confidence: "medium" as const,
+  const raw = await page.evaluate(
+    ({ signatures, vocab }: { signatures: { id: string; selectors: string[] }[]; vocab: string[] }) => {
+      const extract = (el: Element, cmpId: string | null) => {
+        const text = (el.textContent ?? "").trim();
+        const buttons = Array.from(el.querySelectorAll("button, a, input[type='submit']"));
+        const btnText = buttons.map((b) => (b.textContent ?? "").trim()).join(" ");
+        const toggles = Array.from(el.querySelectorAll("input[type='checkbox'], [role='switch']"));
+        const hasPreTicked = toggles.some((t) => (t as HTMLInputElement).checked);
+        const hasLangSwitcher =
+          !!el.querySelector("select, [data-lang], [aria-label*='language' i], [aria-label*='भाषा']") ||
+          /हिंदी|english|भाषा/i.test(btnText);
+        return { text, btnText, hasPreTicked, hasLangSwitcher, cmpId };
       };
-    }
-    return null;
-  }, BANNER_VOCAB);
-  return found;
+
+      for (const sig of signatures) {
+        for (const sel of sig.selectors) {
+          const el = document.querySelector(sel);
+          if (el) return extract(el, sig.id);
+        }
+      }
+
+      const words = vocab.map((w) => w.toLowerCase());
+      const elems = Array.from(document.querySelectorAll("div, section, aside, [role='dialog']"));
+      for (const el of elems) {
+        const cs = window.getComputedStyle(el);
+        if (cs.position !== "fixed" && cs.position !== "sticky") continue;
+        const text = (el.textContent ?? "").trim();
+        if (text.length === 0 || text.length > 4000) continue;
+        const lower = text.toLowerCase();
+        if (!words.some((w) => lower.includes(w) || text.includes(w))) continue;
+        return extract(el, null);
+      }
+      return null;
+    },
+    { signatures: CMP_SIGNATURES, vocab: BANNER_VOCAB },
+  );
+  if (!raw) return null;
+  const fields = interpretBanner(raw);
+  fields.text_excerpt = redactBannerText(fields.text_excerpt);
+  return fields;
 }

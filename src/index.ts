@@ -25,7 +25,7 @@ export interface ScanRunOptions extends ScanOptions {
   interpretationAsOf?: string;
 }
 
-const ENGINE_VERSION = "0.2.0";
+const ENGINE_VERSION = "0.3.0";
 
 function defaultRulesDir(): string {
   return join(dirname(fileURLToPath(import.meta.url)), "..", "rules");

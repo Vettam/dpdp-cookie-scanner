@@ -12,6 +12,8 @@ export interface ScanOptions {
   gpc?: boolean;
   includeQuery?: boolean;
   screenshot?: boolean;
+  /** Viewport PNG path. Written only when --screenshot is set; never embedded in JSON. */
+  screenshotPath?: string;
   browserPath?: string;
 }
 

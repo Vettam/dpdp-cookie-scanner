@@ -165,6 +165,9 @@ C-020 (cross-border transfer — *not* a contravention, the corrective rule)
 and C-041 (access logs as "traffic data", a standing question). C-050's
 tier is corrected from arguable to open to match spec §5.3. The engine now
 instruments fingerprinting APIs and parses `<script>` tags for SRI.
+The engine records first-paint timing, redirect hops, IndexedDB names,
+img/font embeds, Hindi banner vocabulary and known CMP signatures, redacts
+banner excerpts, and writes a viewport PNG when `--screenshot` is set.
 Offline IP-to-country uses bundled DB-IP Lite (`data/geo/`). The tracker
 dataset covers the spec §6 Indian-vendor priority set (payments, engagement,
 Freshworks, Zoho, VWO, Netcore, InMobi, …). Contribution guide:

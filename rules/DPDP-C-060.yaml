@@ -13,7 +13,7 @@ penalty_band: consent_notice
 detection:
   match: api_call
   where:
-    api: "^(canvas|AudioContext|createOscillator|WebGLRenderingContext|RTCPeerConnection|navigator\\.(deviceMemory|hardwareConcurrency|plugins|languages)|window\\.screen\\.)"
+    api: "^(canvas|AudioContext|createOscillator|WebGLRenderingContext|RTCPeerConnection|navigator\\.(deviceMemory|hardwareConcurrency|plugins|languages)|window\\.screen\\.|document\\.fonts)"
 needs_input: []
 rationale_plain: >
   The page called a browser API commonly used for fingerprinting (canvas,
@@ -40,3 +40,6 @@ changelog:
   - version: "0.3.0"
     date: "2026-09-17"
     note: Initial rule. Arguable tier; a single API call may have a benign purpose.
+  - version: "0.3.1"
+    date: "2026-09-17"
+    note: Detection also matches document.fonts enumeration (spec §4.2).

@@ -113,4 +113,19 @@ describe("execute", () => {
     await execute(args(), deps);
     expect(getOut()).not.toMatch(/₹|crore/i);
   });
+
+  it("passes a screenshot path to the engine when --screenshot is set", async () => {
+    const { deps } = makeDeps();
+    const inner = deps.engine!;
+    let seenPath: string | undefined;
+    deps.engine = {
+      scan: async (url, options) => {
+        seenPath = options?.screenshotPath;
+        return inner.scan(url, options);
+      },
+    };
+    const code = await execute(args({ screenshot: true, out: "./shot-out" }), deps);
+    expect(code).toBe(0);
+    expect(seenPath).toBe(join("./shot-out", "screenshot.png"));
+  });
 });
