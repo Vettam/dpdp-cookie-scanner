@@ -1,5 +1,11 @@
 # dpdp-cookie-scanner
 
+## 0.4.0
+
+### Minor Changes
+
+- f61260b: Add the GitHub Action wrapper (`action/`) that runs `dpdp-cookie-scan --ci`, uploads findings.json/md as an artifact, and posts or updates findings.md as a pull-request comment. Interpretation stays in the CLI.
+
 ## 0.3.0
 
 ### Minor Changes
