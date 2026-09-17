@@ -1,5 +1,11 @@
 # dpdp-cookie-scanner
 
+## 0.5.2
+
+### Patch Changes
+
+- 2fc3e0a: Register `dpdp-cookie-scanner` as a bin alias of `dpdp-cookie-scan` so `npx dpdp-cookie-scanner` can find an executable, and document `--package` in the READMEs.
+
 ## 0.5.1
 
 ### Patch Changes
