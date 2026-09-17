@@ -1,0 +1,268 @@
+{
+  "schema_version": "1.0.0",
+  "engine_version": "0.1.0",
+  "rules_version": "0.1.0",
+  "trackers_version": "0.1.0",
+  "interpretation_as_of": "2026-09-15",
+  "scanned_at": "2026-09-17T09:12:00.000Z",
+  "target": {
+    "url": "https://staging.acme.in",
+    "final_url": "https://staging.acme.in/",
+    "page_language": "en"
+  },
+  "banner": {
+    "detected": true,
+    "confidence": "high",
+    "has_accept": true,
+    "has_reject": false,
+    "has_settings": false,
+    "has_pre_ticked": false,
+    "has_language_switcher": false,
+    "mentions_legitimate_interest": false,
+    "implies_consent_by_browsing": false
+  },
+  "inventory": {
+    "cookies": [],
+    "storage": [],
+    "third_party_hosts": [
+      {
+        "host": "www.facebook.com",
+        "tracker_id": "meta-pixel",
+        "category": "C6",
+        "country": "US",
+        "first_seen_ms": 412,
+        "before_banner": true
+      },
+      {
+        "host": "static.hotjar.com",
+        "tracker_id": "hotjar",
+        "category": "C5",
+        "country": "US",
+        "first_seen_ms": 500,
+        "before_banner": true
+      }
+    ],
+    "fingerprinting_apis": [],
+    "unclassified_hosts": []
+  },
+  "findings": [
+    {
+      "id": "f_dpdp-c-001_meta-pixel",
+      "rule_id": "DPDP-C-001",
+      "title": "Advertising tracker fires before any consent interaction",
+      "certainty": "settled",
+      "enforceable_from": "2027-05-13",
+      "observable": true,
+      "detection_confidence": "high",
+      "provisions": [
+        "s.4(1)",
+        "s.5(1)",
+        "s.6(1)"
+      ],
+      "flags": [
+        "PRE",
+        "3PF"
+      ],
+      "owner": "engineering",
+      "tracker": {
+        "id": "meta-pixel",
+        "vendor": "Meta Platforms",
+        "category": "C6"
+      },
+      "attributed_to": "a tag loaded via www.googletagmanager.com",
+      "evidence": [
+        {
+          "type": "request",
+          "timestamp_ms": 412,
+          "before_first_paint": true,
+          "before_banner_detected": true,
+          "method": "GET",
+          "host": "www.facebook.com",
+          "path": "/tr",
+          "initiator_host": "www.googletagmanager.com",
+          "resource_type": "image",
+          "is_third_party": true,
+          "destination_country": "US"
+        }
+      ],
+      "rationale_plain": "Advertising trackers collect a persistent browser identifier, your IP address and the pages you visit, and send them to a company that uses them for its own purposes. Under DPDP that is processing of personal data. It needs your consent, and consent has to come before the processing starts, not after.\n",
+      "rationale_dev": "A request to a C6 vendor was observed before any consent banner was detected (or before any interaction, once interaction scans are enabled). s.6(1) requires a clear affirmative act before processing; s.5(1) requires notice to precede or accompany the consent request. Firing on page load satisfies neither. The vendor is an independent or joint Data Fiduciary for this disclosure (s.2(i)), so s.11(1)(b) also requires it to be named.\n",
+      "remediation_summary": "Gate the tag behind a consent signal so it does not load until an affirmative act is recorded.\n",
+      "explainer_url": "https://sentinel.vettam.ai/rules/DPDP-C-001",
+      "needs_input": []
+    },
+    {
+      "id": "f_dpdp-c-004_banner",
+      "rule_id": "DPDP-C-004",
+      "title": "Banner has an accept control but no equivalent reject control",
+      "certainty": "settled",
+      "enforceable_from": "2027-05-13",
+      "observable": true,
+      "detection_confidence": "high",
+      "provisions": [
+        "s.6(1)",
+        "s.6(4)"
+      ],
+      "flags": [],
+      "owner": "engineering",
+      "tracker": null,
+      "attributed_to": "the consent banner",
+      "evidence": [],
+      "rationale_plain": "Consent must be free and unconditional, and withdrawal must be as easy as giving consent. A banner that makes accepting one click and rejecting several clicks — or impossible — does not produce free consent.\n",
+      "rationale_dev": "The banner exposes an accept control but no reject control. s.6(1) requires consent to be \"free … unconditional\"; s.6(4) requires withdrawal with ease comparable to giving. An asymmetric banner fails both.\n",
+      "remediation_summary": "Add a reject control of equal prominence to the accept control.\n",
+      "explainer_url": "https://sentinel.vettam.ai/rules/DPDP-C-004",
+      "needs_input": []
+    },
+    {
+      "id": "f_dpdp-c-007_hotjar",
+      "rule_id": "DPDP-C-007",
+      "title": "Session replay or heatmap tool fires before consent",
+      "certainty": "settled",
+      "enforceable_from": "2027-05-13",
+      "observable": true,
+      "detection_confidence": "high",
+      "provisions": [
+        "s.6(1)",
+        "s.9(3)"
+      ],
+      "flags": [
+        "PRE",
+        "3PF",
+        "KIDS"
+      ],
+      "owner": "engineering",
+      "tracker": {
+        "id": "hotjar",
+        "vendor": "Hotjar",
+        "category": "C5"
+      },
+      "attributed_to": "a tag loaded via www.googletagmanager.com",
+      "evidence": [
+        {
+          "type": "request",
+          "timestamp_ms": 500,
+          "before_first_paint": true,
+          "before_banner_detected": true,
+          "method": "GET",
+          "host": "static.hotjar.com",
+          "path": "/c/hotjar.js",
+          "initiator_host": "www.googletagmanager.com",
+          "resource_type": "script",
+          "is_third_party": true,
+          "destination_country": "US"
+        }
+      ],
+      "rationale_plain": "Session replay and heatmap tools record what you do on a page — mouse movements, clicks, keystrokes, the page content itself. That is behavioural monitoring. Under DPDP it needs consent, and where children are reachable it is prohibited outright regardless of consent.\n",
+      "rationale_dev": "A request to a C5 (session replay / heatmap) vendor was observed before any consent banner was detected. s.6(1) requires a clear affirmative act before processing. Where the site plausibly reaches under-18s, s.9(3) prohibits behavioural monitoring entirely (see DPDP-C-040).\n",
+      "remediation_summary": "Gate the session-replay / heatmap tag behind a consent signal; on a site reaching minors, do not load it at all.\n",
+      "explainer_url": "https://sentinel.vettam.ai/rules/DPDP-C-007",
+      "needs_input": []
+    },
+    {
+      "id": "f_dpdp-c-009_banner",
+      "rule_id": "DPDP-C-009",
+      "title": "No language option beyond English in the notice or banner",
+      "certainty": "settled",
+      "enforceable_from": "2027-05-13",
+      "observable": true,
+      "detection_confidence": "high",
+      "provisions": [
+        "s.5(3)",
+        "s.6(3)"
+      ],
+      "flags": [],
+      "owner": "counsel",
+      "tracker": null,
+      "attributed_to": "the consent banner",
+      "evidence": [],
+      "rationale_plain": "The Act requires that a person be given the option to access the notice in English or any of the 22 languages in the Eighth Schedule. A notice or banner offered only in English does not meet that requirement.\n",
+      "rationale_dev": "No language switcher was detected on the banner and the page language is English. s.5(3) and s.6(3) require the option of English or any Eighth Schedule language. This is a heuristic — a site may offer language choice elsewhere — so detection confidence is marked accordingly and the finding is phrased as \"we could not find\".\n",
+      "remediation_summary": "Offer the notice in English plus at least the relevant Eighth Schedule languages, with a visible language control.\n",
+      "explainer_url": "https://sentinel.vettam.ai/rules/DPDP-C-009",
+      "needs_input": []
+    },
+    {
+      "id": "f_dpdp-c-013_hotjar",
+      "rule_id": "DPDP-C-013",
+      "title": "Session replay or heatmap tool present at all",
+      "certainty": "settled",
+      "enforceable_from": "2027-05-13",
+      "observable": true,
+      "detection_confidence": "high",
+      "provisions": [
+        "s.6(1)"
+      ],
+      "flags": [
+        "3PF",
+        "KIDS"
+      ],
+      "owner": "engineering",
+      "tracker": {
+        "id": "hotjar",
+        "vendor": "Hotjar",
+        "category": "C5"
+      },
+      "attributed_to": "a tag loaded via www.googletagmanager.com",
+      "evidence": [
+        {
+          "type": "request",
+          "timestamp_ms": 500,
+          "before_first_paint": true,
+          "before_banner_detected": true,
+          "method": "GET",
+          "host": "static.hotjar.com",
+          "path": "/c/hotjar.js",
+          "initiator_host": "www.googletagmanager.com",
+          "resource_type": "script",
+          "is_third_party": true,
+          "destination_country": "US"
+        }
+      ],
+      "rationale_plain": "A session replay or heatmap tool is present on the page. Behavioural monitoring requires consent under DPDP. Its presence does not by itself prove a breach — it may be consent-gated — but it is the category of processing that most often runs without valid consent and is prohibited outright where children are reachable.\n",
+      "rationale_dev": "A request to a C5 vendor was observed. Behavioural monitoring requires consent (s.6(1)); where children are reachable it is prohibited regardless of consent (s.9(3), see DPDP-C-040). This finding flags presence; the pre-consent variant is DPDP-C-007.\n",
+      "remediation_summary": "Confirm the tool is consent-gated and does not record before the affirmative act; mask sensitive fields by default.\n",
+      "explainer_url": "https://sentinel.vettam.ai/rules/DPDP-C-013",
+      "needs_input": []
+    }
+  ],
+  "questions": [
+    {
+      "rule_id": "DPDP-C-040",
+      "title": "Behavioural tracking or targeted advertising on a site plausibly reaching under-18s",
+      "prompt": "Does this site reach people under 18?",
+      "certainty": "settled",
+      "enforceable_from": "2027-05-13",
+      "provisions": [
+        "s.9(3)"
+      ],
+      "flags": [
+        "KIDS",
+        "3PF"
+      ],
+      "owner": "counsel",
+      "needs_input": [
+        "reaches_minors"
+      ],
+      "fact_needed": "reaches_minors",
+      "consequence_if_true": "If this site reaches under-18s, switch off C5 (behavioural monitoring) and C6 (targeted advertising) for those users; consent does not cure it.\n",
+      "rationale_plain": "Tracking, behavioural monitoring and targeted advertising directed at children are prohibited under DPDP, and consent cannot lift that prohibition. Whether a site reaches people under 18 is something a crawler cannot see — so this is a question for you, not a finding from the scan.\n",
+      "explainer_url": "https://sentinel.vettam.ai/rules/DPDP-C-040"
+    }
+  ],
+  "summary": {
+    "by_certainty": {
+      "settled": 5,
+      "arguable": 0,
+      "open": 0
+    },
+    "third_parties": 2,
+    "third_parties_outside_india": 2,
+    "fired_before_banner": 2
+  },
+  "limits": [
+    "Server-side tagging, backend relays, logs and retention are not observable by a crawler.",
+    "Consent-banner interaction was not performed; findings reflect the page state before any user action.",
+    "This is a reading of the DPDP Act and Rules, not legal advice and not a compliance verdict."
+  ]
+}

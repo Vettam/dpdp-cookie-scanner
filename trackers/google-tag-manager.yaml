@@ -1,0 +1,20 @@
+id: google-tag-manager
+vendor: Google
+match:
+  hosts: ["www.googletagmanager.com", "googletagmanager.com"]
+  paths: ["/gtm.js", "/gtm"]
+data_points: [page_url, ip_address, user_agent, container_id]
+category: C1
+flags: [PRE]
+role: processor
+lawful_basis: s7a
+provisions: ["s.8(2)", "Rule 6(1)(b)", "Rule 6(1)(g)"]
+notice_itemisation: >
+  Page URL, IP address and browser details, plus the identifier of the tag
+  container, loaded by Google Tag Manager to deploy other tags. GTM is a force
+  multiplier: a hijacked or over-permissive container is a breach vector.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Remove the container; audit published tags and restrict publish permissions."
+last_verified: "2026-09-15"
+provenance: direct observation

@@ -1,0 +1,18 @@
+id: font-awesome
+vendor: Font Awesome (Fonticons)
+match:
+  hosts: ["kit.fontawesome.com", "ka-f.fontawesome.com", "use.fontawesome.com"]
+data_points: [ip_address, user_agent, referer, kit_id]
+category: C7
+flags: [XFER, PRE]
+role: processor
+lawful_basis: s7a
+provisions: ["s.8(2)", "s.16", "Rule 6(1)(g)"]
+notice_itemisation: >
+  IP address, browser details, the Referer header and the kit identifier, sent
+  to Font Awesome when a kit loads from it.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Self-host the icons; remove the kit request."
+last_verified: "2026-09-15"
+provenance: direct observation

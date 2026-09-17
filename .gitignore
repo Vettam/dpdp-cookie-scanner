@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+.dpdp-scan/
+dpdp-scan/
+out/
+.env
+.env.local

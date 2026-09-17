@@ -1,0 +1,20 @@
+id: linkedin-insight
+vendor: LinkedIn (Microsoft)
+match:
+  hosts: ["px.ads.linkedin.com", "snap.licdn.com", "www.linkedin.com"]
+  cookies: ["bcookie", "li_sugr", "li_oatm", "UserToken"]
+data_points: [persistent_browser_id, click_id, ip_address, user_agent, page_url, conversion_event]
+category: C6
+flags: [3PF, XFER, KIDS, PRE]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  A persistent browser identifier, ad-click identifier, IP address, browser
+  and device details, pages visited and conversion events, shared with
+  LinkedIn for advertising measurement.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear bcookie/li_sugr cookies."
+last_verified: "2026-09-15"
+provenance: direct observation

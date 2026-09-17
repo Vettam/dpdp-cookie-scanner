@@ -1,0 +1,20 @@
+id: tiktok-pixel
+vendor: TikTok (ByteDance)
+match:
+  hosts: ["analytics.tiktok.com", "analytics.tiktokcdn.com", "bat.bing.com"]
+  cookies: ["tt_cs_s", "tt_cs_token", "ttclid"]
+data_points: [persistent_browser_id, click_id, ip_address, user_agent, page_url, event_name]
+category: C6
+flags: [3PF, XFER, KIDS, PRE, SENS]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  A persistent browser identifier, ad-click identifier, IP address, browser
+  and device details, pages visited and actions taken, shared with TikTok for
+  ad measurement and targeting.
+destination_countries: [US, SG]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear tt_cs_s/ttclid cookies."
+last_verified: "2026-09-15"
+provenance: direct observation

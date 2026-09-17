@@ -1,0 +1,38 @@
+id: DPDP-C-040
+title: Behavioural tracking or targeted advertising on a site plausibly reaching under-18s
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: false
+provisions:
+  - s.9(3)
+flags: [KIDS, 3PF]
+categories: [C5, C6]
+owner: counsel
+penalty_band: children
+detection:
+  match: request
+  where:
+    tracker_categories: [C5, C6]
+needs_input:
+  - reaches_minors
+prompt: "Does this site reach people under 18?"
+rationale_plain: >
+  Tracking, behavioural monitoring and targeted advertising directed at
+  children are prohibited under DPDP, and consent cannot lift that
+  prohibition. Whether a site reaches people under 18 is something a crawler
+  cannot see — so this is a question for you, not a finding from the scan.
+rationale_dev: >
+  s.9(3) prohibits tracking, behavioural monitoring and targeted advertising
+  of children absolutely. The law is settled; whether the site reaches
+  children is unobservable to a crawler, so this is emitted as a question
+  contingent on the reaches_minors fact. If the site is used by people under
+  18, the C5/C6 tags observed here are prohibited regardless of consent.
+remediation_summary: >
+  If this site reaches under-18s, switch off C5 (behavioural monitoring) and
+  C6 (targeted advertising) for those users; consent does not cure it.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-040
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

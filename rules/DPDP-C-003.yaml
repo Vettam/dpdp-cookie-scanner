@@ -1,0 +1,37 @@
+id: DPDP-C-003
+title: Banner offers a "legitimate interest" basis
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.4(1)
+  - s.7
+flags: []
+categories: []
+owner: counsel
+penalty_band: consent_basis
+detection:
+  match: banner
+  where:
+    mentions_legitimate_interest: true
+needs_input: []
+rationale_plain: >
+  DPDP's lawful bases are a closed list: consent, or the exhaustive "certain
+  legitimate uses" in s.7. There is no legitimate-interest basis and no
+  contract-necessity basis. A banner that offers a "legitimate interest"
+  toggle is offering a basis that does not exist in Indian law.
+rationale_dev: >
+  The detected banner mentions "legitimate interest" (IAB TCF vocabulary).
+  s.4 read with s.7 provides only consent or the enumerated s.7 limbs; a
+  general legitimate-interest balancing test is not among them. Offering it
+  as a consent route is misleading and the underlying processing still needs
+  consent or a specific s.7 limb.
+remediation_summary: >
+  Rebase every "legitimate interest" purpose to consent, or drop it, or map
+  it to a specific s.7 limb with a documented justification.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-003
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

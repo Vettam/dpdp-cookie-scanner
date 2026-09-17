@@ -1,0 +1,35 @@
+id: DPDP-C-006
+title: Consent implied by continued browsing or scrolling
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.6(1)
+flags: []
+categories: []
+owner: engineering
+penalty_band: consent_quality
+detection:
+  match: banner
+  where:
+    implies_consent_by_browsing: true
+needs_input: []
+rationale_plain: >
+  "By continuing to browse this site you accept our use of cookies" is not
+  consent under DPDP. Consent must be a clear affirmative action; continuing
+  to use a site you are already on is not affirmative and is not free when
+  there is no real alternative.
+rationale_dev: >
+  The banner text matches implied-consent vocabulary (phrases such as
+  "by continuing to browse", "by scrolling you accept", "closing this banner
+  means you agree"). s.6(1) requires a clear affirmative action; implied
+  consent by browsing is not one.
+remediation_summary: >
+  Remove implied-consent language and require an explicit accept or reject
+  act before any non-essential processing.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-006
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

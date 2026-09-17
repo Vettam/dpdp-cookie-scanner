@@ -1,0 +1,19 @@
+id: google-fonts
+vendor: Google
+match:
+  hosts: ["fonts.googleapis.com", "fonts.gstatic.com"]
+data_points: [ip_address, user_agent, referer]
+category: C7
+flags: [XFER, PRE]
+role: processor
+lawful_basis: s7a
+provisions: ["s.8(2)", "s.16", "Rule 6(1)(g)"]
+notice_itemisation: >
+  IP address, browser details and the Referer header, sent to Google when
+  fonts load from fonts.googleapis.com. Self-hosting avoids the disclosure;
+  Subresource Integrity hashes are a Rule 6(1)(g) control for CDN libraries.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Self-host the fonts; remove the Google Fonts request."
+last_verified: "2026-09-15"
+provenance: direct observation

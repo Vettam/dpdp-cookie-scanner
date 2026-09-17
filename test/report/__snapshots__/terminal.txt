@@ -1,0 +1,17 @@
+dpdp-cookie-scan  staging.acme.in     interpretation as of 2026-09-15
+
+SETTLED (5)                                     enforceable 2027-05-13
+  DPDP-C-001  Meta Platforms (meta-pixel)                   s.4(1) s.5(1) s.6(1)
+  DPDP-C-004  Banner has an accept control but no equivalent reject control  s.6(1) s.6(4)
+  DPDP-C-007  Hotjar (hotjar)                               s.6(1) s.9(3)
+  DPDP-C-009  No language option beyond English in the notice or banner  s.5(3) s.6(3)
+  DPDP-C-013  Hotjar (hotjar)                               s.6(1)
+
+QUESTIONS (1)
+  DPDP-C-040  Does this site reach people under 18?         s.9(3)
+
+2 third parties · 2 outside India · 2 fired before the banner
+Rationale for each rule: https://sentinel.vettam.ai/rules/<id>
+Notice content checks: run dpdp-notice-lint against your published notice.
+
+Indicative, not legal advice. Not a compliance verdict.

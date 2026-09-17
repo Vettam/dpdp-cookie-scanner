@@ -1,0 +1,38 @@
+id: DPDP-C-002
+title: Non-essential trackers present, no consent banner detected at all
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.5(1)
+  - s.6(1)
+flags: [PRE]
+categories: [C4, C5, C6, C9]
+owner: engineering
+penalty_band: consent_notice
+detection:
+  match: request
+  where:
+    tracker_categories: [C4, C5, C6, C9]
+    banner_detected: false
+needs_input: []
+rationale_plain: >
+  The page loads trackers that process personal data for non-essential
+  purposes, but no consent banner was detected. Under DPDP there is no
+  "strictly necessary" exemption; each of these needs either consent or a
+  limb of s.7. With no banner at all, there is no notice and no consent act.
+rationale_dev: >
+  A request to a C4/C5/C6/C9 vendor was observed and no consent banner was
+  detected. s.5(1) requires notice to precede or accompany any consent
+  request; s.6(1) requires a clear affirmative act. The absence of a banner
+  means neither is present. (If a banner exists but this scanner failed to
+  detect it, treat this as a prompt to verify the banner is machine-detectable.)
+remediation_summary: >
+  Implement a standalone, itemised consent notice and gate non-essential
+  tags behind a clear affirmative act.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-002
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

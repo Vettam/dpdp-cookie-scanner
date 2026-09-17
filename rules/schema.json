@@ -1,0 +1,271 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^DPDP-C-\\d{3}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "certainty": {
+      "type": "string",
+      "enum": [
+        "settled",
+        "arguable",
+        "open"
+      ]
+    },
+    "enforceable_from": {
+      "type": "string"
+    },
+    "observable": {
+      "type": "boolean"
+    },
+    "provisions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "KIDS",
+          "3PF",
+          "PROC",
+          "XFER",
+          "DEC",
+          "SENS",
+          "FP",
+          "PRE",
+          "PII-LEAK"
+        ]
+      },
+      "default": []
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "C0",
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5",
+          "C6",
+          "C7",
+          "C8",
+          "C9",
+          "C10",
+          "UNCLASSIFIED"
+        ]
+      },
+      "default": []
+    },
+    "owner": {
+      "type": "string",
+      "enum": [
+        "engineering",
+        "marketing",
+        "counsel",
+        "product"
+      ]
+    },
+    "penalty_band": {
+      "type": "string"
+    },
+    "detection": {
+      "type": "object",
+      "properties": {
+        "match": {
+          "type": "string",
+          "enum": [
+            "request",
+            "banner",
+            "cookie",
+            "storage",
+            "api_call",
+            "embed",
+            "meta"
+          ]
+        },
+        "where": {
+          "type": "object",
+          "properties": {
+            "tracker_category": {
+              "type": "string",
+              "enum": [
+                "C0",
+                "C1",
+                "C2",
+                "C3",
+                "C4",
+                "C5",
+                "C6",
+                "C7",
+                "C8",
+                "C9",
+                "C10",
+                "UNCLASSIFIED"
+              ]
+            },
+            "tracker_categories": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "C0",
+                  "C1",
+                  "C2",
+                  "C3",
+                  "C4",
+                  "C5",
+                  "C6",
+                  "C7",
+                  "C8",
+                  "C9",
+                  "C10",
+                  "UNCLASSIFIED"
+                ]
+              }
+            },
+            "tracker_flags": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "KIDS",
+                  "3PF",
+                  "PROC",
+                  "XFER",
+                  "DEC",
+                  "SENS",
+                  "FP",
+                  "PRE",
+                  "PII-LEAK"
+                ]
+              }
+            },
+            "before_banner_detected": {
+              "type": "boolean"
+            },
+            "before_first_paint": {
+              "type": "boolean"
+            },
+            "banner_detected": {
+              "type": "boolean"
+            },
+            "has_accept": {
+              "type": "boolean"
+            },
+            "has_reject": {
+              "type": "boolean"
+            },
+            "has_settings": {
+              "type": "boolean"
+            },
+            "has_pre_ticked": {
+              "type": "boolean"
+            },
+            "has_language_switcher": {
+              "type": "boolean"
+            },
+            "mentions_legitimate_interest": {
+              "type": "boolean"
+            },
+            "implies_consent_by_browsing": {
+              "type": "boolean"
+            },
+            "page_language": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "match",
+        "where"
+      ],
+      "additionalProperties": false
+    },
+    "needs_input": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "prompt": {
+      "type": "string"
+    },
+    "rationale_plain": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rationale_dev": {
+      "type": "string",
+      "minLength": 1
+    },
+    "remediation_summary": {
+      "type": "string",
+      "default": ""
+    },
+    "explainer_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "since": {
+      "type": "string"
+    },
+    "changelog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "date",
+          "note"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "certainty",
+    "enforceable_from",
+    "observable",
+    "provisions",
+    "owner",
+    "penalty_band",
+    "detection",
+    "rationale_plain",
+    "rationale_dev",
+    "explainer_url",
+    "since",
+    "changelog"
+  ],
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

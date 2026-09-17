@@ -1,0 +1,18 @@
+id: google-sign-in
+vendor: Google
+match:
+  hosts: ["accounts.google.com", "apis.google.com"]
+  cookies: ["SID", "HSID", "SSID", "APISID", "__Secure-1PSID", "__Secure-3PSID"]
+data_points: [identity, email, profile, ip_address, user_agent]
+category: C8
+flags: [3PF, XFER]
+role: fiduciary
+lawful_basis: s7a
+provisions: ["s.7(a)", "s.8(2)", "s.16"]
+notice_itemisation: >
+  Identity, email and profile, exchanged with Google to sign the visitor in.
+destination_countries: [US]
+fires_pre_consent_by_default: false
+withdrawal_mechanism: "Revoke the OAuth grant; sign the user out."
+last_verified: "2026-09-15"
+provenance: direct observation

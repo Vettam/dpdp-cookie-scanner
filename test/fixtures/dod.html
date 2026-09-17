@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Acme staging — DPDP scan fixture</title>
+  <!-- Google Tag Manager (real host) -->
+  <script>
+    (function (w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+      var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s),
+        dl = l != "dataLayer" ? "&l=" + l : "";
+      j.async = true;
+      j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, "script", "dataLayer", "GTM-TEST");
+  </script>
+  <!-- GA4 via gtag (real host) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TEST"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag("js", new Date());
+    gtag("config", "G-TEST");
+  </script>
+  <!-- Meta Pixel (real host) -->
+  <script>
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = !0;
+      n.version = "2.0";
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    fbq("init", "TEST");
+    fbq("track", "PageView");
+  </script>
+  <!-- Hotjar (real host) -->
+  <script>
+    (function (h, o, t, j, a, r) {
+      h.hj = h.hj || function () { (h.hj.q = h.hj.q || []).push(arguments); };
+      h._hjSettings = { hjid: 0, hjsv: 6 };
+      a = o.getElementsByTagName("head")[0];
+      r = o.createElement("script");
+      r.async = 1;
+      r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+      a.appendChild(r);
+    })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
+  </script>
+  <!-- Direct beacons so the PRE finding is deterministic regardless of SDK init IDs.
+       These fire synchronously on parse, before the banner renders. -->
+  <script>
+    new Image().src = "https://www.facebook.com/tr?id=fixture&ev=PageView&dl=" + encodeURIComponent(location.href);
+    new Image().src = "https://www.google-analytics.com/g/collect?id=fixture&en=page_view&dl=" + encodeURIComponent(location.href);
+  </script>
+
+  <style>
+    #cookie-banner {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 16px; background: #fff; border-top: 1px solid #ccc;
+      font-family: sans-serif; z-index: 9999;
+    }
+    #cookie-banner button { margin-right: 8px; padding: 6px 12px; }
+  </style>
+</head>
+<body>
+  <h1>Acme staging</h1>
+  <p>This page loads GTM, GA4, Meta Pixel and Hotjar, and shows a consent banner with an accept button but no reject button.</p>
+
+  <!-- CookieYes-style banner: accept but NO reject -->
+  <div id="cookie-banner" role="dialog" aria-label="Cookie consent">
+    <p>We use cookies to improve your experience. By continuing to browse this site, you accept our use of cookies and our privacy policy.</p>
+    <button id="accept-btn">Accept all</button>
+    <a href="/privacy">Privacy policy</a>
+  </div>
+</body>
+</html>

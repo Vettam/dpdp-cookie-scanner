@@ -1,0 +1,20 @@
+id: criteo
+vendor: Criteo
+match:
+  hosts: ["gum.criteo.com", "widget.criteo.com", "static.criteo.net"]
+  cookies: ["uid", "tk", "cpp", "did"]
+data_points: [persistent_browser_id, click_id, ip_address, user_agent, page_url, conversion_event]
+category: C6
+flags: [3PF, XFER, KIDS, PRE]
+role: fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  A persistent retargeting identifier, ad-click identifier, IP address,
+  browser details, pages visited and conversions, shared with Criteo for
+  retargeting.
+destination_countries: [US, FR]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear uid/tk/cpp cookies; use Criteo's opt-out."
+last_verified: "2026-09-15"
+provenance: direct observation

@@ -1,0 +1,683 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "engine_version": {
+      "type": "string"
+    },
+    "rules_version": {
+      "type": "string"
+    },
+    "trackers_version": {
+      "type": "string"
+    },
+    "interpretation_as_of": {
+      "type": "string"
+    },
+    "scanned_at": {
+      "type": "string"
+    },
+    "target": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "final_url": {
+          "type": "string",
+          "default": ""
+        },
+        "page_language": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "additionalProperties": false
+    },
+    "banner": {
+      "type": "object",
+      "properties": {
+        "detected": {
+          "type": "boolean",
+          "default": false
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "default": "medium"
+        },
+        "has_accept": {
+          "type": "boolean",
+          "default": false
+        },
+        "has_reject": {
+          "type": "boolean",
+          "default": false
+        },
+        "has_settings": {
+          "type": "boolean",
+          "default": false
+        },
+        "has_pre_ticked": {
+          "type": "boolean",
+          "default": false
+        },
+        "has_language_switcher": {
+          "type": "boolean",
+          "default": false
+        },
+        "mentions_legitimate_interest": {
+          "type": "boolean",
+          "default": false
+        },
+        "implies_consent_by_browsing": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false,
+      "default": {}
+    },
+    "inventory": {
+      "type": "object",
+      "properties": {
+        "cookies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "before_first_paint": {
+                "type": "boolean"
+              },
+              "before_banner_detected": {
+                "type": "boolean"
+              },
+              "type": {
+                "type": "string",
+                "const": "cookie"
+              },
+              "name": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string",
+                "default": "/"
+              },
+              "expires": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "secure": {
+                "type": "boolean"
+              },
+              "httpOnly": {
+                "type": "boolean"
+              },
+              "sameSite": {
+                "type": "string",
+                "default": ""
+              },
+              "first_party": {
+                "type": "boolean"
+              },
+              "set_by": {
+                "type": "string",
+                "default": ""
+              }
+            },
+            "required": [
+              "timestamp_ms",
+              "before_first_paint",
+              "before_banner_detected",
+              "type",
+              "name",
+              "domain",
+              "secure",
+              "httpOnly",
+              "first_party"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "storage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp_ms": {
+                "$ref": "#/properties/inventory/properties/cookies/items/properties/timestamp_ms"
+              },
+              "before_first_paint": {
+                "$ref": "#/properties/inventory/properties/cookies/items/properties/before_first_paint"
+              },
+              "before_banner_detected": {
+                "$ref": "#/properties/inventory/properties/cookies/items/properties/before_banner_detected"
+              },
+              "type": {
+                "type": "string",
+                "const": "storage"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "local",
+                  "session",
+                  "indexeddb"
+                ]
+              },
+              "key": {
+                "type": "string"
+              },
+              "first_party": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "timestamp_ms",
+              "before_first_paint",
+              "before_banner_detected",
+              "type",
+              "kind",
+              "key",
+              "first_party"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "third_party_hosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string"
+              },
+              "tracker_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "C0",
+                  "C1",
+                  "C2",
+                  "C3",
+                  "C4",
+                  "C5",
+                  "C6",
+                  "C7",
+                  "C8",
+                  "C9",
+                  "C10",
+                  "UNCLASSIFIED"
+                ]
+              },
+              "country": {
+                "type": "string",
+                "default": ""
+              },
+              "first_seen_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "before_banner": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "host",
+              "tracker_id",
+              "category",
+              "first_seen_ms",
+              "before_banner"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "fingerprinting_apis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp_ms": {
+                "$ref": "#/properties/inventory/properties/cookies/items/properties/timestamp_ms"
+              },
+              "before_first_paint": {
+                "$ref": "#/properties/inventory/properties/cookies/items/properties/before_first_paint"
+              },
+              "before_banner_detected": {
+                "$ref": "#/properties/inventory/properties/cookies/items/properties/before_banner_detected"
+              },
+              "type": {
+                "type": "string",
+                "const": "api_call"
+              },
+              "api": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "timestamp_ms",
+              "before_first_paint",
+              "before_banner_detected",
+              "type",
+              "api"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "unclassified_hosts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false,
+      "default": {}
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "certainty": {
+            "type": "string",
+            "enum": [
+              "settled",
+              "arguable",
+              "open"
+            ]
+          },
+          "enforceable_from": {
+            "type": "string"
+          },
+          "observable": {
+            "type": "boolean"
+          },
+          "detection_confidence": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "default": "medium"
+          },
+          "provisions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "KIDS",
+                "3PF",
+                "PROC",
+                "XFER",
+                "DEC",
+                "SENS",
+                "FP",
+                "PRE",
+                "PII-LEAK"
+              ]
+            },
+            "default": []
+          },
+          "owner": {
+            "type": "string",
+            "enum": [
+              "engineering",
+              "marketing",
+              "counsel",
+              "product"
+            ]
+          },
+          "tracker": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "vendor": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "C0",
+                      "C1",
+                      "C2",
+                      "C3",
+                      "C4",
+                      "C5",
+                      "C6",
+                      "C7",
+                      "C8",
+                      "C9",
+                      "C10",
+                      "UNCLASSIFIED"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "vendor",
+                  "category"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attributed_to": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "timestamp_ms": {
+                  "$ref": "#/properties/inventory/properties/cookies/items/properties/timestamp_ms"
+                },
+                "before_first_paint": {
+                  "$ref": "#/properties/inventory/properties/cookies/items/properties/before_first_paint"
+                },
+                "before_banner_detected": {
+                  "$ref": "#/properties/inventory/properties/cookies/items/properties/before_banner_detected"
+                },
+                "type": {
+                  "type": "string",
+                  "const": "request"
+                },
+                "method": {
+                  "type": "string",
+                  "default": "GET"
+                },
+                "host": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string",
+                  "default": "/"
+                },
+                "initiator_host": {
+                  "type": "string",
+                  "default": ""
+                },
+                "resource_type": {
+                  "type": "string",
+                  "default": ""
+                },
+                "is_third_party": {
+                  "type": "boolean"
+                },
+                "destination_country": {
+                  "type": "string",
+                  "default": ""
+                }
+              },
+              "required": [
+                "timestamp_ms",
+                "before_first_paint",
+                "before_banner_detected",
+                "type",
+                "host",
+                "is_third_party"
+              ],
+              "additionalProperties": false
+            },
+            "default": []
+          },
+          "rationale_plain": {
+            "type": "string"
+          },
+          "rationale_dev": {
+            "type": "string"
+          },
+          "remediation_summary": {
+            "type": "string",
+            "default": ""
+          },
+          "explainer_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "needs_input": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          }
+        },
+        "required": [
+          "id",
+          "rule_id",
+          "title",
+          "certainty",
+          "enforceable_from",
+          "observable",
+          "provisions",
+          "owner",
+          "tracker",
+          "attributed_to",
+          "rationale_plain",
+          "rationale_dev",
+          "explainer_url"
+        ],
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "certainty": {
+            "type": "string",
+            "enum": [
+              "settled",
+              "arguable",
+              "open"
+            ]
+          },
+          "enforceable_from": {
+            "type": "string"
+          },
+          "provisions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "KIDS",
+                "3PF",
+                "PROC",
+                "XFER",
+                "DEC",
+                "SENS",
+                "FP",
+                "PRE",
+                "PII-LEAK"
+              ]
+            },
+            "default": []
+          },
+          "owner": {
+            "type": "string",
+            "enum": [
+              "engineering",
+              "marketing",
+              "counsel",
+              "product"
+            ]
+          },
+          "needs_input": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "fact_needed": {
+            "type": "string"
+          },
+          "consequence_if_true": {
+            "type": "string"
+          },
+          "rationale_plain": {
+            "type": "string"
+          },
+          "explainer_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "rule_id",
+          "title",
+          "prompt",
+          "certainty",
+          "enforceable_from",
+          "provisions",
+          "owner",
+          "needs_input",
+          "fact_needed",
+          "consequence_if_true",
+          "rationale_plain",
+          "explainer_url"
+        ],
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "by_certainty": {
+          "type": "object",
+          "properties": {
+            "settled": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "arguable": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            },
+            "open": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "third_parties": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "third_parties_outside_india": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "fired_before_banner": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "required": [
+        "by_certainty"
+      ],
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "schema_version",
+    "engine_version",
+    "rules_version",
+    "trackers_version",
+    "interpretation_as_of",
+    "scanned_at",
+    "target",
+    "summary"
+  ],
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,19 @@
+id: cloudflare-turnstile
+vendor: Cloudflare
+match:
+  hosts: ["challenges.cloudflare.com", "cloudflare.com"]
+  cookies: ["cf_clearance", "__cf_bm", "cf_chl_*"]
+data_points: [device_signals, behavioural_signals, ip_address, user_agent]
+category: C2
+flags: [PROC, XFER, PRE, FP, DEC]
+role: processor
+lawful_basis: s7a
+provisions: ["s.8(5)", "Rule 6(1)", "s.17(1)(c)"]
+notice_itemisation: >
+  Behavioural and device signals and your IP address, sent to Cloudflare
+  Turnstile for bot defence.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Remove the challenge; document the security basis."
+last_verified: "2026-09-15"
+provenance: direct observation

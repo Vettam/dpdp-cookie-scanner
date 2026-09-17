@@ -1,0 +1,32 @@
+id: DPDP-C-005
+title: Pre-ticked consent toggles
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.6(1)
+flags: []
+categories: []
+owner: engineering
+penalty_band: consent_quality
+detection:
+  match: banner
+  where:
+    has_pre_ticked: true
+needs_input: []
+rationale_plain: >
+  Consent must be a clear affirmative action. A pre-ticked toggle is the
+  absence of an action, not an action. The user did nothing; nothing was
+  consented to.
+rationale_dev: >
+  The banner contains toggles that are pre-ticked (checked checkboxes or
+  enabled toggles inside the banner region). s.6(1) requires a "clear
+  affirmative action"; pre-ticked state is the opposite.
+remediation_summary: >
+  Start every toggle in an off state and require the user to switch it on.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-005
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

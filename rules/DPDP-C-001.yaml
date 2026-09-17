@@ -1,0 +1,40 @@
+id: DPDP-C-001
+title: Advertising tracker fires before any consent interaction
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.4(1)
+  - s.5(1)
+  - s.6(1)
+flags: [PRE, 3PF]
+categories: [C6]
+owner: engineering
+penalty_band: consent_notice
+detection:
+  match: request
+  where:
+    tracker_category: C6
+    before_banner_detected: true
+needs_input: []
+rationale_plain: >
+  Advertising trackers collect a persistent browser identifier, your IP address
+  and the pages you visit, and send them to a company that uses them for its
+  own purposes. Under DPDP that is processing of personal data. It needs your
+  consent, and consent has to come before the processing starts, not after.
+rationale_dev: >
+  A request to a C6 vendor was observed before any consent banner was detected
+  (or before any interaction, once interaction scans are enabled). s.6(1)
+  requires a clear affirmative act before processing; s.5(1) requires notice
+  to precede or accompany the consent request. Firing on page load satisfies
+  neither. The vendor is an independent or joint Data Fiduciary for this
+  disclosure (s.2(i)), so s.11(1)(b) also requires it to be named.
+remediation_summary: >
+  Gate the tag behind a consent signal so it does not load until an
+  affirmative act is recorded.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-001
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

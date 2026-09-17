@@ -1,0 +1,19 @@
+id: x-pixel
+vendor: X Corp (formerly Twitter)
+match:
+  hosts: ["t.co", "analytics.twitter.com", "static.ads-twitter.com", "ads-twitter.com"]
+  cookies: ["personalization_id", "twid", "_ga"]
+data_points: [persistent_browser_id, ip_address, user_agent, page_url, event_name]
+category: C6
+flags: [3PF, XFER, KIDS, PRE]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  A persistent browser identifier, IP address, browser and device details,
+  pages visited and actions taken, shared with X for ad measurement.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear personalization_id cookies."
+last_verified: "2026-09-15"
+provenance: direct observation

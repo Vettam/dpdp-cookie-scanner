@@ -1,0 +1,37 @@
+id: DPDP-C-009
+title: No language option beyond English in the notice or banner
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.5(3)
+  - s.6(3)
+flags: []
+categories: []
+owner: counsel
+penalty_band: consent_notice
+detection:
+  match: banner
+  where:
+    has_language_switcher: false
+    page_language: en
+needs_input: []
+rationale_plain: >
+  The Act requires that a person be given the option to access the notice in
+  English or any of the 22 languages in the Eighth Schedule. A notice or
+  banner offered only in English does not meet that requirement.
+rationale_dev: >
+  No language switcher was detected on the banner and the page language is
+  English. s.5(3) and s.6(3) require the option of English or any Eighth
+  Schedule language. This is a heuristic — a site may offer language choice
+  elsewhere — so detection confidence is marked accordingly and the finding
+  is phrased as "we could not find".
+remediation_summary: >
+  Offer the notice in English plus at least the relevant Eighth Schedule
+  languages, with a visible language control.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-009
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

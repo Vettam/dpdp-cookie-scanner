@@ -1,0 +1,37 @@
+id: DPDP-C-007
+title: Session replay or heatmap tool fires before consent
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.6(1)
+  - s.9(3)
+flags: [PRE, 3PF, KIDS]
+categories: [C5]
+owner: engineering
+penalty_band: consent_quality
+detection:
+  match: request
+  where:
+    tracker_category: C5
+    before_banner_detected: true
+needs_input: []
+rationale_plain: >
+  Session replay and heatmap tools record what you do on a page — mouse
+  movements, clicks, keystrokes, the page content itself. That is
+  behavioural monitoring. Under DPDP it needs consent, and where children
+  are reachable it is prohibited outright regardless of consent.
+rationale_dev: >
+  A request to a C5 (session replay / heatmap) vendor was observed before
+  any consent banner was detected. s.6(1) requires a clear affirmative act
+  before processing. Where the site plausibly reaches under-18s, s.9(3)
+  prohibits behavioural monitoring entirely (see DPDP-C-040).
+remediation_summary: >
+  Gate the session-replay / heatmap tag behind a consent signal; on a site
+  reaching minors, do not load it at all.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-007
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

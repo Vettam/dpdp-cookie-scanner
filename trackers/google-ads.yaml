@@ -1,0 +1,21 @@
+id: google-ads
+vendor: Google
+match:
+  hosts: ["googleads.g.doubleclick.net", "www.googleadservices.com", "www.google.com", "google.com"]
+  paths: ["/pagead", "/ads", "/aclk"]
+  cookies: ["IDE", "__gads", "__gpi", "_gcl_au", "_gcl_aw"]
+data_points: [persistent_browser_id, click_id, ip_address, user_agent, page_url, conversion_event]
+category: C6
+flags: [3PF, XFER, KIDS, PRE, SENS]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  A persistent advertising identifier, ad-click identifiers, IP address,
+  browser and device details, pages visited and conversion events, shared
+  with Google Ads for advertising and conversion measurement.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear __gads/__gpi/_gcl_* cookies; request deletion via Google Ads settings."
+last_verified: "2026-09-15"
+provenance: direct observation

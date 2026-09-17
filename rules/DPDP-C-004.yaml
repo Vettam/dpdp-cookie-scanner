@@ -1,0 +1,34 @@
+id: DPDP-C-004
+title: Banner has an accept control but no equivalent reject control
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.6(1)
+  - s.6(4)
+flags: []
+categories: []
+owner: engineering
+penalty_band: consent_quality
+detection:
+  match: banner
+  where:
+    has_accept: true
+    has_reject: false
+needs_input: []
+rationale_plain: >
+  Consent must be free and unconditional, and withdrawal must be as easy as
+  giving consent. A banner that makes accepting one click and rejecting
+  several clicks — or impossible — does not produce free consent.
+rationale_dev: >
+  The banner exposes an accept control but no reject control. s.6(1)
+  requires consent to be "free … unconditional"; s.6(4) requires withdrawal
+  with ease comparable to giving. An asymmetric banner fails both.
+remediation_summary: >
+  Add a reject control of equal prominence to the accept control.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-004
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

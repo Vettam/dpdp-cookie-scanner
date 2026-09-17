@@ -1,0 +1,21 @@
+id: meta-pixel
+vendor: Meta Platforms
+match:
+  hosts: ["connect.facebook.net", "www.facebook.com", "facebook.com"]
+  paths: ["/tr"]
+  cookies: ["_fbp", "_fbc", "fr"]
+data_points: [persistent_browser_id, click_id, ip_address, user_agent, page_url, event_name, hashed_email_optional]
+category: C6
+flags: [3PF, XFER, KIDS, PRE, SENS]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16", "Rule 3(b)"]
+notice_itemisation: >
+  Browser identifier, ad-click identifier, IP address, device and browser
+  details, pages visited and actions taken, and optionally a hashed email
+  address, shared with Meta Platforms for ad measurement and targeting.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Stop firing; clear _fbp/_fbc; request deletion via Meta's vendor tools."
+last_verified: "2026-09-15"
+provenance: direct observation

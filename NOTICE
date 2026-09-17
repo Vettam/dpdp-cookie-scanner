@@ -1,0 +1,28 @@
+dpdp-cookie-scanner
+Copyright 2026 Rylematic Technologies Private Limited (Vettam / Sentinel product line).
+
+This product includes software licensed under the Apache License, Version 2.0
+(see LICENSE).
+
+This NOTICE file is required by the Apache License, Version 2.0, and must be
+included in all derivative distributions of the code.
+
+================================================================================
+Trademarks
+================================================================================
+
+"Sentinel" and "Vettam" are names and marks of Rylematic Technologies Private
+Limited. The code grant under the Apache-2.0 licence does NOT extend to these
+trademarks. Forks and derivative works may not use the "Sentinel" or "Vettam"
+names, logos, or marks to present themselves as the official, endorsed, or
+affiliated tool. See the README "Trademarks" section for the full reservation.
+
+================================================================================
+Third-party datasets and content
+================================================================================
+
+- trackers/ dataset: licensed under CC BY-SA 4.0 (see trackers/LICENSE).
+- Rule rationale text (rationale_plain, rationale_dev) and the explainer pages:
+  CC BY-ND 4.0, owned by Rylematic Technologies Private Limited.
+- IP-to-country lookups use the DB-IP Lite dataset (CC BY 4.0). See
+  trackers/PROVENANCE.md for the source, version, and date of the bundled copy.

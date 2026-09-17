@@ -1,0 +1,19 @@
+id: jsdelivr
+vendor: jsDelivr
+match:
+  hosts: ["cdn.jsdelivr.net"]
+data_points: [ip_address, user_agent, referer]
+category: C7
+flags: [XFER, PRE]
+role: processor
+lawful_basis: s7a
+provisions: ["s.8(2)", "s.16", "Rule 6(1)(g)"]
+notice_itemisation: >
+  IP address, browser details and the Referer header, sent to jsDelivr when a
+  library loads from it. Subresource Integrity hashes are a Rule 6(1)(g)
+  control.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Self-host the library; add SRI hashes if you keep the CDN."
+last_verified: "2026-09-15"
+provenance: direct observation

@@ -1,0 +1,50 @@
+{
+  "name": "dpdp-cookie-scanner",
+  "version": "0.1.0",
+  "description": "Scans a web page for tracking and data collection, and maps each observation to the provisions of India's DPDP Act 2023 and Rules 2025 it engages — reporting legal certainty, not severity.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "dpdp-cookie-scan": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "rules",
+    "trackers",
+    "schema",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run gen:schemas && tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "gen:schemas": "tsx scripts/generate-schemas.ts",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "dependencies": {
+    "citty": "^0.1.6",
+    "picocolors": "^1.1.1",
+    "playwright-core": "^1.49.0",
+    "yaml": "^2.6.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.23.13",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "zod-to-json-schema": "^3.24.1"
+  }
+}

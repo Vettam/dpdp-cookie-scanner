@@ -1,0 +1,36 @@
+id: DPDP-C-013
+title: Session replay or heatmap tool present at all
+certainty: settled
+enforceable_from: "2027-05-13"
+observable: true
+provisions:
+  - s.6(1)
+flags: [3PF, KIDS]
+categories: [C5]
+owner: engineering
+penalty_band: consent_quality
+detection:
+  match: request
+  where:
+    tracker_category: C5
+needs_input: []
+rationale_plain: >
+  A session replay or heatmap tool is present on the page. Behavioural
+  monitoring requires consent under DPDP. Its presence does not by itself
+  prove a breach — it may be consent-gated — but it is the category of
+  processing that most often runs without valid consent and is prohibited
+  outright where children are reachable.
+rationale_dev: >
+  A request to a C5 vendor was observed. Behavioural monitoring requires
+  consent (s.6(1)); where children are reachable it is prohibited regardless
+  of consent (s.9(3), see DPDP-C-040). This finding flags presence; the
+  pre-consent variant is DPDP-C-007.
+remediation_summary: >
+  Confirm the tool is consent-gated and does not record before the
+  affirmative act; mask sensitive fields by default.
+explainer_url: https://sentinel.vettam.ai/rules/DPDP-C-013
+since: "0.1.0"
+changelog:
+  - version: "0.1.0"
+    date: "2026-09-15"
+    note: Initial rule.

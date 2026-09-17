@@ -1,0 +1,19 @@
+id: cookiebot
+vendor: Usercentrics (Cookiebot)
+match:
+  hosts: ["consent.cookiebot.com", "www.cookiebot.com", "cdn.cookielaw.org"]
+  cookies: ["CookieConsent", "CookieConsentBulkTicket"]
+data_points: [consent_state, ip_address, user_agent]
+category: C10
+flags: [3PF, XFER, PRE]
+role: processor
+lawful_basis: s7a
+provisions: ["s.6(10)", "s.8(2)", "Rule 3(c)"]
+notice_itemisation: >
+  Consent state and your IP address, recorded by Cookiebot. The device-side
+  consent cookie is not proof under s.6(10).
+destination_countries: [EU]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Reopen the banner; mirror the choice server-side."
+last_verified: "2026-09-15"
+provenance: direct observation

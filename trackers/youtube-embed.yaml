@@ -1,0 +1,20 @@
+id: youtube-embed
+vendor: Google (YouTube)
+match:
+  hosts: ["www.youtube.com", "youtube.com", "i.ytimg.com", "ytimg.com"]
+  cookies: ["VISITOR_INFO1_LIVE", "YSC", "PREF", "GPS"]
+data_points: [ip_address, user_agent, page_url, persistent_browser_id]
+category: C7
+flags: [3PF, XFER, PRE, KIDS]
+role: independent_or_joint_fiduciary
+lawful_basis: consent
+provisions: ["s.6(1)", "s.9(3)", "s.11(1)(b)", "s.16"]
+notice_itemisation: >
+  IP address, browser details, the embedding page URL and a YouTube browser
+  identifier, shared with Google when a YouTube embed loads. A click-to-load
+  facade converts the passive load into a user-initiated s.7(a) act.
+destination_countries: [US]
+fires_pre_consent_by_default: true
+withdrawal_mechanism: "Use a click-to-load facade; do not embed until the visitor clicks."
+last_verified: "2026-09-15"
+provenance: direct observation
