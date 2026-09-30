@@ -162,38 +162,13 @@ tool. Choose your own name.
 
 ## Status
 
-v0.1 — "sharp and narrow": settled-tier rules only, baseline scan (no banner
-interaction), terminal + JSON output. See [`docs/legal-sources/`](docs/legal-sources/README.md)
-for the product spec, the provision-by-provision guide, the web-data map, and
-the Gazette PDFs of the Act, Rules, corrigendum, and commencement notification
-that ground every rule.
+**Last rule freshness active date:** 30 September 2026.
 
-v0.2 — "reach": markdown renderer, `--ci` mode, the GitHub Action wrapper
-at `action/` (PR comment + JSON artifact), `--gpc` flag and rule C-050
-(arguable tier), the `/skill/SKILL.md` agent skill, and the separate
-`dpdp-notice-lint` command for Rule 3 notice-content checks.
-
-v0.3 — "the hedged tiers": arguable and open rules released. Arguable tier
-adds C-010 (analytics before consent), C-015 (font/CDN IP disclosure),
-C-030 (pseudonymous IDs as personal data), C-031 (first-party cookies need a
-stated s.7(a) basis), C-060 (fingerprinting API calls), C-061 (insecure
-cookie flags), and C-062 (third-party scripts without SRI). Open tier adds
-C-020 (cross-border transfer — *not* a contravention, the corrective rule)
-and C-041 (access logs as "traffic data", a standing question). C-050's
-tier is corrected from arguable to open to match spec §5.3. The engine now
-instruments fingerprinting APIs and parses `<script>` tags for SRI.
-The engine records first-paint timing, redirect hops, IndexedDB names,
-img/font embeds, Hindi banner vocabulary and known CMP signatures, redacts
-banner excerpts, and writes a viewport PNG when `--screenshot` is set.
-Offline IP-to-country uses bundled DB-IP Lite (`data/geo/`). The tracker
-dataset covers the spec §6 Indian-vendor priority set (payments, engagement,
-Freshworks, Zoho, VWO, Netcore, InMobi, …). Contribution guide:
-`CONTRIBUTING.md`.
-
-v1.0 — "interaction and drift": `--interact` runs load, accept-all, and
-reject-all as three fresh contexts and compares findings; `--diff-from` /
-`--diff-to` separates site changes from rule-catalogue changes; `--fail-on
-settled` is an opt-in CI gate that never trips on arguable or open findings.
+The rule catalogue was last confirmed against the Gazette text of the Act,
+Rules, corrigendum, and commencement notification on this date. See
+[`docs/legal-sources/`](docs/legal-sources/README.md) for the product spec,
+the provision-by-provision guide, the web-data map, and those PDFs. Release
+history lives in [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
