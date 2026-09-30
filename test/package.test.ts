@@ -7,6 +7,7 @@ const pkg = JSON.parse(
 ) as {
   name: string;
   bin: Record<string, string>;
+  scripts: Record<string, string>;
 };
 const readme = readFileSync(join(process.cwd(), "README.md"), "utf8");
 const actionReadme = readFileSync(join(process.cwd(), "action", "README.md"), "utf8");
@@ -20,6 +21,11 @@ describe("npx install contract", () => {
     expect(pkg.bin["dpdp-cookie-scan"]).toBe("./dist/cli.js");
     expect(pkg.bin["dpdp-notice-lint"]).toBe("./dist/notice-cli.js");
     expect(pkg.bin[pkg.name]).toBe(pkg.bin["dpdp-cookie-scan"]);
+  });
+
+  it("keeps the npm release script off the publish lifecycle name", () => {
+    expect(pkg.scripts.publish).toBeUndefined();
+    expect(pkg.scripts.release).toContain("changeset publish");
   });
 
   it("documents package vs command in the public READMEs and skill", () => {

@@ -9,8 +9,9 @@ npm run changeset
 ```
 
 and follow the prompts. A new file describing the change will be added here. The
-`version` and `publish` scripts consume these files to bump `package.json` and
-publish to npm.
+`version` and `release` scripts consume these files to bump `package.json` and
+publish to npm. The release script is not named `publish`, because npm runs a
+`publish` lifecycle script during `npm publish`.
 
 The rule catalogue (`rules/VERSION`), tracker dataset (`trackers/VERSION`), and
 engine version are versioned **independently** of the npm package version. Use a
