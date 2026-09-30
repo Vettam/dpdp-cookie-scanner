@@ -2,11 +2,17 @@
 
 > Interpretation as of 2026-09-15. Indicative, not legal advice. Not a compliance verdict.
 
+## How sure the law is
+
+- **settled** — The Act or Rules are clear. Applying them needs no interpretation.
+- **arguable** — The provision applies, but applying it to this fact is contestable.
+- **open** — No Board guidance and no case law. The text is silent; resolved later.
+
 **2 third parties · 2 outside India · 2 fired before the banner.**
 
 ## SETTLED (5) — enforceable 2027-05-13
 
-<details><summary><b>DPDP-C-001</b> — Meta Platforms (meta-pixel)</summary>
+<details><summary><b>DPDP-C-001</b> — Advertising tracker fires before any consent interaction — Meta Platforms (meta-pixel)</summary>
 
 - **Certainty:** settled (enforceable 2027-05-13)
 - **Detection confidence:** high
@@ -40,7 +46,7 @@
 
 </details>
 
-<details><summary><b>DPDP-C-007</b> — Hotjar (hotjar)</summary>
+<details><summary><b>DPDP-C-007</b> — Session replay or heatmap tool fires before consent — Hotjar (hotjar)</summary>
 
 - **Certainty:** settled (enforceable 2027-05-13)
 - **Detection confidence:** high
@@ -74,7 +80,7 @@
 
 </details>
 
-<details><summary><b>DPDP-C-013</b> — Hotjar (hotjar)</summary>
+<details><summary><b>DPDP-C-013</b> — Session replay or heatmap tool present at all — Hotjar (hotjar)</summary>
 
 - **Certainty:** settled (enforceable 2027-05-13)
 - **Detection confidence:** high
@@ -95,7 +101,7 @@
 
 ## OPEN (2) — enforceable 2027-05-13
 
-<details><summary><b>DPDP-C-020</b> — Meta Platforms (meta-pixel)</summary>
+<details><summary><b>DPDP-C-020</b> — Third-party endpoint resolves outside India (permitted by default) — Meta Platforms (meta-pixel)</summary>
 
 - **Certainty:** open (enforceable 2027-05-13)
 - **Detection confidence:** high
@@ -114,7 +120,7 @@
 
 </details>
 
-<details><summary><b>DPDP-C-020</b> — Hotjar (hotjar)</summary>
+<details><summary><b>DPDP-C-020</b> — Third-party endpoint resolves outside India (permitted by default) — Hotjar (hotjar)</summary>
 
 - **Certainty:** open (enforceable 2027-05-13)
 - **Detection confidence:** high
@@ -133,7 +139,21 @@
 
 </details>
 
-## QUESTIONS (2)
+## SAME VENDOR, DIFFERENT QUESTIONS
+
+Certainty follows the legal question, not the vendor. One vendor can be arguable under one rule and open under another.
+
+- **Hotjar (hotjar)**
+  - settled **DPDP-C-007** — Session replay or heatmap tool fires before consent
+  - settled **DPDP-C-013** — Session replay or heatmap tool present at all
+  - open **DPDP-C-020** — Third-party endpoint resolves outside India (permitted by default)
+- **Meta Platforms (meta-pixel)**
+  - settled **DPDP-C-001** — Advertising tracker fires before any consent interaction
+  - open **DPDP-C-020** — Third-party endpoint resolves outside India (permitted by default)
+
+## QUESTIONS ON THE LAW (2)
+
+Subjective or unobservable questions to keep for later. These are not findings.
 
 ### DPDP-C-040 — If this site is used by people under 18, then…
 

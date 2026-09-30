@@ -18,7 +18,7 @@ const command = defineCommand({
   args: {
     url: { type: "positional", required: false, description: "URL to scan" },
     json: { type: "boolean", description: "write findings.json (default in --ci)" },
-    md: { type: "boolean", description: "write findings.md" },
+    md: { type: "boolean", description: "write findings.md into --out (default ./dpdp-scan)" },
     out: { type: "string", default: "./dpdp-scan", description: "output directory" },
     ci: { type: "boolean", description: "machine mode: no colour, JSON always, exit 0" },
     gpc: { type: "boolean", description: "send Sec-GPC: 1 and evaluate DPDP-C-050" },

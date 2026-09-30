@@ -417,16 +417,26 @@ last_verified: "2026-09-15"
 ```
 dpdp-cookie-scan  staging.acme.in     interpretation as of 2026-09-15
 
-SETTLED (2)                                         enforceable 2027-05-13
-  DPDP-C-001  Meta Pixel fires before any consent act        s.4(1) s.5(1) s.6(1)
-  DPDP-C-004  Banner has accept but no reject control        s.6(1) s.6(4)
+How sure the law is
+  settled    The Act or Rules are clear. Applying them needs no interpretation.
+  arguable   The provision applies, but applying it to this fact is contestable.
+  open       No Board guidance and no case law. The text is silent; resolved later.
 
-QUESTIONS (1)
+SETTLED (2)                                         enforceable 2027-05-13
+  DPDP-C-001  Advertising tracker fires before any consent interaction  [high]
+              Meta Platforms (meta-pixel)  s.4(1) s.5(1) s.6(1)
+  DPDP-C-004  Banner has accept but no reject control  [high]  s.6(1) s.6(4)
+
+QUESTIONS ON THE LAW (1)
+  Subjective or unobservable questions to keep for later. These are not findings.
   DPDP-C-040  If this site is used by people under 18, then…          s.9(3)
 
 11 third parties · 6 outside India · 8 fired before the banner
 Rationale for each rule: https://sentinel.vettam.ai/rules/<id>
 Notice content checks: run dpdp-notice-lint against your published notice.
+Save this report as a markdown file by running:
+  dpdp-cookie-scan https://staging.acme.in --md
+That creates ./dpdp-scan/findings.md in the folder where you run the command.
 ```
 
 **JSON** (`--json`, or always in `--ci`). The full `ScanResult`, schema-validated.
@@ -437,7 +447,9 @@ Rupee penalty bands appear in **no** developer-facing output. They are a hosted-
 
 ### 7.4 Questions (unobservable rules)
 
-Rules with `observable: false`, or findings with a non-empty `needs_input`, are emitted into `questions[]` rather than `findings[]`. Each question carries the rule ID, the fact needed, and the consequence if true. The CLI prints them under a `QUESTIONS` header. The hosted tool renders them as a short questionnaire and as the "questions to take to your lawyer" section of the PDF.
+Rules with `observable: false`, or findings with a non-empty `needs_input`, are emitted into `questions[]` rather than `findings[]`. Each question carries the rule ID, the fact needed, and the consequence if true. The CLI prints them under a `QUESTIONS ON THE LAW` header, with a line that these are subjective or unobservable questions to keep for later and are not findings. The hosted tool renders them as a short questionnaire and as the "questions to take to your lawyer" section of the PDF.
+
+When one vendor's traffic matches rules in more than one certainty tier, the CLI prints a `SAME VENDOR, DIFFERENT QUESTIONS` block. Certainty is a property of the rule. The vendor is not scored once.
 
 ---
 

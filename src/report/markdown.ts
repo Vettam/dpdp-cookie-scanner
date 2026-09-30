@@ -1,4 +1,12 @@
 import type { Finding, FindingPresence, Question, ScanResult } from "../types.js";
+import {
+  CERTAINTY_LEGEND,
+  QUESTIONS_HEADING,
+  QUESTIONS_NOTE,
+  SAME_VENDOR_HEADING,
+  SAME_VENDOR_NOTE,
+  crossTierVendors,
+} from "./labels.js";
 
 /** Markdown renderer for PR comments and issues (spec §7.3). */
 export function renderMarkdown(sr: ScanResult): string {
@@ -6,6 +14,12 @@ export function renderMarkdown(sr: ScanResult): string {
   out.push(`# dpdp-cookie-scan — ${hostOf(sr.target.url)}`);
   out.push("");
   out.push(`> Interpretation as of ${sr.interpretation_as_of}. Indicative, not legal advice. Not a compliance verdict.`);
+  out.push("");
+  out.push("## How sure the law is");
+  out.push("");
+  for (const [tier, meaning] of CERTAINTY_LEGEND) {
+    out.push(`- **${tier}** — ${meaning}`);
+  }
   out.push("");
   out.push(
     `**${sr.summary.third_parties} third parties · ${sr.summary.third_parties_outside_india} outside India · ${sr.summary.fired_before_banner} fired before the banner.**`,
@@ -19,6 +33,21 @@ export function renderMarkdown(sr: ScanResult): string {
     out.push(`## ${tier.toUpperCase()} (${fs.length}) — enforceable ${earliestEnforceable(fs)}`);
     out.push("");
     for (const f of fs) out.push(renderFindingBlock(f));
+  }
+
+  const split = crossTierVendors(sr.findings);
+  if (split.length > 0) {
+    out.push(`## ${SAME_VENDOR_HEADING}`);
+    out.push("");
+    out.push(SAME_VENDOR_NOTE);
+    out.push("");
+    for (const vendor of split) {
+      out.push(`- **${vendor.label}**`);
+      for (const rule of vendor.rules) {
+        out.push(`  - ${rule.certainty} **${rule.rule_id}** — ${rule.title}`);
+      }
+    }
+    out.push("");
   }
 
   if (sr.interaction.performed) {
@@ -39,7 +68,9 @@ export function renderMarkdown(sr: ScanResult): string {
   }
 
   if (sr.questions.length > 0) {
-    out.push(`## QUESTIONS (${sr.questions.length})`);
+    out.push(`## ${QUESTIONS_HEADING} (${sr.questions.length})`);
+    out.push("");
+    out.push(QUESTIONS_NOTE);
     out.push("");
     for (const q of sr.questions) {
       out.push(`### ${q.rule_id} — ${q.prompt}`);
@@ -73,7 +104,8 @@ function renderPresenceList(label: string, rows: FindingPresence[]): string {
 
 function renderFindingBlock(f: Finding): string {
   const out: string[] = [];
-  out.push(`<details><summary><b>${f.rule_id}</b> — ${f.tracker ? `${f.tracker.vendor} (${f.tracker.id})` : f.title}</summary>`);
+  const summary = f.tracker ? `${f.title} — ${f.tracker.vendor} (${f.tracker.id})` : f.title;
+  out.push(`<details><summary><b>${f.rule_id}</b> — ${summary}</summary>`);
   out.push("");
   out.push(`- **Certainty:** ${f.certainty} (enforceable ${f.enforceable_from})`);
   out.push(`- **Detection confidence:** ${f.detection_confidence}`);

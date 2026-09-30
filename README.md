@@ -63,7 +63,7 @@ rule fetching.
 
 ```
   --json                 write findings.json (default in --ci)
-  --md                   write findings.md
+  --md                   write findings.md into --out (default ./dpdp-scan)
   --out <dir>            output directory (default ./dpdp-scan)
   --ci                   machine mode: no colour, no spinner, JSON always, exit 0
   --gpc                  send Sec-GPC: 1 and evaluate DPDP-C-050

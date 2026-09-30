@@ -1,5 +1,14 @@
 import pc from "picocolors";
 import type { Finding, Question, ScanResult } from "../types.js";
+import {
+  CERTAINTY_LEGEND,
+  QUESTIONS_HEADING,
+  QUESTIONS_NOTE,
+  SAME_VENDOR_HEADING,
+  SAME_VENDOR_NOTE,
+  crossTierVendors,
+  markdownHint,
+} from "./labels.js";
 
 export interface TerminalOptions {
   /** When false, strip all colour (used for --ci). Defaults to true. */
@@ -18,6 +27,11 @@ export function renderTerminal(sr: ScanResult, opts: TerminalOptions = {}): stri
     `${c.bold(TOOL_NAME)}  ${host}     interpretation as of ${sr.interpretation_as_of}`,
   );
   lines.push("");
+  lines.push("How sure the law is");
+  for (const [tier, meaning] of CERTAINTY_LEGEND) {
+    lines.push(`  ${tier.padEnd(10)} ${meaning}`);
+  }
+  lines.push("");
 
   const byTier = groupByTier(sr.findings);
   for (const tier of ["settled", "arguable", "open"] as const) {
@@ -29,6 +43,19 @@ export function renderTerminal(sr: ScanResult, opts: TerminalOptions = {}): stri
     );
     for (const f of fs) {
       lines.push(renderFindingLine(f, c));
+    }
+    lines.push("");
+  }
+
+  const split = crossTierVendors(sr.findings);
+  if (split.length > 0) {
+    lines.push(c.bold(SAME_VENDOR_HEADING));
+    lines.push(`  ${SAME_VENDOR_NOTE}`);
+    for (const vendor of split) {
+      lines.push(`  ${vendor.label}`);
+      for (const rule of vendor.rules) {
+        lines.push(`    ${rule.certainty.padEnd(10)} ${rule.rule_id}  ${rule.title}`);
+      }
     }
     lines.push("");
   }
@@ -57,7 +84,8 @@ export function renderTerminal(sr: ScanResult, opts: TerminalOptions = {}): stri
   }
 
   if (sr.questions.length > 0) {
-    lines.push(`${c.bold("QUESTIONS")} (${sr.questions.length})`);
+    lines.push(`${c.bold(QUESTIONS_HEADING)} (${sr.questions.length})`);
+    lines.push(`  ${QUESTIONS_NOTE}`);
     for (const q of sr.questions) {
       lines.push(renderQuestionLine(q, c));
     }
@@ -69,6 +97,7 @@ export function renderTerminal(sr: ScanResult, opts: TerminalOptions = {}): stri
   );
   lines.push(`Rationale for each rule: https://sentinel.vettam.ai/rules/<id>`);
   lines.push(`Notice content checks: run dpdp-notice-lint against your published notice.`);
+  lines.push(markdownHint(sr.target.url));
   lines.push("");
   lines.push("Indicative, not legal advice. Not a compliance verdict.");
 
@@ -76,11 +105,13 @@ export function renderTerminal(sr: ScanResult, opts: TerminalOptions = {}): stri
 }
 
 function renderFindingLine(f: Finding, c: PicocolorsLike): string {
-  const title = f.tracker ? `${f.tracker.vendor} (${f.tracker.id})` : f.title;
-  const left = `  ${f.rule_id}  ${title}  [${f.detection_confidence}]`;
   const provisions = f.provisions.join(" ");
-  const gap = Math.max(2, 60 - left.length);
-  return `${left}${" ".repeat(gap)}${provisions}`;
+  const head = `  ${f.rule_id}  ${f.title}  [${f.detection_confidence}]`;
+  if (!f.tracker) {
+    const gap = Math.max(2, 60 - head.length);
+    return `${head}${" ".repeat(gap)}${provisions}`;
+  }
+  return `${head}\n              ${f.tracker.vendor} (${f.tracker.id})  ${provisions}`;
 }
 
 function renderQuestionLine(q: Question, c: PicocolorsLike): string {

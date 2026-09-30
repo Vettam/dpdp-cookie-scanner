@@ -68,12 +68,28 @@ commence 13 May 2027) and an `explainer_url` linking to a versioned rationale pa
    drift from a different rules or tracker version.
 
 3. Summarise **grouped by certainty tier** (settled, then arguable, then open).
-   For each finding give: the rule id, the short title, the provisions it cites,
-   and a one-line plain-language explanation drawn from `rationale_plain`.
+   Open the summary with the three tier meanings (settled: the Act or Rules are
+   clear; arguable: the provision applies but applying it here is contestable;
+   open: no Board guidance and no case law, resolved later). For each finding
+   give: the rule id, the short title, the provisions it cites, and a one-line
+   plain-language explanation drawn from `rationale_plain`. When the same
+   `tracker.id` appears under more than one certainty, say that certainty
+   follows the legal question, not the vendor, and name each rule id, its
+   title, and its tier.
 
 4. **Always** include the `explainer_url` as a markdown link beside each finding.
 
-5. List the `questions[]` separately, phrased as questions to the site owner.
+5. List the `questions[]` under the heading **Questions on the law**. Say they
+   are subjective or unobservable questions to keep for later, and that they
+   are not findings. Phrase each one as a question to the site owner.
+
+   To also write the report as a markdown file:
+
+   ```sh
+   npx --package=dpdp-cookie-scanner dpdp-cookie-scan <url> --md --out /tmp/dpdp-scan
+   ```
+
+   That writes `/tmp/dpdp-scan/findings.md`. `--md` and `--json` can be combined.
 
 6. **Always** append this line verbatim at the end of your summary:
 

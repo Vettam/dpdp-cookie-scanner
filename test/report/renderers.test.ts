@@ -58,7 +58,14 @@ describe("renderers", () => {
     const out = renderTerminal(sr, { color: false });
     expect(out).not.toMatch(/₹|rupee|crore/i);
     expect(out).toContain("SETTLED");
-    expect(out).toContain("QUESTIONS");
+    expect(out).toContain("How sure the law is");
+    expect(out).toContain("Applying them needs no interpretation");
+    expect(out).toContain("QUESTIONS ON THE LAW");
+    expect(out).toContain("keep for later");
+    expect(out).toContain("SAME VENDOR, DIFFERENT QUESTIONS");
+    expect(out).toContain("Save this report as a markdown file by running:");
+    expect(out).toContain("dpdp-cookie-scan https://staging.acme.in --md");
+    expect(out).toContain("./dpdp-scan/findings.md");
     expect(out).toContain("https://sentinel.vettam.ai/rules/<id>");
     await expect(out).toMatchFileSnapshot(snapshotPath("terminal.txt"));
   });
@@ -74,6 +81,9 @@ describe("renderers", () => {
     const sr = fixtureScan();
     const out = renderMarkdown(sr);
     expect(out).toContain("<details>");
+    expect(out).toContain("## How sure the law is");
+    expect(out).toContain("## QUESTIONS ON THE LAW");
+    expect(out).toContain("## SAME VENDOR, DIFFERENT QUESTIONS");
     await expect(out).toMatchFileSnapshot(snapshotPath("findings.md"));
   });
 
